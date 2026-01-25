@@ -1,3 +1,4 @@
+import { Colours } from "@/constants/theme";
 import { Tabs } from "expo-router";
 
 export default function TabsLayout() {
@@ -6,16 +7,17 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#333333", // 배경과 동일
-          borderTopWidth: 0, // 탭 하단 라인 제거
+          backgroundColor: Colours.background,
+          borderTopWidth: 0,
         },
-        tabBarActiveTintColor: "#F4CCCC",
-        tabBarInactiveTintColor: "#F4CCCC",
-        tabBarShowLabel: true, // 필요에 따라 true/false
+        tabBarActiveTintColor: Colours.text,
+        tabBarInactiveTintColor: Colours.textDim,
+        tabBarShowLabel: true,
       }}
     >
-      <Tabs.Screen name="shelf" options={{ title: "Shelf" }} />
-      <Tabs.Screen name="Scentlog" options={{ title: "Scent Log" }} />
+      <Tabs.Screen name="01_Receipt" options={{ title: "Receipt" }} />
+      <Tabs.Screen name="02_ScentLog" options={{ title: "Scent Log" }} />
+      <Tabs.Screen name="03_Shelf" options={{ title: "Shelf" }} />
     </Tabs>
   );
 }

@@ -1,3 +1,4 @@
+import { Colours } from "@/constants/theme";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -76,23 +77,28 @@ export default function ScentLog() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#333333", padding: 16 },
+  container: {
+    flex: 1,
+    backgroundColor: Colours.background,
+    padding: 16,
+  },
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#ffffff",
+
     marginBottom: 16,
   },
   image: { width: 100, height: 100, borderRadius: 8 },
   name: {
-    color: "#ffffff",
     fontSize: 12,
     marginTop: 4,
     textAlign: "center",
     width: 100,
   },
   bottom: { marginTop: 16 },
-  bottomText: { color: "#ffffff", marginBottom: 8 },
+  bottomText: {
+    // marginBottom: 8,
+  },
   selectedRow: { flexDirection: "row", gap: 8 },
   selectedImage: { width: 50, height: 50, borderRadius: 6 },
 });
