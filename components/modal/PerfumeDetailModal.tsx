@@ -25,7 +25,8 @@ export default function PerfumeDetailModal({
   onClose,
 }: DetailModalProps) {
   if (!perfume) return null;
-
+  const imageSource =
+    typeof perfume.image === "string" ? { uri: perfume.image } : perfume.image;
   return (
     <Modal
       visible={visible}
@@ -38,27 +39,35 @@ export default function PerfumeDetailModal({
           <TouchableWithoutFeedback>
             <View style={modalStyles.modalContainer}>
               <ScrollView showsVerticalScrollIndicator={false}>
-                {/* Header */}
-                <View style={styles.header}>
-                  <Text style={modalStyles.modalItemDetailBrand}>
-                    {perfume.brand}
-                  </Text>
-                  <Text style={modalStyles.modalItemDetailName}>
-                    {perfume.name}
-                  </Text>
-                </View>
-
-                {/* image */}
-                {perfume.image && (
-                  <View style={styles.imageWrapper}>
+                {/* top section */}
+                <View style={styles.topSection}>
+                  {/* info section - image */}
+                  <View style={styles.imageContainer}>
                     <Image
-                      source={{ uri: perfume.image }}
+                      source={imageSource}
                       style={styles.perfumeImage}
                       resizeMode="contain"
                     />
                   </View>
-                )}
-
+                  {/* top section - info */}
+                  <View style={styles.infoContainer}>
+                    <Text style={modalStyles.modalItemDetailBrand}>
+                      {perfume.brand}
+                    </Text>
+                    <Text style={modalStyles.modalItemDetailName}>
+                      {perfume.name}
+                    </Text>
+                  </View>
+                </View>
+                {/* status section - i have / my favourite */}
+                <View style={styles.statusContainer}>
+                  <TouchableOpacity style={Btn.detailBtn}>
+                    <Text>I have</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={Btn.detailBtn}>
+                    <Text>My Favourite</Text>
+                  </TouchableOpacity>
+                </View>
                 {/* Main Accords */}
                 <View style={accordStyles.accordsContainer}>
                   {Object.entries(perfume.accords)
@@ -76,7 +85,7 @@ export default function PerfumeDetailModal({
                           <View
                             style={[
                               accordStyles.accordBarFill,
-                              { width: `${(value / 5) * 100}%` },
+                              { width: `${(value / 10) * 100}%` },
                             ]}
                           />
                         </View>
@@ -98,22 +107,33 @@ export default function PerfumeDetailModal({
 }
 
 const styles = StyleSheet.create({
-  header: {
-    alignItems: "center",
-    marginBottom: 20,
+  topSection: {
+    flexDirection: "row",
+    gap: 15,
+    marginBottom: 10,
   },
-
-  imageWrapper: {
+  imageContainer: {
     alignItems: "center",
+    justifyContent: "center",
+    width: 120,
+    height: 120,
     marginVertical: 10,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: Colours.background,
     padding: 10,
   },
   perfumeImage: {
-    width: 200,
-    height: 200,
+    width: 100,
+    height: 100,
   },
-
+  infoContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  statusContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 20,
+  },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",

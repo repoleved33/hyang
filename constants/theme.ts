@@ -7,7 +7,7 @@ const cardWidth = (screenWidth - cardMargin * (cols + 1)) / cols;
 
 export const Colours = {
   primary: "#333333",
-  secondary: "#BDABAE",
+  secondary: "#86888B",
 
   background: "#D9D9D9",
   cardBackground: "#FFFFFF",
@@ -28,6 +28,13 @@ export const Btn = StyleSheet.create({
     padding: 8,
   },
   closeBtn: { marginTop: 16, alignSelf: "center", padding: 8 },
+  detailBtn: {
+    borderWidth: 1,
+    borderColor: Colours.secondary,
+    alignItems: "center",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
 });
 
 export const Inuput = StyleSheet.create({

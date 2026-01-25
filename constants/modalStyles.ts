@@ -21,14 +21,14 @@ export const modalStyles = StyleSheet.create({
   },
   modalItemDetailName: {
     color: Colours.text,
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "600",
     marginTop: 4,
-    textAlign: "center",
+    // textAlign: "center",
   },
   modalItemDetailBrand: {
     color: Colours.textDim,
-    fontSize: 12,
+    fontSize: 14,
     letterSpacing: 1,
     textTransform: "uppercase",
     marginTop: 2,
