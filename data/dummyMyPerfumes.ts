@@ -5,6 +5,7 @@ export type MyPerfume = {
   image: string;
   liked: boolean;
   inList?: boolean;
+  isFav?: boolean;
   accords: { [key: string]: number };
 };
 
@@ -15,6 +16,7 @@ export const dummyMyPerfumes: MyPerfume[] = [
     brand: "Maison Francis Kurkdjian",
     image: require("@/assets/images/perfumeImg_01.jpg"),
     liked: false,
+    isFav: true,
     accords: { citrus: 4, floral: 2, woody: 1, musk: 0, amber: 0 },
   },
   {
@@ -23,6 +25,7 @@ export const dummyMyPerfumes: MyPerfume[] = [
     brand: "Dolce & Gabbana",
     image: require("@/assets/images/perfumeImg_02.jpg"),
     liked: true,
+    isFav: false,
     accords: { citrus: 5, floral: 3, woody: 2, musk: 0, amber: 1 },
   },
   {
@@ -31,6 +34,7 @@ export const dummyMyPerfumes: MyPerfume[] = [
     brand: "Le Labo",
     image: require("@/assets/images/perfumeImg_01.jpg"),
     liked: false,
+    isFav: false,
     accords: { citrus: 0, floral: 1, woody: 3, musk: 5, amber: 4 },
   },
 ];

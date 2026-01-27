@@ -57,6 +57,22 @@ export const Card = {
   width: cardWidth,
   cols: cols,
 };
+
+export const Months = [
+  "JAN",
+  "FEB.",
+  "MAR",
+  "APR",
+  "MAY",
+  "JUN",
+  "JUL",
+  "AGU",
+  "SEP",
+  "OCT",
+  "NOV",
+  "DEC",
+];
+
 // export const Fonts = Platform.select({
 //   ios: {
 //     /** iOS `UIFontDescriptorSystemDesignDefault` */

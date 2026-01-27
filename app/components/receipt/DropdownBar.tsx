@@ -15,7 +15,11 @@ const HEADERBAR_HEIGHT = 40;
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const DROPDOWN_HEIGHT = SCREEN_HEIGHT / 3.5;
 
-export default function DropdownBar() {
+interface DropdownProps {
+  onSave: () => void;
+}
+
+export default function DropdownBar({ onSave }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const animationController = useRef(new Animated.Value(0)).current;
 
@@ -39,16 +43,15 @@ export default function DropdownBar() {
 
   return (
     <>
-      {/* 1. 드롭다운 밖 영역 (Backdrop) - 열렸을 때만 렌더링 */}
-      {isOpen && (
-        <TouchableOpacity
-          style={styles.backdrop}
-          activeOpacity={1}
-          onPress={toggleDropdown} // 밖을 누르면 닫힘
-        />
-      )}
-
-      <View style={styles.wrapper}>
+      <View
+        style={[
+          styles.wrapper,
+          {
+            position: isOpen ? "absolute" : "relative",
+            height: HEADERBAR_HEIGHT,
+          },
+        ]}
+      >
         <StatusBar
           // 드롭다운이 열리면 글자를 하얗게(light), 닫히면 검게(dark) 혹은 그 반대
           barStyle={isOpen ? "light-content" : "dark-content"}
@@ -56,6 +59,14 @@ export default function DropdownBar() {
           backgroundColor={isOpen ? "black" : "white"}
           // translucent={true}
         />
+        {/* 1. 드롭다운 밖 영역 (Backdrop) - 열렸을 때만 렌더링 */}
+        {isOpen && (
+          <TouchableOpacity
+            style={styles.backdrop}
+            activeOpacity={1}
+            onPress={toggleDropdown} // 밖을 누르면 닫힘
+          />
+        )}
 
         {/* header */}
         <TouchableOpacity
@@ -78,10 +89,22 @@ export default function DropdownBar() {
 
           {/* contents - option (last month / last week) */}
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.filterBtn}>
+            <TouchableOpacity
+              style={styles.filterBtn}
+              onPress={() => {
+                onSave();
+                toggleDropdown();
+              }}
+            >
               <Text style={styles.buttonText}>last month</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.filterBtn]}>
+            <TouchableOpacity
+              style={[styles.filterBtn]}
+              onPress={() => {
+                onSave();
+                toggleDropdown();
+              }}
+            >
               <Text style={styles.buttonText}>last week</Text>
             </TouchableOpacity>
           </View>
@@ -112,10 +135,11 @@ export default function DropdownBar() {
 const styles = StyleSheet.create({
   backdrop: {
     position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    top: -500,
+    left: -100,
+    right: -100,
+
+    height: SCREEN_HEIGHT * 2,
     backgroundColor: Colours.transparentBackground,
     zIndex: 50,
   },
@@ -140,7 +164,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   dropdownContainer: {
-    zIndex: 10,
+    zIndex: 110,
     position: "absolute", // layer on main screen
     height: DROPDOWN_HEIGHT,
     top: 0, // start point - header

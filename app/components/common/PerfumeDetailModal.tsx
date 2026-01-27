@@ -1,5 +1,5 @@
-import { accordStyles } from "@/constants/accordStyles";
-import { modalStyles } from "@/constants/modalStyles";
+import { modalStyles } from "@/app/components/common/modalStyles";
+import { accordStyles } from "@/app/components/shelf/accordStyles";
 import { Btn, Colours } from "@/constants/theme";
 import React from "react";
 import {

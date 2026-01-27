@@ -1,6 +1,6 @@
-import PerfumeDetailModal from "@/components/modal/PerfumeDetailModal";
-import PerfumeCard from "@/components/PerfumeCard";
-import { modalStyles } from "@/constants/modalStyles";
+import { modalStyles } from "@/app/components/common/modalStyles";
+import PerfumeDetailModal from "@/app/components/common/PerfumeDetailModal";
+import PerfumeCard from "@/app/components/shelf/PerfumeCard";
 import { Btn, Card, Colours, Inuput, Layout } from "@/constants/theme";
 import { useMyPerfume } from "@/context/myPerfumeContext";
 import { dummyMainPerfumes } from "@/data/dummyMainPerfumes";
