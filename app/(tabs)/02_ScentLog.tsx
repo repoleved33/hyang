@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from "react";
 import {
-  Dimensions,
   FlatList,
-  Image,
+  LayoutChangeEvent,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -11,10 +10,7 @@ import {
 
 import { Months } from "@/src/constants/theme";
 
-const { height: SCREEN_HEIGHT } = Dimensions.get("window");
-// Divide screen height by 7
-const DATE_ITEM_HEIGHT = SCREEN_HEIGHT / 7;
-
+// Types
 interface ScentData {
   id: string;
   img: string;
@@ -30,7 +26,10 @@ interface ScentLogItem {
 }
 
 export default function ScentLog() {
-  // Generate dates - Index 0: 29 days ago, Index 29: today
+  // State for dynamic height calculation
+  const [listHeight, setListHeight] = useState(0);
+  const dateItemHeight = listHeight / 7;
+
   const logs: ScentLogItem[] = useMemo(() => {
     return Array.from({ length: 30 }).map((_, i) => {
       const date = new Date();
@@ -45,10 +44,15 @@ export default function ScentLog() {
     });
   }, []);
 
-  // default selected: today and last item
   const [selectedDate, setSelectedDate] = useState<ScentLogItem>(
     logs[logs.length - 1],
   );
+
+  // Measure the actual available height of the container
+  const onLayout = (event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    setListHeight(height);
+  };
 
   const renderDateItem = ({ item }: { item: ScentLogItem }) => {
     const isSelected = selectedDate.id === item.id;
@@ -59,7 +63,7 @@ export default function ScentLog() {
         style={[
           styles.dateItem,
           isSelected && styles.selectedDateItem,
-          { height: DATE_ITEM_HEIGHT },
+          { height: dateItemHeight }, // Use calculated height
         ]}
       >
         <Text style={styles.monthLabel}>{item.month}</Text>
@@ -71,46 +75,42 @@ export default function ScentLog() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* LEFT : date selector (Today: bottom) */}
+    <View style={styles.container} onLayout={onLayout}>
+      {/* LEFT : date selector */}
       <View style={styles.leftColumn}>
-        <FlatList
-          data={logs}
-          keyExtractor={(item) => item.id}
-          renderItem={renderDateItem}
-          showsVerticalScrollIndicator={false}
-          snapToInterval={DATE_ITEM_HEIGHT}
-          decelerationRate="fast"
-          // Initial : today
-          initialScrollIndex={29}
-          getItemLayout={(data, index) => ({
-            length: DATE_ITEM_HEIGHT,
-            offset: DATE_ITEM_HEIGHT * index,
-            index,
-          })}
-        />
+        {listHeight > 0 && ( // Render only after height is measured
+          <FlatList
+            data={logs}
+            keyExtractor={(item) => item.id}
+            renderItem={renderDateItem}
+            showsVerticalScrollIndicator={false}
+            snapToInterval={dateItemHeight}
+            decelerationRate="fast"
+            initialScrollIndex={29}
+            getItemLayout={(data, index) => ({
+              length: dateItemHeight,
+              offset: dateItemHeight * index,
+              index,
+            })}
+          />
+        )}
       </View>
 
-      {/* RIGHT: Selected Date Details */}
+      {/* RIGHT: Details View */}
       <View style={styles.rightColumn}>
         <Text style={styles.headerTitle}>
           {selectedDate.month} {selectedDate.day}
         </Text>
-
-        {selectedDate.scents.map((scent, index) => (
+        {/* Detail Slots ... */}
+        {selectedDate.scents.map((_, index) => (
           <View key={index} style={styles.scentRow}>
             <Text style={styles.slotLabel}>
               {["first", "second", "third"][index]}
             </Text>
-
             <TouchableOpacity style={styles.imageSlot}>
-              {scent ? (
-                <Image source={{ uri: scent.img }} style={styles.perfumeImg} />
-              ) : (
-                <View style={styles.addPlaceholder}>
-                  <Text style={styles.plusText}>+</Text>
-                </View>
-              )}
+              <View style={styles.addPlaceholder}>
+                <Text style={styles.plusText}>+</Text>
+              </View>
             </TouchableOpacity>
           </View>
         ))}
@@ -195,9 +195,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#BBB",
     fontWeight: "300",
-  },
-  perfumeImg: {
-    flex: 1,
-    resizeMode: "contain",
   },
 });
