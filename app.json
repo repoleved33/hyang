@@ -12,6 +12,12 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.repoleved33.hyang",
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -43,6 +49,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d0c04d0c-bbe2-47de-b2e2-fb29bd1a5622"
+      }
     }
   }
 }
