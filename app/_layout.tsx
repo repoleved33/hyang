@@ -1,4 +1,4 @@
-import { MyPerfumeProvider } from "@/context/myPerfumeContext";
+import { MyPerfumeProvider } from "@/src/context/myPerfumeContext";
 import { Slot } from "expo-router";
 import { View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";

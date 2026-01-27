@@ -1,4 +1,6 @@
-import { Colours } from "@/constants/theme";
+import { Colours } from "@/src/constants/theme";
+import { useMyPerfume } from "@/src/context/myPerfumeContext";
+import { Perfume } from "@/src/data/dummyMainPerfumes";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -8,8 +10,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useMyPerfume } from "../../../context/myPerfumeContext";
-import { Perfume } from "../../../data/dummyMainPerfumes";
 
 export default function ScentLogScreen() {
   const { myPerfumes } = useMyPerfume();

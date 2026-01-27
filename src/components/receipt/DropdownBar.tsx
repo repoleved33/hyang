@@ -1,4 +1,4 @@
-import { Colours } from "@/constants/theme";
+import { Colours } from "@/src/constants/theme";
 import React, { useRef, useState } from "react";
 import {
   Animated,

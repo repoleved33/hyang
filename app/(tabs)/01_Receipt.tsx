@@ -1,5 +1,5 @@
-import DropdownBar from "@/app/components/receipt/DropdownBar";
-import { Colours } from "@/constants/theme";
+import DropdownBar from "@/src/components/receipt/DropdownBar";
+import { Colours } from "@/src/constants/theme";
 import React, { useRef } from "react";
 import {
   Alert,

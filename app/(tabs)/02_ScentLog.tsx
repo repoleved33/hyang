@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 
-import { Months } from "@/constants/theme";
+import { Months } from "@/src/constants/theme";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 // Divide screen height by 7
@@ -125,7 +125,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#fff",
   },
-  /* Left Sidebar Styles */
   leftColumn: {
     width: 75,
     backgroundColor: "#F5F5F5",

@@ -1,5 +1,5 @@
+import { MyPerfume, dummyMyPerfumes } from "@/src/data/dummyMyPerfumes";
 import React, { ReactNode, createContext, useContext, useState } from "react";
-import { MyPerfume, dummyMyPerfumes } from "../data/dummyMyPerfumes";
 
 type MyPerfumeContextType = {
   myPerfumes: MyPerfume[];

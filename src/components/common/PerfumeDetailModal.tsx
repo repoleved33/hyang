@@ -1,6 +1,6 @@
-import { modalStyles } from "@/app/components/common/modalStyles";
-import { accordStyles } from "@/app/components/shelf/accordStyles";
-import { Btn, Colours } from "@/constants/theme";
+import { modalStyles } from "@/src/components/common/modalStyles";
+import { accordStyles } from "@/src/components/shelf/accordStyles";
+import { Btn, Colours } from "@/src/constants/theme";
 import React from "react";
 import {
   Image,

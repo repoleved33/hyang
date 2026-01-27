@@ -1,5 +1,5 @@
-import { Colours } from "@/constants/theme";
-import { Perfume } from "@/data/dummyMainPerfumes";
+import { Colours } from "@/src/constants/theme";
+import { Perfume } from "@/src/data/dummyMainPerfumes";
 import React from "react";
 import { Image, StyleSheet, View } from "react-native";
 type Props = {

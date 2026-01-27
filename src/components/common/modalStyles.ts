@@ -1,4 +1,4 @@
-import { Colours } from "@/constants/theme";
+import { Colours } from "@/src/constants/theme";
 import { StyleSheet } from "react-native";
 
 export const modalStyles = StyleSheet.create({

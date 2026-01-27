@@ -1,4 +1,4 @@
-import { Colours } from "@/constants/theme";
+import { Colours } from "@/src/constants/theme";
 import { Tabs } from "expo-router";
 
 export default function TabsLayout() {

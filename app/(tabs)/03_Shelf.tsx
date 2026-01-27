@@ -1,9 +1,9 @@
-import { modalStyles } from "@/app/components/common/modalStyles";
-import PerfumeDetailModal from "@/app/components/common/PerfumeDetailModal";
-import PerfumeCard from "@/app/components/shelf/PerfumeCard";
-import { Btn, Card, Colours, Inuput, Layout } from "@/constants/theme";
-import { useMyPerfume } from "@/context/myPerfumeContext";
-import { dummyMainPerfumes } from "@/data/dummyMainPerfumes";
+import { modalStyles } from "@/src/components/common/modalStyles";
+import PerfumeDetailModal from "@/src/components/common/PerfumeDetailModal";
+import PerfumeCard from "@/src/components/shelf/PerfumeCard";
+import { Btn, Card, Colours, Inuput, Layout } from "@/src/constants/theme";
+import { useMyPerfume } from "@/src/context/myPerfumeContext";
+import { dummyMainPerfumes } from "@/src/data/dummyMainPerfumes";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
