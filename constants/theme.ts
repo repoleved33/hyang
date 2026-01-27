@@ -6,12 +6,12 @@ const cardMargin = 14;
 const cardWidth = (screenWidth - cardMargin * (cols + 1)) / cols;
 
 export const Colours = {
-  primary: "#333333",
-  secondary: "#86888B",
+  primary: "#000000",
+  secondary: "#FFFFFF",
 
   background: "#D9D9D9",
   cardBackground: "#FFFFFF",
-  modalBackground: "rgba(0,0,0,0.5)",
+  transparentBackground: "rgba(0,0,0,0.5)",
   border: "#BDABAE",
   text: "#333333",
   textDim: "#86888B",

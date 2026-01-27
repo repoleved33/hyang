@@ -1,11 +1,16 @@
+import DropdownBar from "@/components/DropdownBar";
 import { Colours } from "@/constants/theme";
 import React from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+
 const screenWidth = Dimensions.get("window").width;
 
 export default function ReceiptView() {
   return (
     <View style={styles.container}>
+      {/* top option bar */}
+      <DropdownBar />
+
       <ScrollView contentContainerStyle={styles.receiptPaper}>
         {/* Header */}
         <Text style={styles.title}>HYANGRECEIPT</Text>
@@ -13,7 +18,7 @@ export default function ReceiptView() {
 
         <View style={styles.infoSection}>
           <Text style={styles.monoText}>ORDER #0001 FOR [username]</Text>
-          <Text style={styles.monoText}>[DAY]], [DATE], [MONTH], [YEAR]]</Text>
+          <Text style={styles.monoText}>[DAY], [DATE], [MONTH], [YEAR]</Text>
         </View>
 
         {/* Divider */}
@@ -100,7 +105,9 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     alignItems: "center",
   },
+
   receiptPaper: {
+    flex: 1,
     backgroundColor: Colours.cardBackground,
     width: screenWidth * 0.85,
     padding: 20,
