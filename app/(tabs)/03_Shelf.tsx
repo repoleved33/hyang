@@ -1,27 +1,16 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import {
-  FlatList,
-  Modal,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { modalStyles } from "@/src/components/common/modalStyles";
 import PerfumeDetailModal from "@/src/components/common/PerfumeDetailModal";
+import AddMyShelfModal from "@/src/components/shelf/AddMyShelfModal";
 import PerfumeCard from "@/src/components/shelf/PerfumeCard";
-import { Btn, Card, Colours, Inuput, Layout } from "@/src/constants/theme";
+import { Btn, Card, Colours, Layout } from "@/src/constants/theme";
 import { useMyPerfume } from "@/src/context/myPerfumeContext";
 import { MainPerfumeList } from "@/src/data/dummyDatasfromServer";
 import { MyPerfume, Perfume } from "@/src/types/perfume";
 
-/* ===============================
-   화면 전용 타입
-=============================== */
 type MyPerfumeWithDetail = {
   perfume: Perfume;
   my: MyPerfume;
@@ -30,12 +19,8 @@ type MyPerfumeWithDetail = {
 export default function ShelfScreen() {
   const { myPerfumes, addMyPerfume } = useMyPerfume();
 
-  /* ===============================
-     state
-  =============================== */
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
-  const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedPerfume, setSelectedPerfume] =
     useState<MyPerfumeWithDetail | null>(null);
 
@@ -44,7 +29,7 @@ export default function ShelfScreen() {
     .map((mp) => {
       const perfume = MainPerfumeList.find((p) => p.perfId === mp.perfId) as
         | Perfume
-        | undefined; // << 여기서 캐스팅
+        | undefined; //
       if (!perfume) return null;
 
       return {
@@ -54,74 +39,26 @@ export default function ShelfScreen() {
     })
     .filter((v): v is MyPerfumeWithDetail => v !== null);
 
-  const keyword = searchKeyword.trim().toLowerCase();
-
-  const filteredMainPerfumes = MainPerfumeList.filter((p) => {
-    const isInMyPerfumes = myPerfumes.some((mp) => mp.perfId === p.perfId);
-    if (isInMyPerfumes) return false;
-
-    if (!keyword) return true;
-
-    return (
-      p.name.toLowerCase().includes(keyword) ||
-      p.brand.toLowerCase().includes(keyword)
-    );
-  });
+  const myPerfumesPerfId = myPerfumes.map((p) => p.perfId);
 
   return (
     <SafeAreaView style={Layout.safeArea}>
       <View style={Layout.container}>
-        {/* add to my shelf btn*/}
+        {/* add to my shelf*/}
         <TouchableOpacity
           style={Btn.plusBtn}
           onPress={() => setAddModalVisible(true)}
         >
           <MaterialIcons name="add" size={22} color={Colours.border} />
         </TouchableOpacity>
-
-        <Modal
+        <AddMyShelfModal
           visible={addModalVisible}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setAddModalVisible(false)}
-        >
-          <TouchableWithoutFeedback onPress={() => setAddModalVisible(false)}>
-            <View style={modalStyles.modalBackground}>
-              <TouchableWithoutFeedback>
-                <View style={modalStyles.modalContainer}>
-                  <TextInput
-                    style={Inuput.searchInput}
-                    placeholder="search by name / brand"
-                    value={searchKeyword}
-                    onChangeText={setSearchKeyword}
-                    autoCapitalize="none"
-                  />
-
-                  <FlatList
-                    data={filteredMainPerfumes}
-                    keyExtractor={(item) => item.perfId}
-                    style={{ height: 300 }}
-                    keyboardShouldPersistTaps="handled"
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={modalStyles.modalsearchItem}
-                        onPress={() => {
-                          addMyPerfume(item); // Perfume 전달
-                          setAddModalVisible(false);
-                          setSearchKeyword("");
-                        }}
-                      >
-                        <Text>{item.name}</Text>
-                        <Text>{item.brand}</Text>
-                      </TouchableOpacity>
-                    )}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          </TouchableWithoutFeedback>
-        </Modal>
-
+          onClose={() => setAddModalVisible(false)}
+          mainPerfumes={MainPerfumeList}
+          myPerfumesPerfId={myPerfumesPerfId}
+          addMyPerfume={addMyPerfume}
+        />
+        {/* my shelf list*/}
         <FlatList
           data={myPerfumeWithDetail}
           numColumns={Card.cols}
@@ -138,12 +75,15 @@ export default function ShelfScreen() {
                 setDetailModalVisible(true);
               }}
             >
-              <PerfumeCard perfume={item.perfume} width={Card.width} />
+              <PerfumeCard
+                perfume={item.perfume}
+                width={Card.width}
+                isFavourite={item.my.isFavourite}
+              />
             </TouchableOpacity>
           )}
         />
-
-        {/* detail modal */}
+        {/* clicked -> detail modal */}
         <PerfumeDetailModal
           visible={detailModalVisible}
           perfumeWithDetail={selectedPerfume} // MyPerfumeWithDetail

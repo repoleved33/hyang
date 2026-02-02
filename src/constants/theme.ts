@@ -11,6 +11,7 @@ export const Colours = {
 
   background: "#D9D9D9",
   cardBackground: "#FFFFFF",
+  favCardBackground: "#BDABAE",
   transparentBackground: "rgba(0,0,0,0.5)",
   border: "#BDABAE",
   text: "#333333",

@@ -1,6 +1,7 @@
 import { modalStyles } from "@/src/components/common/modalStyles";
 import { accordStyles } from "@/src/components/shelf/accordStyles";
 import { Btn, Colours } from "@/src/constants/theme";
+import { useMyPerfume } from "@/src/context/myPerfumeContext";
 import { MyPerfumeWithDetail } from "@/src/types/perfume";
 import React from "react";
 import {
@@ -19,19 +20,39 @@ interface DetailModalProps {
   perfumeWithDetail: MyPerfumeWithDetail | null;
   onClose: () => void;
 }
+
 export default function PerfumeDetailModal({
   visible,
   perfumeWithDetail,
   onClose,
 }: DetailModalProps) {
+  const { myPerfumes, toggleFavourite, toggleHave } = useMyPerfume();
+
   if (!perfumeWithDetail) return null;
 
-  const { perfume, my } = perfumeWithDetail;
+  const currentMyData = myPerfumes.find(
+    (p) => p.perfId === perfumeWithDetail.perfume.perfId,
+  );
+
+  //my?
+  const { perfume } = perfumeWithDetail;
+  const isFavourite = currentMyData?.isFavourite ?? false;
 
   const imageSource =
     typeof perfume.imageUrl === "string"
       ? { uri: perfume.imageUrl }
       : perfume.imageUrl;
+
+  const handleToggleFavourite = () => {
+    toggleFavourite(perfume.perfId);
+  };
+
+  const handleToggleHave = () => {
+    toggleHave(perfume.perfId);
+    if (currentMyData) {
+      onClose();
+    }
+  };
 
   return (
     <Modal
@@ -43,7 +64,6 @@ export default function PerfumeDetailModal({
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={modalStyles.modalBackground}>
           <View style={modalStyles.modalContainer}>
-            {/* 이미지/정보 */}
             <ScrollView showsVerticalScrollIndicator={false}>
               <View style={styles.topSection}>
                 <View style={styles.imageContainer}>
@@ -63,14 +83,20 @@ export default function PerfumeDetailModal({
                 </View>
               </View>
 
-              {/* 상태 버튼 */}
+              {/* Status btn */}
               <View style={styles.statusContainer}>
-                <TouchableOpacity style={Btn.detailBtn}>
+                <TouchableOpacity
+                  style={Btn.detailBtn}
+                  onPress={() => handleToggleFavourite()}
+                >
                   <Text>
-                    {my.isFavourite ? "My Favourite ❤️" : "My Favourite"}
+                    {isFavourite ? "My Favourite ❤️" : "My Favourite"}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={Btn.detailBtn}>
+                <TouchableOpacity
+                  style={Btn.detailBtn}
+                  onPress={() => handleToggleHave()}
+                >
                   <Text>I have</Text>
                 </TouchableOpacity>
               </View>

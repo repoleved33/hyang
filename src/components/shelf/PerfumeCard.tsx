@@ -5,9 +5,10 @@ import { Image, StyleSheet, View } from "react-native";
 type Props = {
   perfume: Perfume;
   width?: number;
+  isFavourite: boolean;
 };
 
-export default function PerfumeCard({ perfume, width }: Props) {
+export default function PerfumeCard({ perfume, width, isFavourite }: Props) {
   // imageUrl 사용
   const imageSource =
     typeof perfume.imageUrl === "string"
@@ -15,7 +16,14 @@ export default function PerfumeCard({ perfume, width }: Props) {
       : perfume.imageUrl;
 
   return (
-    <View style={[styles.card, width ? { width } : {}]}>
+    <View
+      style={[
+        styles.card,
+        width ? { width } : {},
+        // 👇 isFavourite이 true일 때 styles.favouriteCard 스타일을 추가로 덮어씌움
+        isFavourite && styles.favouriteCard,
+      ]}
+    >
       <Image source={imageSource} style={styles.image} />
     </View>
   );
@@ -27,6 +35,9 @@ const styles = StyleSheet.create({
     // borderColor: Colours.border,
     padding: 12,
     backgroundColor: Colours.cardBackground,
+  },
+  favouriteCard: {
+    backgroundColor: Colours.favCardBackground,
   },
   image: {
     width: "100%",
