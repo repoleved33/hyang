@@ -1,5 +1,5 @@
 import { Colours } from "@/src/constants/theme";
-import { Perfume } from "@/src/data/dummyMainPerfumes";
+import { Perfume } from "@/src/types/perfume";
 import React from "react";
 import { Image, StyleSheet, View } from "react-native";
 type Props = {
@@ -8,12 +8,15 @@ type Props = {
 };
 
 export default function PerfumeCard({ perfume, width }: Props) {
+  // imageUrl 사용
   const imageSource =
-    typeof perfume.image === "string" ? { uri: perfume.image } : perfume.image;
+    typeof perfume.imageUrl === "string"
+      ? { uri: perfume.imageUrl }
+      : perfume.imageUrl;
 
   return (
     <View style={[styles.card, width ? { width } : {}]}>
-      <Image source={imageSource} style={styles.image}></Image>
+      <Image source={imageSource} style={styles.image} />
     </View>
   );
 }

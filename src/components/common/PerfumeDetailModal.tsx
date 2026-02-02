@@ -1,6 +1,7 @@
 import { modalStyles } from "@/src/components/common/modalStyles";
 import { accordStyles } from "@/src/components/shelf/accordStyles";
 import { Btn, Colours } from "@/src/constants/theme";
+import { MyPerfumeWithDetail } from "@/src/types/perfume";
 import React from "react";
 import {
   Image,
@@ -15,18 +16,23 @@ import {
 
 interface DetailModalProps {
   visible: boolean;
-  perfume: any;
+  perfumeWithDetail: MyPerfumeWithDetail | null;
   onClose: () => void;
 }
-
 export default function PerfumeDetailModal({
   visible,
-  perfume,
+  perfumeWithDetail,
   onClose,
 }: DetailModalProps) {
-  if (!perfume) return null;
+  if (!perfumeWithDetail) return null;
+
+  const { perfume, my } = perfumeWithDetail;
+
   const imageSource =
-    typeof perfume.image === "string" ? { uri: perfume.image } : perfume.image;
+    typeof perfume.imageUrl === "string"
+      ? { uri: perfume.imageUrl }
+      : perfume.imageUrl;
+
   return (
     <Modal
       visible={visible}
@@ -36,70 +42,67 @@ export default function PerfumeDetailModal({
     >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={modalStyles.modalBackground}>
-          <TouchableWithoutFeedback>
-            <View style={modalStyles.modalContainer}>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                {/* top section */}
-                <View style={styles.topSection}>
-                  {/* info section - image */}
-                  <View style={styles.imageContainer}>
-                    <Image
-                      source={imageSource}
-                      style={styles.perfumeImage}
-                      resizeMode="contain"
-                    />
-                  </View>
-                  {/* top section - info */}
-                  <View style={styles.infoContainer}>
-                    <Text style={modalStyles.modalItemDetailBrand}>
-                      {perfume.brand}
-                    </Text>
-                    <Text style={modalStyles.modalItemDetailName}>
-                      {perfume.name}
-                    </Text>
-                  </View>
+          <View style={modalStyles.modalContainer}>
+            {/* 이미지/정보 */}
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View style={styles.topSection}>
+                <View style={styles.imageContainer}>
+                  <Image
+                    source={imageSource}
+                    style={styles.perfumeImage}
+                    resizeMode="contain"
+                  />
                 </View>
-                {/* status section - i have / my favourite */}
-                <View style={styles.statusContainer}>
-                  <TouchableOpacity style={Btn.detailBtn}>
-                    <Text>I have</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={Btn.detailBtn}>
-                    <Text>My Favourite</Text>
-                  </TouchableOpacity>
+                <View style={styles.infoContainer}>
+                  <Text style={modalStyles.modalItemDetailBrand}>
+                    {perfume.brand}
+                  </Text>
+                  <Text style={modalStyles.modalItemDetailName}>
+                    {perfume.name}
+                  </Text>
                 </View>
-                {/* Main Accords */}
-                <View style={accordStyles.accordsContainer}>
-                  {Object.entries(perfume.accords)
-                    .sort(
-                      ([, valueA], [, valueB]) =>
-                        Number(valueB) - Number(valueA),
-                    )
-                    .map(([key, value]: [string, any]) => (
-                      <View key={key} style={accordStyles.accordItem}>
-                        <View style={styles.labelRow}>
-                          <Text style={accordStyles.accordLabel}>{key}</Text>
-                          <Text style={accordStyles.accordValue}>{value}%</Text>
-                        </View>
-                        <View style={accordStyles.accordBarBackground}>
-                          <View
-                            style={[
-                              accordStyles.accordBarFill,
-                              { width: `${(value / 10) * 100}%` },
-                            ]}
-                          />
-                        </View>
-                      </View>
-                    ))}
-                </View>
-              </ScrollView>
+              </View>
 
-              {/* close */}
-              <TouchableOpacity style={Btn.closeBtn} onPress={onClose}>
-                <Text>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableWithoutFeedback>
+              {/* 상태 버튼 */}
+              <View style={styles.statusContainer}>
+                <TouchableOpacity style={Btn.detailBtn}>
+                  <Text>
+                    {my.isFavourite ? "My Favourite ❤️" : "My Favourite"}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={Btn.detailBtn}>
+                  <Text>I have</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Main Accords */}
+              <View style={accordStyles.accordsContainer}>
+                {perfume.mainAccords
+                  .sort((a, b) => b.score - a.score)
+                  .map(({ accord, score }) => (
+                    <View key={accord} style={accordStyles.accordItem}>
+                      <View style={styles.labelRow}>
+                        <Text style={accordStyles.accordLabel}>{accord}</Text>
+                        <Text style={accordStyles.accordValue}>{score}</Text>
+                      </View>
+                      <View style={accordStyles.accordBarBackground}>
+                        <View
+                          style={[
+                            accordStyles.accordBarFill,
+                            { width: `${(score / 5) * 100}%` },
+                          ]}
+                        />
+                      </View>
+                    </View>
+                  ))}
+              </View>
+            </ScrollView>
+
+            {/* 닫기 버튼 */}
+            <TouchableOpacity style={Btn.closeBtn} onPress={onClose}>
+              <Text>Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </TouchableWithoutFeedback>
     </Modal>
@@ -133,14 +136,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: 20,
+    marginBottom: 10,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: Colours.text,
-    marginBottom: 16,
-  },
-
   labelRow: {
     flexDirection: "row",
     justifyContent: "space-between",

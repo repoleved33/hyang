@@ -1,48 +1,61 @@
-import { MyPerfume, dummyMyPerfumes } from "@/src/data/dummyMyPerfumes";
+// import { MyPerfume, dummyMyPerfumes } from "@/src/data/dummyMyPerfumes";
+
 import React, { ReactNode, createContext, useContext, useState } from "react";
+
+import { MyPerfumeList } from "@/src/data/dummyDatasLocal";
+import { MyPerfume, Perfume } from "@/src/types/perfume";
 
 type MyPerfumeContextType = {
   myPerfumes: MyPerfume[];
-  addMyPerfume: (myPerfume: MyPerfume) => void;
-  toggleLiked: (id: string) => void;
+  addMyPerfume: (perfume: Perfume) => void;
+  toggleFavourite: (perfId: string) => void;
 };
 
+// define
 const MyPerfumeContext = createContext<MyPerfumeContextType | undefined>(
   undefined,
 );
 
+// storage
 export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
-  const [myPerfumes, setMyPerfumes] = useState<MyPerfume[]>(
-    dummyMyPerfumes.map((p) => ({ ...p, inList: true })),
-  );
+  const [myPerfumes, setMyPerfumes] = useState<MyPerfume[]>(MyPerfumeList);
 
-  const addMyPerfume = (myPerfume: MyPerfume) => {
-    if (!myPerfumes.find((p) => p.id === myPerfume.id)) {
-      setMyPerfumes([
-        ...myPerfumes,
-        { ...myPerfume, inList: true, liked: false },
-      ]);
-    }
+  const addMyPerfume = (perfume: Perfume) => {
+    const exists = myPerfumes.some((p) => p.perfId === perfume.perfId);
+    if (exists) return;
+
+    const newMyPerfume: MyPerfume = {
+      userId: "u001", // 나중에 auth 붙이면 교체
+      perfId: perfume.perfId,
+      isFavourite: false,
+      addedAt: Date.now(),
+    };
+
+    setMyPerfumes((prev) => [...prev, newMyPerfume]);
   };
 
-  const toggleLiked = (id: string) => {
+  const toggleFavourite = (perfId: string) => {
     setMyPerfumes((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, liked: !p.liked } : p)),
+      prev.map((p) =>
+        p.perfId === perfId ? { ...p, isFavourite: !p.isFavourite } : p,
+      ),
     );
   };
 
   return (
     <MyPerfumeContext.Provider
-      value={{ myPerfumes, addMyPerfume, toggleLiked }}
+      value={{ myPerfumes, addMyPerfume, toggleFavourite }}
     >
       {children}
     </MyPerfumeContext.Provider>
   );
 };
 
+// Context Consumer Hook
 export const useMyPerfume = () => {
   const context = useContext(MyPerfumeContext);
-  if (!context)
+  if (!context) {
     throw new Error("useMyPerfume must be used within MyPerfumeProvider");
+  }
   return context;
 };
