@@ -2,7 +2,7 @@ import { modalStyles } from "@/src/components/common/modalStyles";
 import { accordStyles } from "@/src/components/shelf/accordStyles";
 import { Btn, Colours } from "@/src/constants/theme";
 import { useMyPerfume } from "@/src/context/myPerfumeContext";
-import { MyPerfumeWithDetail } from "@/src/types/perfume";
+import { MainPerfumeList } from "@/src/data/dummyDatasfromServer";
 import React from "react";
 import {
   Image,
@@ -17,26 +17,24 @@ import {
 
 interface DetailModalProps {
   visible: boolean;
-  perfumeWithDetail: MyPerfumeWithDetail | null;
+  selectedPerfId: string | null;
   onClose: () => void;
 }
 
 export default function PerfumeDetailModal({
   visible,
-  perfumeWithDetail,
+  // perfumeWithDetail,
+  selectedPerfId,
   onClose,
 }: DetailModalProps) {
   const { myPerfumes, toggleFavourite, toggleHave } = useMyPerfume();
 
-  if (!perfumeWithDetail) return null;
+  const perfume = MainPerfumeList.find((p) => p.perfId === selectedPerfId);
+  const currData = myPerfumes.find((p) => p.perfId === selectedPerfId);
+  // if (!perfumeWithDetail) return null;
+  if (!selectedPerfId || !perfume) return null;
 
-  const currentMyData = myPerfumes.find(
-    (p) => p.perfId === perfumeWithDetail.perfume.perfId,
-  );
-
-  //my?
-  const { perfume } = perfumeWithDetail;
-  const isFavourite = currentMyData?.isFavourite ?? false;
+  const isFavourite = currData?.isFavourite ?? false;
 
   const imageSource =
     typeof perfume.imageUrl === "string"
@@ -49,7 +47,7 @@ export default function PerfumeDetailModal({
 
   const handleToggleHave = () => {
     toggleHave(perfume.perfId);
-    if (currentMyData) {
+    if (currData) {
       onClose();
     }
   };

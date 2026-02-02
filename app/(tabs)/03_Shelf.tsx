@@ -9,37 +9,14 @@ import PerfumeCard from "@/src/components/shelf/PerfumeCard";
 import { Btn, Card, Colours, Layout } from "@/src/constants/theme";
 import { useMyPerfume } from "@/src/context/myPerfumeContext";
 import { MainPerfumeList } from "@/src/data/dummyDatasfromServer";
-import { MyPerfume, Perfume } from "@/src/types/perfume";
-
-type MyPerfumeWithDetail = {
-  perfume: Perfume;
-  my: MyPerfume;
-};
 
 export default function ShelfScreen() {
   const { myPerfumes, addMyPerfume } = useMyPerfume();
 
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
-  const [selectedPerfume, setSelectedPerfume] =
-    useState<MyPerfumeWithDetail | null>(null);
-
-  // perfume detail data
-  const myPerfumeWithDetail = myPerfumes
-    .map((mp) => {
-      const perfume = MainPerfumeList.find((p) => p.perfId === mp.perfId) as
-        | Perfume
-        | undefined; //
-      if (!perfume) return null;
-
-      return {
-        perfume,
-        my: mp,
-      };
-    })
-    .filter((v): v is MyPerfumeWithDetail => v !== null);
-
-  const myPerfumesPerfId = myPerfumes.map((p) => p.perfId);
+  // based on perfume id
+  const [selectedPerfId, setSelectedPerfId] = useState<string | null>(null);
 
   return (
     <SafeAreaView style={Layout.safeArea}>
@@ -55,39 +32,49 @@ export default function ShelfScreen() {
           visible={addModalVisible}
           onClose={() => setAddModalVisible(false)}
           mainPerfumes={MainPerfumeList}
-          myPerfumesPerfId={myPerfumesPerfId}
+          // myPerfumesPerfId={myPerfumesPerfId}
+          myPerfumesPerfId={myPerfumes.map((p) => p.perfId)}
           addMyPerfume={addMyPerfume}
         />
         {/* my shelf list*/}
         <FlatList
-          data={myPerfumeWithDetail}
+          data={myPerfumes}
           numColumns={Card.cols}
           columnWrapperStyle={{
             justifyContent: "space-between",
             marginBottom: Card.marginBottom,
           }}
-          keyExtractor={(item) => item.perfume.perfId}
+          keyExtractor={(item) => item.perfId}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => {
-                setSelectedPerfume(item);
-                setDetailModalVisible(true);
-              }}
-            >
-              <PerfumeCard
-                perfume={item.perfume}
-                width={Card.width}
-                isFavourite={item.my.isFavourite}
-              />
-            </TouchableOpacity>
-          )}
+          renderItem={({ item }) => {
+            const detail = MainPerfumeList.find(
+              (p) => p.perfId === item.perfId,
+            );
+            if (!detail) return null;
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedPerfId(item.perfId);
+                  setDetailModalVisible(true);
+                }}
+              >
+                <PerfumeCard
+                  perfume={detail}
+                  width={Card.width}
+                  isFavourite={item.isFavourite}
+                />
+              </TouchableOpacity>
+            );
+          }}
         />
         {/* clicked -> detail modal */}
         <PerfumeDetailModal
           visible={detailModalVisible}
-          perfumeWithDetail={selectedPerfume} // MyPerfumeWithDetail
-          onClose={() => setDetailModalVisible(false)}
+          selectedPerfId={selectedPerfId}
+          onClose={() => {
+            setDetailModalVisible(false);
+            setSelectedPerfId(null);
+          }}
         />
       </View>
     </SafeAreaView>
