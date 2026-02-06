@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 
+import SearchPerfumeModal from "@/src/components/scentlog/SearchPerfumeModal";
 import { ScentLog } from "@/src/types/scentLog";
 
 interface ScentLogItem {
@@ -27,8 +28,10 @@ export default function ScentLogScreen() {
   const [listHeight, setListHeight] = useState(0);
   const dateItemHeight = listHeight / 7;
 
-  const [favModalVisible, setFavModalVisible] = useState(false);
   const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
+
+  const [favModalVisible, setFavModalVisible] = useState(false);
+  const [searchModalVisible, setSearchModalVisible] = useState(false);
 
   // dates listup
   const logs: ScentLogItem[] = useMemo(() => {
@@ -192,7 +195,17 @@ export default function ScentLogScreen() {
         onClose={() => setFavModalVisible(false)}
         onSelect={handleSelectPerfume}
         onDelete={handleDeleteCurrSlot}
-        onSearchOpen={() => {}}
+        onSearchOpen={() => {
+          setFavModalVisible(false);
+          setTimeout(() => setSearchModalVisible(true), 300);
+        }}
+      />
+
+      <SearchPerfumeModal
+        visible={searchModalVisible}
+        mainPerfumes={MainPerfumeList}
+        onSelect={(perfume) => handleSelectPerfume(perfume.perfId)}
+        onClose={() => setSearchModalVisible(false)}
       />
     </View>
   );

@@ -90,7 +90,6 @@ export default function MyFavListModal({
                   style={[styles.cardContainer, styles.searchBtn]}
                   onPress={() => {
                     onSearchOpen?.();
-                    onClose();
                   }}
                 >
                   <View style={styles.searchIconCircle}>
