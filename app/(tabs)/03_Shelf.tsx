@@ -7,7 +7,7 @@ import PerfumeDetailModal from "@/src/components/common/PerfumeDetailModal";
 import AddMyShelfModal from "@/src/components/shelf/AddMyShelfModal";
 import PerfumeCard from "@/src/components/shelf/PerfumeCard";
 import { Btn, Card, Colours, Layout } from "@/src/constants/theme";
-import { useMyPerfume } from "@/src/context/myPerfumeContext";
+import { useMyPerfume } from "@/src/context/MyPerfumeContext";
 import { MainPerfumeList } from "@/src/data/dummyDatasfromServer";
 
 export default function ShelfScreen() {

@@ -1,104 +1,147 @@
-import { Colours } from "@/src/constants/theme";
-import { useMyPerfume } from "@/src/context/myPerfumeContext";
-import { Perfume } from "@/src/data/dummyMainPerfumes";
-import React, { useState } from "react";
+import { useMyPerfume } from "@/src/context/MyPerfumeContext";
+import { MainPerfumeList } from "@/src/data/dummyDatasfromServer";
+import React, { useMemo } from "react";
 import {
   FlatList,
-  Image,
+  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import PerfumeCard from "../shelf/PerfumeCard";
 
-export default function ScentLogScreen() {
+interface Props {
+  visible: boolean;
+  onClose: () => void;
+  onSelect: (perfId: string) => void;
+}
+
+export default function MyFavListModal({ visible, onClose, onSelect }: Props) {
   const { myPerfumes } = useMyPerfume();
 
-  // 오늘 선택한 레이어드 향수 (최대 3개)
-  const [todayPerfumes, setTodayPerfumes] = useState<Perfume[]>([]);
-
-  const togglePerfume = (perfume: Perfume) => {
-    setTodayPerfumes((prev) => {
-      if (prev.find((p) => p.id === perfume.id)) {
-        return prev.filter((p) => p.id !== perfume.id);
-      } else {
-        if (prev.length >= 3) return prev; // 최대 3개
-        return [...prev, perfume];
-      }
-    });
-  };
+  // 1. 즐겨찾기 목록 조인 (상세 정보 합치기)
+  const favoritePerfumes = useMemo(() => {
+    return myPerfumes
+      .filter((p) => p.isFavourite)
+      .map((my) => {
+        const detail = MainPerfumeList.find((p) => p.perfId === my.perfId);
+        return detail ? { ...detail, isFavourite: true } : null;
+      })
+      .filter((p) => p !== null);
+  }, [myPerfumes]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Title</Text>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+    >
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>My Favourite</Text>
+          <TouchableOpacity onPress={onClose}>
+            <Text style={styles.closeText}>Close</Text>
+          </TouchableOpacity>
+        </View>
 
-      <FlatList
-        data={myPerfumes}
-        keyExtractor={(item) => item.id}
-        numColumns={3} // 3개씩 그리드
-        columnWrapperStyle={{
-          justifyContent: "space-between",
-          marginBottom: 12,
-        }}
-        renderItem={({ item }) => {
-          const selected = todayPerfumes.find((p) => p.id === item.id);
-          return (
-            <TouchableOpacity onPress={() => togglePerfume(item)}>
-              <Image
-                source={{ uri: item.image }}
-                style={[
-                  styles.image,
-                  selected && { borderWidth: 2, borderColor: "#ffffff" },
-                ]}
-              />
-              <Text style={styles.name}>{item.name}</Text>
-            </TouchableOpacity>
-          );
-        }}
-        showsVerticalScrollIndicator={false}
-      />
-
-      <View style={styles.bottom}>
-        <Text style={styles.bottomText}>
-          Selected ({todayPerfumes.length}/3):
-        </Text>
-        <View style={styles.selectedRow}>
-          {todayPerfumes.map((p) => (
-            <Image
-              key={p.id}
-              source={{ uri: p.image }}
-              style={styles.selectedImage}
+        {/* 2. Horizontal Favorites Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>My Favorites ❤️</Text>
+          {favoritePerfumes.length > 0 ? (
+            <FlatList
+              horizontal
+              data={favoritePerfumes}
+              keyExtractor={(item) => `fav-${item.perfId}`}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalList}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.favItem}
+                  onPress={() => onSelect(item.perfId)}
+                >
+                  <PerfumeCard perfume={item} width={100} isFavourite={true} />
+                  <Text style={styles.favName} numberOfLines={1}>
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              )}
             />
-          ))}
+          ) : (
+            <Text style={styles.emptyText}>즐겨찾기한 향수가 없습니다.</Text>
+          )}
         </View>
       </View>
-    </View>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colours.background,
-    padding: 16,
+    backgroundColor: "#fff",
   },
-  title: {
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
-
-    marginBottom: 16,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
-  image: { width: 100, height: 100, borderRadius: 8 },
-  name: {
-    fontSize: 12,
-    marginTop: 4,
-    textAlign: "center",
+  closeText: {
+    fontSize: 16,
+    color: "#999",
+  },
+  section: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#333",
+    marginBottom: 15,
+    textTransform: "uppercase",
+  },
+  horizontalList: {
+    paddingRight: 20,
+  },
+  favItem: {
+    marginRight: 15,
+    alignItems: "center",
+  },
+  favName: {
+    fontSize: 11,
+    marginTop: 5,
     width: 100,
+    textAlign: "center",
+    color: "#666",
   },
-  bottom: { marginTop: 16 },
-  bottomText: {
-    // marginBottom: 8,
+  gridRow: {
+    justifyContent: "space-between",
+    marginBottom: 20,
   },
-  selectedRow: { flexDirection: "row", gap: 8 },
-  selectedImage: { width: 50, height: 50, borderRadius: 6 },
+  gridItem: {
+    width: "30%",
+    alignItems: "center",
+  },
+  gridName: {
+    fontSize: 11,
+    marginTop: 5,
+    color: "#666",
+    textAlign: "center",
+  },
+  emptyText: {
+    color: "#bbb",
+    fontStyle: "italic",
+    paddingVertical: 10,
+  },
 });

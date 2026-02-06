@@ -1,7 +1,7 @@
 import { modalStyles } from "@/src/components/common/modalStyles";
 import { accordStyles } from "@/src/components/shelf/accordStyles";
 import { Btn, Colours } from "@/src/constants/theme";
-import { useMyPerfume } from "@/src/context/myPerfumeContext";
+import { useMyPerfume } from "@/src/context/MyPerfumeContext";
 import { MainPerfumeList } from "@/src/data/dummyDatasfromServer";
 import React from "react";
 import {
