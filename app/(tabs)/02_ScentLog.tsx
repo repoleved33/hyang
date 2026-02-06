@@ -23,7 +23,7 @@ interface ScentLogItem {
 }
 
 export default function ScentLogScreen() {
-  const { scentLogs, upsertScentLog } = useScentLog();
+  const { scentLogs, upsertScentLog, deleteScentLog } = useScentLog();
   const [listHeight, setListHeight] = useState(0);
   const dateItemHeight = listHeight / 7;
 
@@ -83,6 +83,27 @@ export default function ScentLogScreen() {
     };
     upsertScentLog(newLogData);
     setFavModalVisible(false);
+  };
+
+  const handleDeleteCurrSlot = () => {
+    if (activeSlotIdx === null) return;
+    const logToDelete = scentLogs.find(
+      (log) =>
+        log.date === selectedDate.dateString &&
+        log.orderIdx === activeSlotIdx + 1,
+    );
+    if (logToDelete) {
+      console.log(
+        "delete date: ",
+        logToDelete.date,
+        " idx: ",
+        logToDelete.orderIdx,
+      );
+      deleteScentLog(logToDelete.idx);
+      setFavModalVisible(false);
+    } else {
+      console.log("No data");
+    }
   };
 
   const renderDateItem = ({ item }: { item: ScentLogItem }) => {
@@ -170,6 +191,8 @@ export default function ScentLogScreen() {
         visible={favModalVisible}
         onClose={() => setFavModalVisible(false)}
         onSelect={handleSelectPerfume}
+        onDelete={handleDeleteCurrSlot}
+        onSearchOpen={() => {}}
       />
     </View>
   );

@@ -2,6 +2,7 @@ import { useMyPerfume } from "@/src/context/MyPerfumeContext";
 import { MainPerfumeList } from "@/src/data/dummyDatasfromServer";
 import React, { useMemo } from "react";
 import {
+  Dimensions,
   FlatList,
   Modal,
   StyleSheet,
@@ -9,26 +10,42 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import PerfumeCard from "../shelf/PerfumeCard";
+
+import PerfumeCard from "@/src/components/shelf/PerfumeCard";
+const screenWidth = Dimensions.get("window").width;
+const cols = 2;
+const cardMargin = 14;
+const cardWidth = (screenWidth - cardMargin * (cols + 1)) / cols;
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   onSelect: (perfId: string) => void;
+  onDelete?: () => void;
+  onSearchOpen?: () => void;
 }
 
-export default function MyFavListModal({ visible, onClose, onSelect }: Props) {
+export default function MyFavListModal({
+  visible,
+  onClose,
+  onSelect,
+  onDelete,
+  onSearchOpen,
+}: Props) {
   const { myPerfumes } = useMyPerfume();
 
-  // 1. 즐겨찾기 목록 조인 (상세 정보 합치기)
-  const favoritePerfumes = useMemo(() => {
-    return myPerfumes
+  // MyFavourite listup
+  const gridData = useMemo(() => {
+    const myFavourites = myPerfumes
       .filter((p) => p.isFavourite)
       .map((my) => {
         const detail = MainPerfumeList.find((p) => p.perfId === my.perfId);
-        return detail ? { ...detail, isFavourite: true } : null;
+        return detail
+          ? { ...detail, isFavourite: true, isSearchBtn: false }
+          : null;
       })
       .filter((p) => p !== null);
+    return [...myFavourites, { perfId: "search-btn", isSearchBtn: true }];
   }, [myPerfumes]);
 
   return (
@@ -36,47 +53,75 @@ export default function MyFavListModal({ visible, onClose, onSelect }: Props) {
       visible={visible}
       animationType="slide"
       presentationStyle="pageSheet"
+      onRequestClose={onClose}
     >
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => {
+              onDelete?.();
+              onClose();
+            }}
+          >
+            <Text style={styles.deleteText}>Remove</Text>
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>My Favourite</Text>
           <TouchableOpacity onPress={onClose}>
             <Text style={styles.closeText}>Close</Text>
           </TouchableOpacity>
         </View>
 
-        {/* 2. Horizontal Favorites Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>My Favorites ❤️</Text>
-          {favoritePerfumes.length > 0 ? (
-            <FlatList
-              horizontal
-              data={favoritePerfumes}
-              keyExtractor={(item) => `fav-${item.perfId}`}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.horizontalList}
-              renderItem={({ item }) => (
+        {/* My Favourite List */}
+        <FlatList
+          data={gridData}
+          keyExtractor={(item) => item.perfId}
+          numColumns={cols}
+          contentContainerStyle={styles.listContent}
+          columnWrapperStyle={styles.columnWrapper}
+          ListHeaderComponent={
+            <Text style={styles.sectionTitle}>My Favourites ❤️</Text>
+          }
+          renderItem={({ item }) => {
+            // search btn (last card)
+            if (item.isSearchBtn) {
+              return (
                 <TouchableOpacity
-                  style={styles.favItem}
-                  onPress={() => onSelect(item.perfId)}
+                  style={[styles.cardContainer, styles.searchBtn]}
+                  onPress={() => {
+                    onSearchOpen?.();
+                    onClose();
+                  }}
                 >
-                  <PerfumeCard perfume={item} width={100} isFavourite={true} />
-                  <Text style={styles.favName} numberOfLines={1}>
-                    {item.name}
-                  </Text>
+                  <View style={styles.searchIconCircle}>
+                    <Text style={styles.plusIcon}>🔍</Text>
+                  </View>
+                  <Text style={styles.searchText}>Search All</Text>
+                  <Text style={styles.searchSubText}>Find more scents</Text>
                 </TouchableOpacity>
-              )}
-            />
-          ) : (
-            <Text style={styles.emptyText}>즐겨찾기한 향수가 없습니다.</Text>
-          )}
-        </View>
+              );
+            }
+            // perfumes
+            return (
+              <TouchableOpacity
+                style={styles.cardContainer}
+                onPress={() => onSelect(item.perfId)}
+              >
+                <View style={styles.cardWrapper}>
+                  <PerfumeCard
+                    perfume={item as any}
+                    width={cardWidth - 20}
+                    isFavourite={true}
+                  />
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+        ></FlatList>
       </View>
     </Modal>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -86,62 +131,97 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: "#f5f5f5",
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 14,
     fontWeight: "800",
     textTransform: "uppercase",
     letterSpacing: 1,
   },
-  closeText: {
-    fontSize: 16,
-    color: "#999",
-  },
-  section: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  sectionTitle: {
-    fontSize: 14,
+  deleteText: {
+    fontSize: 13,
+    color: "#FF3B30",
     fontWeight: "700",
-    color: "#333",
-    marginBottom: 15,
-    textTransform: "uppercase",
   },
-  horizontalList: {
-    paddingRight: 20,
+  closeText: {
+    fontSize: 13,
+    color: "#aaa",
   },
-  favItem: {
-    marginRight: 15,
-    alignItems: "center",
+  listContent: {
+    padding: cardMargin,
   },
-  favName: {
-    fontSize: 11,
-    marginTop: 5,
-    width: 100,
-    textAlign: "center",
-    color: "#666",
-  },
-  gridRow: {
+  columnWrapper: {
     justifyContent: "space-between",
     marginBottom: 20,
   },
-  gridItem: {
-    width: "30%",
+  sectionTitle: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: "#ccc",
+    marginBottom: 20,
+    textTransform: "uppercase",
+    letterSpacing: 2,
+  },
+  cardContainer: {
+    width: cardWidth,
     alignItems: "center",
   },
-  gridName: {
-    fontSize: 11,
-    marginTop: 5,
-    color: "#666",
-    textAlign: "center",
+  cardWrapper: {
+    backgroundColor: "#f9f9f9",
+    borderRadius: 15,
+    padding: 10,
+    width: "100%",
+    aspectRatio: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  emptyText: {
+  brandName: {
+    fontSize: 10,
+    color: "#999",
+    marginTop: 10,
+    fontWeight: "600",
+    textTransform: "uppercase",
+  },
+  perfumeName: {
+    fontSize: 12,
+    marginTop: 2,
+    color: "#333",
+    textAlign: "center",
+    fontWeight: "500",
+  },
+  searchBtn: {
+    height: cardWidth,
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    justifyContent: "center",
+    borderWidth: 1.5,
+    borderColor: "#eee",
+    borderStyle: "dashed",
+  },
+  searchIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#f5f5f5",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  plusIcon: {
+    fontSize: 20,
+  },
+  searchText: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#333",
+  },
+  searchSubText: {
+    fontSize: 10,
     color: "#bbb",
-    fontStyle: "italic",
-    paddingVertical: 10,
+    marginTop: 4,
   },
 });
