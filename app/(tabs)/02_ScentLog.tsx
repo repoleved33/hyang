@@ -14,6 +14,7 @@ import {
 } from "react-native";
 
 import SearchPerfumeModal from "@/src/components/scentlog/SearchPerfumeModal";
+import { useMyPerfume } from "@/src/context/MyPerfumeContext";
 import { ScentLog } from "@/src/types/scentLog";
 
 interface ScentLogItem {
@@ -32,6 +33,14 @@ export default function ScentLogScreen() {
 
   const [favModalVisible, setFavModalVisible] = useState(false);
   const [searchModalVisible, setSearchModalVisible] = useState(false);
+
+  const { myPerfumes } = useMyPerfume();
+
+  // my fav perfume listup
+  const favIds = useMemo(
+    () => myPerfumes.filter((p) => p.isFavourite).map((p) => p.perfId),
+    [myPerfumes],
+  );
 
   // dates listup
   const logs: ScentLogItem[] = useMemo(() => {
@@ -204,6 +213,7 @@ export default function ScentLogScreen() {
       <SearchPerfumeModal
         visible={searchModalVisible}
         mainPerfumes={MainPerfumeList}
+        excludeIds={favIds}
         onSelect={(perfume) => handleSelectPerfume(perfume.perfId)}
         onClose={() => setSearchModalVisible(false)}
       />

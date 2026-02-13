@@ -1,10 +1,10 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import PerfumeDetailModal from "@/src/components/common/PerfumeDetailModal";
-import AddMyShelfModal from "@/src/components/shelf/AddMyShelfModal";
+import SearchPerfumeModal from "@/src/components/scentlog/SearchPerfumeModal";
 import PerfumeCard from "@/src/components/shelf/PerfumeCard";
 import { Btn, Card, Colours, Layout } from "@/src/constants/theme";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
@@ -13,10 +13,17 @@ import { MainPerfumeList } from "@/src/data/dummyDatasfromServer";
 export default function ShelfScreen() {
   const { myPerfumes, addMyPerfume } = useMyPerfume();
 
-  const [addModalVisible, setAddModalVisible] = useState(false);
+  const [searchPerfumeModalVisible, setSearchPerfumeModalVisible] =
+    useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   // based on perfume id
   const [selectedPerfId, setSelectedPerfId] = useState<string | null>(null);
+
+  // my perfume listup
+  const myPerfumeIds = useMemo(
+    () => myPerfumes.map((p) => p.perfId),
+    [myPerfumes],
+  );
 
   return (
     <SafeAreaView style={Layout.safeArea}>
@@ -24,18 +31,19 @@ export default function ShelfScreen() {
         {/* add to my shelf*/}
         <TouchableOpacity
           style={Btn.plusBtn}
-          onPress={() => setAddModalVisible(true)}
+          onPress={() => setSearchPerfumeModalVisible(true)}
         >
           <MaterialIcons name="add" size={22} color={Colours.border} />
         </TouchableOpacity>
-        <AddMyShelfModal
-          visible={addModalVisible}
-          onClose={() => setAddModalVisible(false)}
+
+        <SearchPerfumeModal
+          visible={searchPerfumeModalVisible}
           mainPerfumes={MainPerfumeList}
-          // myPerfumesPerfId={myPerfumesPerfId}
-          myPerfumesPerfId={myPerfumes.map((p) => p.perfId)}
-          addMyPerfume={addMyPerfume}
+          excludeIds={myPerfumeIds}
+          onSelect={addMyPerfume}
+          onClose={() => setSearchPerfumeModalVisible(false)}
         />
+
         {/* my shelf list*/}
         <FlatList
           data={myPerfumes}
