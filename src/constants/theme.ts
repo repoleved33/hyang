@@ -7,12 +7,13 @@ const cardWidth = (screenWidth - cardMargin * (cols + 1)) / cols;
 
 export const Colours = {
   primary: "#000000",
-  secondary: "#FFFFFF",
+  secondary: "#fef9ffff",
 
-  background: "#D9D9D9",
+  background: "#fffdf8ff",
   cardBackground: "#FFFFFF",
   favCardBackground: "#BDABAE",
-  transparentBackground: "rgba(0,0,0,0.5)",
+  modalBackground: "rgba(0,0,0,0.5)",
+  transparentBackground: "rgba(255, 255, 255, 0.5)",
   border: "#BDABAE",
   text: "#333333",
   textDim: "#86888B",
@@ -38,13 +39,14 @@ export const Btn = StyleSheet.create({
   },
 });
 
-export const Inuput = StyleSheet.create({
+export const Input = StyleSheet.create({
   searchInput: {
     backgroundColor: Colours.background,
     borderWidth: 0.5,
     borderColor: Colours.border,
     padding: 8,
     marginBottom: 10,
+    fontFamily: "MyFont",
   },
 });
 

@@ -9,11 +9,11 @@ import {
   Modal,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { AppText } from "./AppText";
 
 interface DetailModalProps {
   visible: boolean;
@@ -72,12 +72,12 @@ export default function PerfumeDetailModal({
                   />
                 </View>
                 <View style={styles.infoContainer}>
-                  <Text style={modalStyles.modalItemDetailBrand}>
+                  <AppText style={modalStyles.modalItemDetailBrand}>
                     {perfume.brand}
-                  </Text>
-                  <Text style={modalStyles.modalItemDetailName}>
+                  </AppText>
+                  <AppText style={modalStyles.modalItemDetailName}>
                     {perfume.name}
-                  </Text>
+                  </AppText>
                 </View>
               </View>
 
@@ -87,15 +87,15 @@ export default function PerfumeDetailModal({
                   style={Btn.detailBtn}
                   onPress={() => handleToggleFavourite()}
                 >
-                  <Text>
+                  <AppText>
                     {isFavourite ? "My Favourite ❤️" : "My Favourite"}
-                  </Text>
+                  </AppText>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={Btn.detailBtn}
                   onPress={() => handleToggleHave()}
                 >
-                  <Text>I have</Text>
+                  <AppText>I have</AppText>
                 </TouchableOpacity>
               </View>
 
@@ -106,8 +106,12 @@ export default function PerfumeDetailModal({
                   .map(({ accord, score }) => (
                     <View key={accord} style={accordStyles.accordItem}>
                       <View style={styles.labelRow}>
-                        <Text style={accordStyles.accordLabel}>{accord}</Text>
-                        <Text style={accordStyles.accordValue}>{score}</Text>
+                        <AppText style={accordStyles.accordLabel}>
+                          {accord}
+                        </AppText>
+                        <AppText style={accordStyles.accordValue}>
+                          {score}
+                        </AppText>
                       </View>
                       <View style={accordStyles.accordBarBackground}>
                         <View
@@ -124,7 +128,7 @@ export default function PerfumeDetailModal({
 
             {/* 닫기 버튼 */}
             <TouchableOpacity style={Btn.closeBtn} onPress={onClose}>
-              <Text>Close</Text>
+              <AppText>Close</AppText>
             </TouchableOpacity>
           </View>
         </View>

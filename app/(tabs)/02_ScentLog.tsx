@@ -1,5 +1,5 @@
 import MyFavListModal from "@/src/components/scentlog/MyFavListModal";
-import { Months } from "@/src/constants/theme";
+import { Colours, Months } from "@/src/constants/theme";
 import { useScentLog } from "@/src/context/ScentLogContext";
 import { MainPerfumeList } from "@/src/data/dummyDatasfromServer";
 import React, { useMemo, useState } from "react";
@@ -8,12 +8,12 @@ import {
   Image,
   LayoutChangeEvent,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
 
-import SearchPerfumeModal from "@/src/components/scentlog/SearchPerfumeModal";
+import { AppText } from "@/src/components/common/AppText";
+import SearchPerfumeModal from "@/src/components/common/SearchPerfumeModal";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
 import { ScentLog } from "@/src/types/scentLog";
 
@@ -129,10 +129,12 @@ export default function ScentLogScreen() {
           { height: dateItemHeight },
         ]}
       >
-        <Text style={styles.monthLabel}>{item.month}</Text>
-        <Text style={[styles.dateText, isSelected && styles.selectedDateText]}>
+        <AppText style={styles.monthLabel}>{item.month}</AppText>
+        <AppText
+          style={[styles.dateText, isSelected && styles.selectedDateText]}
+        >
           {item.day}
-        </Text>
+        </AppText>
       </TouchableOpacity>
     );
   };
@@ -161,15 +163,15 @@ export default function ScentLogScreen() {
 
       {/* RIGHT: Details View */}
       <View style={styles.rightColumn}>
-        <Text style={styles.headerTitle}>
+        <AppText style={styles.headerTitle}>
           {selectedDate.month} {selectedDate.day}
-        </Text>
+        </AppText>
 
         {selectedDayEntries.map((perfume, index) => (
           <View key={index} style={styles.scentRow}>
-            <Text style={styles.slotLabel}>
+            <AppText style={styles.slotLabel}>
               {["first", "second", "third"][index]}
-            </Text>
+            </AppText>
             <TouchableOpacity
               style={styles.imageSlot}
               onPress={() => handleOpenModal(index)}
@@ -185,13 +187,10 @@ export default function ScentLogScreen() {
                     style={styles.perfumeImg}
                     resizeMode="contain"
                   />
-                  <Text style={styles.perfumeName} numberOfLines={1}>
-                    {perfume.name}
-                  </Text>
                 </View>
               ) : (
                 <View style={styles.addPlaceholder}>
-                  <Text style={styles.plusText}>+</Text>
+                  <AppText style={styles.plusText}>+</AppText>
                 </View>
               )}
             </TouchableOpacity>
@@ -222,59 +221,61 @@ export default function ScentLogScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, flexDirection: "row", backgroundColor: "#fff" },
+  container: {
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: Colours.background,
+  },
   leftColumn: {
     width: 75,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: Colours.background,
     borderRightWidth: 1,
-    borderRightColor: "#E0E0E0",
+    borderRightColor: Colours.border,
   },
   dateItem: { justifyContent: "center", alignItems: "center" },
-  selectedDateItem: { backgroundColor: "#fff" },
+  selectedDateItem: { backgroundColor: Colours.background },
   monthLabel: {
     fontSize: 11,
     fontWeight: "600",
     fontStyle: "italic",
-    color: "#000",
+    color: Colours.secondary,
     marginBottom: 2,
-    fontFamily: "serif",
   },
   dateText: { fontSize: 18, color: "#AAAAAA" },
-  selectedDateText: { color: "#000", fontWeight: "900" },
+  selectedDateText: { color: Colours.primary, fontWeight: "900" },
   rightColumn: { flex: 1, padding: 25, paddingTop: 80 },
   headerTitle: {
     fontSize: 32,
     fontWeight: "900",
     marginBottom: 40,
     textTransform: "uppercase",
-    fontFamily: "serif",
   },
   scentRow: { flexDirection: "row", alignItems: "center", marginBottom: 35 },
   slotLabel: {
     width: 65,
     fontSize: 13,
-    color: "#000",
+    color: Colours.text,
     fontWeight: "400",
     textTransform: "lowercase",
   },
   imageSlot: { flex: 1, height: 120, marginLeft: 10 },
   addPlaceholder: {
     flex: 1,
-    backgroundColor: "#F2F2F2",
+    backgroundColor: Colours.background,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#EAEAEA",
+    borderColor: Colours.border,
   },
-  plusText: { fontSize: 24, color: "#BBB", fontWeight: "300" },
+  plusText: { fontSize: 24, color: Colours.text, fontWeight: "300" },
   filledSlot: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: Colours.cardBackground,
     borderWidth: 1,
-    borderColor: "#eee",
+    borderColor: Colours.border,
   },
   perfumeImg: { width: "80%", height: "70%" },
-  perfumeName: { fontSize: 10, marginTop: 4, color: "#666" },
+  // perfumeName: { fontSize: 10, marginTop: 4, color: "#666" },
 });

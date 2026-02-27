@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 export const modalStyles = StyleSheet.create({
   modalBackground: {
     flex: 1,
-    backgroundColor: Colours.transparentBackground,
+    backgroundColor: Colours.modalBackground,
     justifyContent: "center",
     alignItems: "center",
     padding: 24,

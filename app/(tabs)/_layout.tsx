@@ -10,6 +10,10 @@ export default function TabsLayout() {
           backgroundColor: Colours.background,
           borderTopWidth: 0,
         },
+        tabBarLabelStyle: {
+          fontFamily: "MyFont",
+          fontSize: 12,
+        },
         tabBarActiveTintColor: Colours.text,
         tabBarInactiveTintColor: Colours.textDim,
         tabBarShowLabel: true,

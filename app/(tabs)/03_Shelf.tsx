@@ -4,7 +4,7 @@ import { FlatList, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import PerfumeDetailModal from "@/src/components/common/PerfumeDetailModal";
-import SearchPerfumeModal from "@/src/components/scentlog/SearchPerfumeModal";
+import SearchPerfumeModal from "@/src/components/common/SearchPerfumeModal";
 import PerfumeCard from "@/src/components/shelf/PerfumeCard";
 import { Btn, Card, Colours, Layout } from "@/src/constants/theme";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";

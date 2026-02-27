@@ -1,134 +1,124 @@
-import { Colours } from "@/src/constants/theme";
 import React, { useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
   StatusBar,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
 
-import { AntDesign, FontAwesome6 } from "@expo/vector-icons";
+// FontAwesome 혹은 Ionicons에서 종이비행기 가져오기
+import { Colours } from "@/src/constants/theme";
+import { Ionicons } from "@expo/vector-icons";
+import { AppText } from "../common/AppText";
+
 const HEADERBAR_HEIGHT = 40;
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
-const DROPDOWN_HEIGHT = SCREEN_HEIGHT / 3.5;
+const DROPDOWN_HEIGHT = SCREEN_HEIGHT / 3; // 버튼이 추가되어 높이를 조금 늘림
 
 interface DropdownProps {
-  onSave: () => void;
+  onSave: (period: number) => void;
+  onShare: () => void; // 공유 함수 프롭 추가
 }
 
-export default function DropdownBar({ onSave }: DropdownProps) {
+export default function DropdownBar({ onSave, onShare }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const animationController = useRef(new Animated.Value(0)).current;
 
   const toggleDropdown = () => {
     const nextOpen = !isOpen;
-
     Animated.timing(animationController, {
-      toValue: nextOpen ? 1 : 0, // 1: open, 0: close
-      duration: 250, // 0.25 sec
-      useNativeDriver: true, // 뭐노
+      toValue: nextOpen ? 1 : 0,
+      duration: 250,
+      useNativeDriver: true,
     }).start();
-
     setIsOpen(nextOpen);
   };
 
-  // -DROPDOWN_HEIGHT(hidden) -> 0(seen)
   const movedY = animationController.interpolate({
     inputRange: [0, 1],
     outputRange: [-DROPDOWN_HEIGHT, 0],
   });
 
   return (
-    <>
-      <View
+    <View
+      style={[
+        styles.wrapper,
+        {
+          position: isOpen ? "absolute" : "relative",
+          height: HEADERBAR_HEIGHT,
+        },
+      ]}
+    >
+      <StatusBar barStyle={isOpen ? "light-content" : "dark-content"} />
+
+      {isOpen && (
+        <TouchableOpacity
+          style={styles.backdrop}
+          activeOpacity={1}
+          onPress={toggleDropdown}
+        />
+      )}
+
+      <TouchableOpacity
+        style={styles.headerBar}
+        onPress={toggleDropdown}
+        activeOpacity={0.8}
+      >
+        <AppText style={styles.headerText}>
+          Option {isOpen ? "▲" : "▼"}{" "}
+        </AppText>
+      </TouchableOpacity>
+
+      <Animated.View
         style={[
-          styles.wrapper,
-          {
-            position: isOpen ? "absolute" : "relative",
-            height: HEADERBAR_HEIGHT,
-          },
+          styles.dropdownContainer,
+          { transform: [{ translateY: movedY }] },
         ]}
       >
-        <StatusBar
-          // 드롭다운이 열리면 글자를 하얗게(light), 닫히면 검게(dark) 혹은 그 반대
-          barStyle={isOpen ? "light-content" : "dark-content"}
-          // 안드로이드 배경색도 실시간 변경 가능
-          backgroundColor={isOpen ? "black" : "white"}
-          // translucent={true}
-        />
-        {/* 1. 드롭다운 밖 영역 (Backdrop) - 열렸을 때만 렌더링 */}
-        {isOpen && (
+        <AppText style={styles.dropdownText}>customise receipt</AppText>
+
+        <View style={styles.buttonRow}>
           <TouchableOpacity
-            style={styles.backdrop}
-            activeOpacity={1}
-            onPress={toggleDropdown} // 밖을 누르면 닫힘
-          />
-        )}
+            style={styles.filterBtn}
+            onPress={() => {
+              onSave(30);
+              toggleDropdown();
+            }}
+          >
+            <AppText style={styles.buttonText}>last month</AppText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.filterBtn}
+            onPress={() => {
+              onSave(7);
+              toggleDropdown();
+            }}
+          >
+            <AppText style={styles.buttonText}>last week</AppText>
+          </TouchableOpacity>
+        </View>
 
-        {/* header */}
-        <TouchableOpacity
-          style={styles.headerBar}
-          onPress={toggleDropdown}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.headerText}>Option {isOpen ? "▲" : "▼"} </Text>
-        </TouchableOpacity>
-        <Animated.View
-          style={[
-            styles.dropdownContainer,
-            {
-              transform: [{ translateY: movedY }],
-            },
-          ]}
-        >
-          {/* contents - title */}
-          <Text style={styles.dropdownText}>customise receipt</Text>
+        {/* --- 공유(종이비행기) 버튼 영역 --- */}
+        <View style={styles.shareActionRow}>
+          <TouchableOpacity
+            style={styles.paperPlaneBtn}
+            onPress={() => {
+              onShare(); // 부모의 공유 함수 실행
+              toggleDropdown(); // 닫기
+            }}
+          >
+            <Ionicons name="paper-plane-outline" size={24} color="white" />
+            <AppText style={styles.shareBtnText}>SHARE</AppText>
+          </TouchableOpacity>
+        </View>
 
-          {/* contents - option (last month / last week) */}
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={styles.filterBtn}
-              onPress={() => {
-                onSave();
-                toggleDropdown();
-              }}
-            >
-              <Text style={styles.buttonText}>last month</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.filterBtn]}
-              onPress={() => {
-                onSave();
-                toggleDropdown();
-              }}
-            >
-              <Text style={styles.buttonText}>last week</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* contents - icons */}
-          <View style={styles.iconRow}>
-            {/* <View style={styles.iconCircle}>
-            <Ionicons name="arrow-down" size={24} color="black" />
-          </View> */}
-            <FontAwesome6 name="x-twitter" size={28} color="white" />
-            <AntDesign name="instagram" size={32} color="white" />
-            <FontAwesome6 name="tiktok" size={28} color="white" />
-          </View>
-
-          {/* contents - footer */}
-
-          <View style={styles.footerRow}>
-            <Text style={styles.footerText}>tips | </Text>
-
-            <Text style={styles.footerText}>Founder</Text>
-          </View>
-        </Animated.View>
-      </View>
-    </>
+        <View style={styles.footerRow}>
+          <AppText style={styles.footerText}>tips | Founder</AppText>
+        </View>
+      </Animated.View>
+    </View>
   );
 }
 
@@ -138,79 +128,66 @@ const styles = StyleSheet.create({
     top: -500,
     left: -100,
     right: -100,
-
     height: SCREEN_HEIGHT * 2,
-    backgroundColor: Colours.transparentBackground,
+    backgroundColor: Colours.modalBackground,
     zIndex: 50,
   },
-  wrapper: {
-    zIndex: 100,
-    width: "100%",
-    backgroundColor: "transparent",
-    height: HEADERBAR_HEIGHT,
-    overflow: "visible",
-  },
+  wrapper: { zIndex: 100, width: "100%", backgroundColor: "transparent" },
   headerBar: {
     zIndex: 120,
     height: HEADERBAR_HEIGHT,
-    backgroundColor: Colours.primary,
+    backgroundColor: "black",
     justifyContent: "center",
     alignItems: "center",
-    width: "100%",
   },
-  headerText: {
-    color: Colours.secondary,
-    fontSize: 14,
-    fontWeight: "600",
-  },
+  headerText: { color: "white", fontSize: 14, fontWeight: "600" },
   dropdownContainer: {
     zIndex: 110,
-    position: "absolute", // layer on main screen
+    position: "absolute",
     height: DROPDOWN_HEIGHT,
-    top: 0, // start point - header
+    top: 0,
     left: 0,
     right: 0,
-    backgroundColor: Colours.primary,
+    backgroundColor: "black",
     alignItems: "center",
-    paddingTop: HEADERBAR_HEIGHT + 10,
-    paddingVertical: 20,
-    overflow: "hidden",
+    paddingTop: HEADERBAR_HEIGHT + 20,
   },
   dropdownText: {
-    color: Colours.secondary,
-    fontSize: 18,
-    marginBottom: 20,
+    color: "white",
+    fontSize: 16,
+    marginBottom: 15,
+    fontFamily: "monospace",
   },
-  buttonRow: {
-    flexDirection: "row",
-    gap: 30,
-    marginBottom: 30,
-  },
+  buttonRow: { flexDirection: "row", gap: 20, marginBottom: 20 },
   filterBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: Colours.secondary,
-    minWidth: 110,
+    borderColor: "white",
+    minWidth: 100,
     alignItems: "center",
   },
-  buttonText: {
-    color: Colours.secondary,
-    fontWeight: "bold",
+  buttonText: { color: "white", fontWeight: "bold", fontSize: 12 },
+
+  // 종이비행기 버튼 스타일
+  shareActionRow: { marginBottom: 20 },
+  paperPlaneBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#333",
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    borderRadius: 20,
+    gap: 10,
   },
+  shareBtnText: { color: "white", fontWeight: "800", fontSize: 13 },
+
   iconRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 25,
-    marginBottom: 20,
+    marginBottom: 15,
   },
-  footerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
-  },
-  footerText: {
-    color: Colours.secondary,
-    fontSize: 12,
-  },
+  footerRow: { flexDirection: "row", marginTop: 5 },
+  footerText: { color: "white", fontSize: 11, opacity: 0.6 },
 });

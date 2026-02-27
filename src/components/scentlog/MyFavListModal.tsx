@@ -6,12 +6,12 @@ import {
   FlatList,
   Modal,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
 
 import PerfumeCard from "@/src/components/shelf/PerfumeCard";
+import { AppText } from "../common/AppText";
 const screenWidth = Dimensions.get("window").width;
 const cols = 2;
 const cardMargin = 14;
@@ -64,11 +64,11 @@ export default function MyFavListModal({
               onClose();
             }}
           >
-            <Text style={styles.deleteText}>Remove</Text>
+            <AppText style={styles.deleteText}>Remove</AppText>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>My Favourite</Text>
+          <AppText style={styles.headerTitle}>My Favourite</AppText>
           <TouchableOpacity onPress={onClose}>
-            <Text style={styles.closeText}>Close</Text>
+            <AppText style={styles.closeText}>Close</AppText>
           </TouchableOpacity>
         </View>
 
@@ -80,7 +80,7 @@ export default function MyFavListModal({
           contentContainerStyle={styles.listContent}
           columnWrapperStyle={styles.columnWrapper}
           ListHeaderComponent={
-            <Text style={styles.sectionTitle}>My Favourites ❤️</Text>
+            <AppText style={styles.sectionTitle}>My Favourites ❤️</AppText>
           }
           renderItem={({ item }) => {
             // search btn (last card)
@@ -93,10 +93,12 @@ export default function MyFavListModal({
                   }}
                 >
                   <View style={styles.searchIconCircle}>
-                    <Text style={styles.plusIcon}>🔍</Text>
+                    <AppText style={styles.plusIcon}>🔍</AppText>
                   </View>
-                  <Text style={styles.searchText}>Search All</Text>
-                  <Text style={styles.searchSubText}>Find more scents</Text>
+                  <AppText style={styles.searchText}>Search All</AppText>
+                  <AppText style={styles.searchSubText}>
+                    Find more scents
+                  </AppText>
                 </TouchableOpacity>
               );
             }

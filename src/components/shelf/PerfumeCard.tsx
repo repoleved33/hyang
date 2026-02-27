@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default function PerfumeCard({ perfume, width, isFavourite }: Props) {
-  // imageUrl 사용
+  // imageUrl
   const imageSource =
     typeof perfume.imageUrl === "string"
       ? { uri: perfume.imageUrl }
@@ -20,7 +20,7 @@ export default function PerfumeCard({ perfume, width, isFavourite }: Props) {
       style={[
         styles.card,
         width ? { width } : {},
-        // 👇 isFavourite이 true일 때 styles.favouriteCard 스타일을 추가로 덮어씌움
+        // isFavourite === true
         isFavourite && styles.favouriteCard,
       ]}
     >
