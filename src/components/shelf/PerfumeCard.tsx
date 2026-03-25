@@ -1,8 +1,8 @@
-import { Colours } from "@/src/constants/theme";
 import { Perfume } from "@/src/types/perfume";
-import { Image } from "expo-image"; // loading issue
+import { Image } from "expo-image";
 import React from "react";
 import { StyleSheet, View } from "react-native";
+
 type Props = {
   perfume: Perfume;
   width?: number;
@@ -11,11 +11,13 @@ type Props = {
 
 export default function PerfumeCard({ perfume, width, isFavourite }: Props) {
   const rawUrl = perfume.image_url || (perfume as any).imageUrl;
+
+  // Memoize source to prevent unnecessary re-renders and fix encoding issues
   const safeSource = React.useMemo(() => {
     if (typeof rawUrl === "string") {
       return encodeURI(decodeURI(rawUrl));
     }
-    return rawUrl; // if local img
+    return rawUrl;
   }, [rawUrl]);
 
   return (
@@ -23,47 +25,78 @@ export default function PerfumeCard({ perfume, width, isFavourite }: Props) {
       style={[
         styles.card,
         width ? { width } : {},
-        // isFavourite === true
         isFavourite && styles.favouriteCard,
       ]}
     >
-      <Image
-        source={safeSource}
-        style={styles.image}
-        contentFit="contain"
-        transition={200}
-        cachePolicy="disk" // [TEST]]
-        onError={(e) => {
-          console.warn(`❌ [Decode Fail] ID: ${perfume.perfId}`, e);
-          console.log(`🔗 Error URL: ${rawUrl}`);
-        }}
-      />
+      {/* Image Container: Square and Sharp */}
+      <View style={styles.imageWrapper}>
+        <Image
+          source={safeSource}
+          style={styles.image}
+          contentFit="contain"
+          transition={200}
+          cachePolicy="disk"
+          onError={(e) => {
+            console.warn(`❌ [Decode Fail] ID: ${perfume.perfId}`, e);
+          }}
+        />
+      </View>
+
+      {/* Info Section: Extremely minimal text for 3-column layout */}
+      <View style={styles.info}>
+        {/* <AppText style={styles.brand} numberOfLines={1}>
+          {perfume.brand || "UNKNOWN"}
+        </AppText>
+        <AppText style={styles.name} numberOfLines={1}>
+          {perfume.name || "SCENT"}
+        </AppText> */}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    // borderWidth: 1,
-    // borderColor: Colours.border,
-    padding: 12,
-    backgroundColor: Colours.cardBackground,
+    padding: 8, // Reduced padding for smaller cards
+    backgroundColor: "transparent", // Seamless look
+    alignItems: "center",
+    borderRadius: 0, // Sharp edges
   },
   favouriteCard: {
-    backgroundColor: Colours.favCardBackground,
+    // Keep it clean even if it's a favourite
+    backgroundColor: "transparent",
+  },
+  imageWrapper: {
+    width: "100%",
+    aspectRatio: 1, // Keep it perfectly square
+    backgroundColor: "#FFF", // White background for the bottle to pop
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 6,
+    borderWidth: 0.5,
+    borderColor: "#EEE", // Very subtle border
   },
   image: {
-    width: "100%",
-    height: 160,
+    width: "85%", // Slightly smaller than container for breathing room
+    height: "85%",
   },
-  name: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: Colours.primary,
-    marginTop: 6,
+  info: {
+    width: "100%",
+    alignItems: "center",
   },
   brand: {
-    fontSize: 12,
-    color: Colours.textDim,
+    fontSize: 8, // Tiny text for 3-column grid
+    fontWeight: "800",
+    color: "#AAA",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  name: {
+    fontSize: 9,
+    fontWeight: "600",
+    color: "#333",
+    marginTop: 1,
+    textTransform: "uppercase",
+    textAlign: "center",
   },
 });
