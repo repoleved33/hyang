@@ -1,25 +1,32 @@
 import { MyPerfumeProvider } from "@/src/context/MyPerfumeContext";
 import { ScentLogProvider } from "@/src/context/ScentLogContext";
-import { Slot } from "expo-router";
-import { View } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-
 import { useFonts } from "expo-font";
+import { Slot } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Platform, StatusBar as RNStatusBar, View } from "react-native"; // 💡 RNStatusBar 추가
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     MyFont: require("@/assets/fonts/DepartureMono-Regular.otf"),
   });
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
 
   return (
     <SafeAreaProvider>
       <MyPerfumeProvider>
         <ScentLogProvider>
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, backgroundColor: "#111111" }}>
+            {/* 💡 안드로이드 전용 강제 배경색 설정 */}
+            {Platform.OS === "android" && (
+              <RNStatusBar backgroundColor="#111111" barStyle="light-content" />
+            )}
+            <StatusBar
+              style="light"
+              translucent={false}
+              backgroundColor="#111111"
+            />
             <Slot />
           </View>
         </ScentLogProvider>

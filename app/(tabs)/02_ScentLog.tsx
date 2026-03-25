@@ -1,6 +1,7 @@
 import MyFavListModal from "@/src/components/scentlog/MyFavListModal";
-import { Colours, Months } from "@/src/constants/theme";
+import { Months } from "@/src/constants/theme";
 import { useScentLog } from "@/src/context/ScentLogContext";
+import { ScentLog } from "@/src/types/scentLog";
 import React, { useMemo, useState } from "react";
 import {
   Alert,
@@ -12,11 +13,10 @@ import {
   View,
 } from "react-native";
 
-import { ScentLog } from "@/src/types/scentLog";
-
 import { AppText } from "@/src/components/common/AppText";
 import SearchPerfumeModal from "@/src/components/common/SearchPerfumeModal";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface ScentLogItem {
   id: string;
@@ -26,6 +26,7 @@ interface ScentLogItem {
 }
 
 export default function ScentLogScreen() {
+  const insets = useSafeAreaInsets();
   const { scentLogs, upsertScentLog, deleteScentLog, clearAllLogs } =
     useScentLog();
   const { myPerfumes } = useMyPerfume();
@@ -123,13 +124,14 @@ export default function ScentLogScreen() {
     return (
       <TouchableOpacity
         onPress={() => setSelectedDate(item)}
-        style={[
-          styles.dateItem,
-          isSelected && styles.selectedDateItem,
-          { height: dateItemHeight },
-        ]}
+        style={[styles.dateItem, { height: dateItemHeight }]}
       >
-        <AppText style={styles.monthLabel}>{item.month}</AppText>
+        {/* 💡 선택 시 왼쪽 검은색 바 표시 */}
+        {isSelected && <View style={styles.selectedBar} />}
+
+        <AppText style={[styles.monthLabel, isSelected && { color: "#111" }]}>
+          {item.month.slice(0, 3)}
+        </AppText>
         <AppText
           style={[styles.dateText, isSelected && styles.selectedDateText]}
         >
@@ -168,7 +170,10 @@ export default function ScentLogScreen() {
   };
 
   return (
-    <View style={styles.container} onLayout={onLayout}>
+    <View
+      style={[styles.container, { paddingTop: insets.top }]}
+      onLayout={onLayout}
+    >
       {/* LEFT : Date Selector */}
       <View style={styles.leftColumn}>
         {listHeight > 0 && (
@@ -179,7 +184,7 @@ export default function ScentLogScreen() {
             showsVerticalScrollIndicator={false}
             snapToInterval={dateItemHeight}
             decelerationRate="fast"
-            initialScrollIndex={29}
+            initialScrollIndex={23} // show 7 days
             getItemLayout={(_, index) => ({
               length: dateItemHeight,
               offset: dateItemHeight * index,
@@ -197,23 +202,22 @@ export default function ScentLogScreen() {
 
         {selectedDayEntries.map((perfume, index) => (
           <View key={index} style={styles.scentRow}>
-            <AppText style={styles.slotLabel}>
-              {["first", "second", "third"][index]}
-            </AppText>
+            <View style={styles.labelWrapper}>
+              <AppText style={styles.slotLabel}># 0{index + 1}</AppText>
+              <View style={styles.verticalLine} />
+            </View>
+
             <TouchableOpacity
-              style={styles.imageSlot}
+              style={[
+                styles.imageSlot,
+                perfume ? styles.filledSlotBorder : styles.emptySlotBorder,
+              ]}
               onPress={() => handleOpenModal(index)}
             >
               {perfume ? (
                 <View style={styles.filledSlot}>
                   <Image
-                    source={
-                      perfume.imageUrl
-                        ? { uri: perfume.imageUrl }
-                        : perfume.image_url
-                          ? { uri: perfume.image_url }
-                          : require("@/assets/images/default-perfume.png")
-                    }
+                    source={{ uri: perfume.imageUrl || perfume.image_url }}
                     style={styles.perfumeImg}
                     resizeMode="contain"
                   />
@@ -278,96 +282,166 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: "row",
-    backgroundColor: Colours.background,
+    backgroundColor: "#F7F2F9",
   },
   leftColumn: {
-    width: 75,
-    backgroundColor: Colours.background,
-    borderRightWidth: 1,
-    borderRightColor: Colours.border,
+    width: 70,
+    backgroundColor: "#111111",
+    borderRightWidth: 0,
   },
-  dateItem: { justifyContent: "center", alignItems: "center" },
-  selectedDateItem: { backgroundColor: Colours.background },
-  monthLabel: {
-    fontSize: 11,
-    fontWeight: "600",
-    fontStyle: "italic",
-    color: Colours.secondary,
-    marginBottom: 2,
-  },
-  dateText: { fontSize: 18, color: "#AAAAAA" },
-  selectedDateText: { color: Colours.primary, fontWeight: "900" },
-  rightColumn: { flex: 1, padding: 25, paddingTop: 80 },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: "900",
-    marginBottom: 40,
-    textTransform: "uppercase",
-  },
-  scentRow: { flexDirection: "row", alignItems: "center", marginBottom: 35 },
-  slotLabel: {
-    width: 65,
-    fontSize: 13,
-    color: Colours.text,
-    fontWeight: "400",
-    textTransform: "lowercase",
-  },
-  imageSlot: { flex: 1, height: 120, marginLeft: 10 },
-  addPlaceholder: {
-    flex: 1,
-    backgroundColor: Colours.background,
+  dateItem: {
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: Colours.border,
+    paddingVertical: 15,
   },
-  plusText: { fontSize: 24, color: Colours.text, fontWeight: "300" },
+  selectedBar: {
+    position: "absolute",
+    left: 0,
+    width: 4,
+    height: "25%",
+    backgroundColor: "#FFFFFF",
+    borderTopRightRadius: 2,
+    borderBottomRightRadius: 2,
+  },
+  // 💡 월 라벨: 선택 시 더 밝은 보라색으로 잘 보이게 수정
+  monthLabel: {
+    fontSize: 9,
+    fontWeight: "800",
+    color: "#8E82A8", // 💡 블랙 위에서도 잘 보이는 연보라톤
+    textTransform: "uppercase",
+    letterSpacing: 1.2,
+    marginBottom: 4,
+    opacity: 0.6,
+  },
+  dateText: {
+    fontSize: 16,
+    color: "#444444", // 비선택 날짜는 어둡게
+    fontWeight: "600",
+  },
+  // 💡 선택된 날짜: 확실하게 화이트로
+  selectedDateText: {
+    color: "#FFFFFF",
+    fontWeight: "900",
+    fontSize: 22,
+  },
+  rightColumn: {
+    flex: 1,
+    padding: 25,
+    paddingTop: 80,
+    backgroundColor: "#F7F2F9",
+  },
+  headerTitle: {
+    fontSize: 34,
+    fontWeight: "900",
+    marginBottom: 45,
+    letterSpacing: -1.5,
+    color: "#111111",
+    textTransform: "uppercase",
+  },
+  scentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 40,
+  },
+  labelWrapper: {
+    alignItems: "center",
+    marginRight: 20,
+    width: 35,
+  },
+  slotLabel: {
+    fontSize: 11,
+    color: "#5C5470",
+    fontWeight: "900",
+    opacity: 0.4,
+    marginBottom: 8,
+  },
+  verticalLine: {
+    width: 1,
+    height: 50,
+    backgroundColor: "#111111",
+    opacity: 0.15,
+  },
+  imageSlot: {
+    flex: 1,
+    height: 130,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  emptySlotBorder: {
+    borderWidth: 1,
+    borderColor: "#111111",
+    opacity: 0.1,
+    borderStyle: "dashed",
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+  },
+  filledSlotBorder: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(17, 17, 17, 0.05)",
+    shadowColor: "#5C5470",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 5,
+  },
+  addPlaceholder: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  plusText: {
+    fontSize: 20,
+    color: "#111111",
+    opacity: 0.2,
+    fontWeight: "200",
+  },
   filledSlot: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colours.cardBackground,
-    borderWidth: 1,
-    borderColor: Colours.border,
   },
-  perfumeImg: { width: "80%", height: "70%" },
+  perfumeImg: {
+    width: "85%",
+    height: "75%",
+  },
   testFrame: {
     position: "absolute",
     bottom: 30,
     right: 15,
-    borderWidth: 2,
-    borderColor: "#AAAAAA",
+    borderWidth: 1,
+    borderColor: "#111111",
     borderStyle: "dashed",
-    borderRadius: 15,
+    borderRadius: 4,
     padding: 10,
     paddingTop: 18,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
     zIndex: 9999,
-    elevation: 10,
   },
   testLabelContainer: {
     position: "absolute",
     top: -10,
-    left: 10,
-    backgroundColor: "#AAAAAA",
-    paddingHorizontal: 8,
+    left: 8,
+    backgroundColor: "#111111",
+    paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 5,
+    borderRadius: 2,
   },
   testLabelText: {
     color: "#FFFFFF",
-    fontSize: 9,
+    fontSize: 8,
     fontWeight: "900",
-    textTransform: "uppercase",
   },
-  testButtonGroupInner: { flexDirection: "row", gap: 8 },
+  testButtonGroupInner: { flexDirection: "row", gap: 6 },
   testButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    minWidth: 70,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 4,
+    minWidth: 60,
     alignItems: "center",
-    justifyContent: "center",
   },
-  testButtonText: { color: "#FFFFFF", fontSize: 11, fontWeight: "bold" },
+  testButtonText: { color: "#FFFFFF", fontSize: 10, fontWeight: "800" },
 });

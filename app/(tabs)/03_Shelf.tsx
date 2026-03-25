@@ -69,7 +69,7 @@ export default function ShelfScreen() {
         />
       </View>
 
-      {/* 💡 Detail Modal (아이템 클릭 시 뜨는 놈) */}
+      {/* Detail Modal */}
       <PerfumeDetailModal
         visible={detailModalVisible}
         perfume={selectedPerfume}
@@ -162,8 +162,15 @@ export default function ShelfScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colours.background },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  container: {
+    flex: 1,
+    backgroundColor: "#FEF9FF",
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -172,8 +179,16 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 10,
   },
-  headerTitle: { fontSize: 24, fontWeight: "800", color: Colours.text },
-  listContent: { padding: 20, paddingBottom: 120 },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: "#111111",
+    letterSpacing: -0.5,
+  },
+  listContent: {
+    padding: 20,
+    paddingBottom: 120,
+  },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
@@ -184,22 +199,24 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#FFF",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 25,
     borderWidth: 1,
-    borderColor: "#eee",
+    borderColor: "#5C5470",
+    opacity: 0.2,
   },
   emptyTitle: {
     fontSize: 22,
     fontWeight: "800",
-    color: Colours.text,
+    color: "#111111",
     marginBottom: 12,
   },
   emptySub: {
     fontSize: 15,
-    color: Colours.textDim,
+    color: "#5C5470",
+    opacity: 0.6,
     textAlign: "center",
     lineHeight: 22,
   },
@@ -210,19 +227,29 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: Colours.text,
+    backgroundColor: "#111111",
     justifyContent: "center",
     alignItems: "center",
-    elevation: 5,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
     zIndex: 10,
   },
   card: {
     flexDirection: "row",
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 30,
     padding: 15,
     marginBottom: 16,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#5C5470",
+    shadowColor: "#5C5470",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
     elevation: 3,
   },
   cardMainAction: {
@@ -233,22 +260,40 @@ const styles = StyleSheet.create({
   imageBox: {
     width: 70,
     height: 70,
-    borderRadius: 12,
-    backgroundColor: "#fcfcfc",
+    borderRadius: 20,
+    backgroundColor: "#FEF9FF",
     justifyContent: "center",
     alignItems: "center",
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#f0f0f0",
+    borderColor: "#5C5470",
+    opacity: 0.8,
   },
-  image: { width: "100%", height: "100%", resizeMode: "contain" },
-  infoBox: { flex: 1, marginLeft: 15, justifyContent: "center" },
+  image: {
+    width: "80%",
+    height: "80%",
+    resizeMode: "contain",
+  },
+  infoBox: {
+    flex: 1,
+    marginLeft: 15,
+    justifyContent: "center",
+  },
   brandText: {
-    fontSize: 12,
-    color: Colours.textDim,
+    fontSize: 11,
+    color: "#5C5470",
+    fontWeight: "700",
     textTransform: "uppercase",
     marginBottom: 4,
+    opacity: 0.5,
   },
-  nameText: { fontSize: 16, fontWeight: "700", color: Colours.text },
-  actionBox: { paddingLeft: 10, alignItems: "center" },
+  nameText: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#111111",
+  },
+  actionBox: {
+    paddingLeft: 10,
+    alignItems: "center",
+  },
 });

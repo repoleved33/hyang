@@ -9,7 +9,7 @@ export const Colours = {
   primary: "#000000",
   secondary: "#fef9ffff",
 
-  background: "#fffdf8ff",
+  background: "#fef9ffff",
   cardBackground: "#FFFFFF",
   favCardBackground: "#BDABAE",
   modalBackground: "rgba(0,0,0,0.5)",
