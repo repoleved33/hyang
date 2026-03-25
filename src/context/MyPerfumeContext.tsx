@@ -1,79 +1,209 @@
-import React, { ReactNode, createContext, useContext, useState } from "react";
+import { supabase } from "@/src/lib/supabase";
+import { MyPerfumeWithDetail, Perfume } from "@/src/types/perfume";
+import * as SQLite from "expo-sqlite";
+import React, {
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
-import { MyPerfumeList } from "@/src/data/dummyDatasLocal";
-import { MyPerfume, Perfume } from "@/src/types/perfume";
+// connect SQLite
+const db = SQLite.openDatabaseSync("hyang_myperfume.db");
 
 type MyPerfumeContextType = {
-  myPerfumes: MyPerfume[];
-  addMyPerfume: (perfume: Perfume) => void;
-  toggleFavourite: (perfId: string) => void;
-  toggleHave: (perfId: string) => void;
+  myPerfumes: MyPerfumeWithDetail[];
+  addMyPerfume: (perfume: Perfume) => Promise<void>;
+  toggleFavourite: (perfId: string) => Promise<void>;
+  toggleHave: (perfId: string) => Promise<void>;
+  searchPerfumes: (keyword: string, page?: number) => Promise<Perfume[]>;
+  selectMyPerfumes: () => Promise<void>;
+  isLoading: boolean;
 };
 
-// define
 const MyPerfumeContext = createContext<MyPerfumeContextType | undefined>(
   undefined,
 );
 
-// storage
 export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
-  const [myPerfumes, setMyPerfumes] = useState<MyPerfume[]>(MyPerfumeList);
+  const [myPerfumes, setMyPerfumes] = useState<MyPerfumeWithDetail[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const addMyPerfume = (perfume: Perfume) => {
-    const exists = myPerfumes.some((p) => p.perfId === perfume.perfId);
-    if (exists) return;
+  // 1. init
+  useEffect(() => {
+    const initDB = async () => {
+      console.log("📂 [SQLite] Initializing My Perfume Data ...");
+      setIsLoading(true);
 
-    const newMyPerfume: MyPerfume = {
-      userId: "u001", // 나중에 auth 붙이면 교체
-      perfId: perfume.perfId,
-      isFavourite: false,
-      addedAt: Date.now(),
+      try {
+        await db.execAsync(`
+          CREATE TABLE IF NOT EXISTS my_perfumes (
+            perf_id TEXT PRIMARY KEY NOT NULL,
+            is_favourite INTEGER DEFAULT 0,
+            added_at INTEGER,
+            details_json TEXT
+          );
+        `);
+
+        await selectMyPerfumes();
+        console.log("✅ [SQLite] My Perfumes initialized.");
+      } catch (error) {
+        console.error("❌ [SQLite] Init failed:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    setMyPerfumes((prev) => [...prev, newMyPerfume]);
+    initDB();
+  }, []);
+
+  // 2. search / fetch
+  const selectMyPerfumes = async () => {
+    try {
+      const allRows = await db.getAllAsync<any>(
+        "SELECT * FROM my_perfumes ORDER BY added_at DESC",
+      );
+
+      const formattedData: MyPerfumeWithDetail[] = allRows.map((row) => ({
+        userId: "u001",
+        perfId: row.perf_id,
+        isFavourite: row.is_favourite === 1,
+        addedAt: row.added_at,
+        details: row.details_json ? JSON.parse(row.details_json) : null,
+      }));
+
+      setMyPerfumes(formattedData);
+    } catch (error) {
+      console.error("❌ [SQLite] Select error:", error);
+    }
   };
 
-  const toggleFavourite = (perfId: string) => {
-    setMyPerfumes((prev) =>
-      prev.map((p) =>
-        p.perfId === perfId ? { ...p, isFavourite: !p.isFavourite } : p,
-      ),
-    );
-  };
+  // 3. insert to my perfume shelf
+  const addMyPerfume = async (perfume: Perfume) => {
+    if (!perfume || !perfume.perfId) return;
 
-  const toggleHave = (perfId: string) => {
-    setMyPerfumes((prev) => {
-      const exists = prev.some((p) => p.perfId === perfId);
+    console.log(`💾 [SQLite] Add attempt: ${perfume.name}`);
+    try {
+      const exists = await db.getFirstAsync<any>(
+        "SELECT * FROM my_perfumes WHERE perf_id = ?",
+        [perfume.perfId],
+      );
+
       if (exists) {
-        // delete
-        return prev.filter((p) => p.perfId !== perfId);
-      } else {
-        // add
-        const newEntry: MyPerfume = {
-          userId: "u001",
-          perfId: perfId,
-          isFavourite: false,
-          addedAt: Date.now(),
-        };
-        return [...prev, newEntry];
+        console.log(`ℹ️ [SQLite] '${perfume.name}' already exists.`);
+        return;
       }
-    });
+
+      const addedAt = Date.now();
+      await db.runAsync(
+        "INSERT INTO my_perfumes (perf_id, is_favourite, added_at, details_json) VALUES (?, ?, ?, ?)",
+        [perfume.perfId, 0, addedAt, JSON.stringify(perfume)],
+      );
+
+      console.log(`✨ [SQLite] Saved: ${perfume.name}`);
+      await selectMyPerfumes();
+    } catch (error) {
+      console.error("❌ [SQLite] Add error:", error);
+    }
+  };
+
+  // 4. delete from my perfume shelf
+  const toggleHave = async (perfId: string) => {
+    console.log(`🗑️ [SQLite] Delete attempt: ${perfId}`);
+    try {
+      const result = await db.runAsync(
+        "DELETE FROM my_perfumes WHERE perf_id = ?",
+        [perfId],
+      );
+
+      if (result.changes > 0) {
+        console.log(`✅ [SQLite] Deleted from shelf: ${perfId}`);
+        await selectMyPerfumes();
+      }
+    } catch (error) {
+      console.error("❌ [SQLite] Delete error:", error);
+    }
+  };
+
+  // 5. toggle favourite (ScentLog 스타일)
+  const toggleFavourite = async (perfId: string) => {
+    console.log(`🔄 [SQLite] Toggling favorite for: ${perfId}`);
+    try {
+      const target = await db.getFirstAsync<any>(
+        "SELECT is_favourite FROM my_perfumes WHERE perf_id = ?",
+        [perfId],
+      );
+
+      if (!target) return;
+
+      const nextStatus = target.is_favourite === 0 ? 1 : 0;
+      await db.runAsync(
+        "UPDATE my_perfumes SET is_favourite = ? WHERE perf_id = ?",
+        [nextStatus, perfId],
+      );
+
+      console.log(`${nextStatus ? "❤️" : "🤍"} [SQLite] Fav status updated`);
+      await selectMyPerfumes();
+    } catch (error) {
+      console.error("❌ [SQLite] Toggle Fav error:", error);
+    }
+  };
+
+  // 6. search from Supabase (with pagination)
+  const searchPerfumes = async (
+    keyword: string,
+    page: number = 0,
+  ): Promise<Perfume[]> => {
+    if (keyword.trim().length < 1) return [];
+
+    // scroll limit
+    const PAGE_SIZE = 50; // at once
+    const from = page * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+
+    console.log(`🔍 [Supabase] Searching: '${keyword}'`);
+    const { data, error } = await supabase
+      .from("main_perfume_list")
+      .select("*")
+      .or(`name.ilike.%${keyword}%,brand.ilike.%${keyword}%`)
+      // .limit(50);
+      .range(from, to);
+
+    if (error) {
+      console.error("❌ [Supabase] Search error:", error);
+      return [];
+    }
+
+    console.log(
+      `📡 [Supabase] Found ${data?.length || 0} perfumes. (Range: ${from} ~ ${to})`,
+    );
+    return (data || []).map((item) => ({
+      ...item,
+      perfId: item.perf_id,
+    }));
   };
 
   return (
     <MyPerfumeContext.Provider
-      value={{ myPerfumes, addMyPerfume, toggleFavourite, toggleHave }}
+      value={{
+        myPerfumes,
+        addMyPerfume,
+        toggleFavourite,
+        toggleHave,
+        searchPerfumes,
+        selectMyPerfumes,
+        isLoading,
+      }}
     >
       {children}
     </MyPerfumeContext.Provider>
   );
 };
 
-// Context Consumer Hook
 export const useMyPerfume = () => {
   const context = useContext(MyPerfumeContext);
-  if (!context) {
+  if (!context)
     throw new Error("useMyPerfume must be used within MyPerfumeProvider");
-  }
   return context;
 };

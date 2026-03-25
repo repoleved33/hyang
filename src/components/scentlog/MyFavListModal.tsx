@@ -1,5 +1,4 @@
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
-import { MainPerfumeList } from "@/src/data/dummyDatasfromServer";
 import React, { useMemo } from "react";
 import {
   Dimensions,
@@ -12,6 +11,7 @@ import {
 
 import PerfumeCard from "@/src/components/shelf/PerfumeCard";
 import { AppText } from "../common/AppText";
+
 const screenWidth = Dimensions.get("window").width;
 const cols = 2;
 const cardMargin = 14;
@@ -34,18 +34,18 @@ export default function MyFavListModal({
 }: Props) {
   const { myPerfumes } = useMyPerfume();
 
-  // MyFavourite listup
   const gridData = useMemo(() => {
     const myFavourites = myPerfumes
       .filter((p) => p.isFavourite)
       .map((my) => {
-        const detail = MainPerfumeList.find((p) => p.perfId === my.perfId);
-        return detail
-          ? { ...detail, isFavourite: true, isSearchBtn: false }
-          : null;
-      })
-      .filter((p) => p !== null);
-    return [...myFavourites, { perfId: "search-btn", isSearchBtn: true }];
+        return {
+          ...(my.details || {}),
+          perf_id: my.perfId,
+          isFavourite: true,
+          isSearchBtn: false,
+        };
+      });
+    return [...myFavourites, { perf_id: "search-btn", isSearchBtn: true }];
   }, [myPerfumes]);
 
   return (
@@ -75,15 +75,15 @@ export default function MyFavListModal({
         {/* My Favourite List */}
         <FlatList
           data={gridData}
-          keyExtractor={(item) => item.perfId}
+          keyExtractor={(item: any) => item.perf_id}
           numColumns={cols}
           contentContainerStyle={styles.listContent}
           columnWrapperStyle={styles.columnWrapper}
           ListHeaderComponent={
             <AppText style={styles.sectionTitle}>My Favourites ❤️</AppText>
           }
-          renderItem={({ item }) => {
-            // search btn (last card)
+          renderItem={({ item }: { item: any }) => {
+            // 🔍 검색 버튼 (마지막 카드)
             if (item.isSearchBtn) {
               return (
                 <TouchableOpacity
@@ -102,15 +102,15 @@ export default function MyFavListModal({
                 </TouchableOpacity>
               );
             }
-            // perfumes
+
             return (
               <TouchableOpacity
                 style={styles.cardContainer}
-                onPress={() => onSelect(item.perfId)}
+                onPress={() => onSelect(item.perf_id)}
               >
                 <View style={styles.cardWrapper}>
                   <PerfumeCard
-                    perfume={item as any}
+                    perfume={item}
                     width={cardWidth - 20}
                     isFavourite={true}
                   />
@@ -118,11 +118,12 @@ export default function MyFavListModal({
               </TouchableOpacity>
             );
           }}
-        ></FlatList>
+        />
       </View>
     </Modal>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

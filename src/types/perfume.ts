@@ -28,12 +28,13 @@ export type PerfumeAccord = {
 export type RawMainAccords = Record<AccordKey, AccordLevel>;
 
 export type Perfume = {
-  perfId: string;
+  // perf_id: string; // Supabase
+  perfId?: string; // SQLite(Optional)
   name: string;
   brand: string;
-  imageUrl: string;
-  mainAccords: PerfumeAccord[];
-  rawMainAccords: RawMainAccords;
+  image_url: string;
+  main_accords: PerfumeAccord[];
+  main_accords_with_score: RawMainAccords;
 };
 
 export type MyPerfume = {
@@ -44,8 +45,12 @@ export type MyPerfume = {
   addedAt: number; // Date.now()
 };
 
-// for screen
-export type MyPerfumeWithDetail = {
-  perfume: Perfume;
-  my: MyPerfume;
+export type MyPerfumeWithDetail = MyPerfume & {
+  details?: Perfume;
 };
+
+// // for screen
+// export type MyPerfumeWithDetail = {
+//   perfume: Perfume;
+//   my: MyPerfume;
+// };

@@ -19,13 +19,13 @@ export const accordStyles = StyleSheet.create({
   },
   accordBarBackground: {
     height: 6,
-    backgroundColor: "#E0E0E0", // 배경 바는 연하게
+    backgroundColor: "#E0E0E0",
     borderRadius: 3,
     overflow: "hidden",
   },
   accordBarFill: {
     height: "100%",
-    backgroundColor: "#86888B", // 메인 강조색
+    backgroundColor: "#86888B",
     borderRadius: 3,
   },
 });

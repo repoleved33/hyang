@@ -2,7 +2,6 @@ import { modalStyles } from "@/src/components/common/modalStyles";
 import { accordStyles } from "@/src/components/shelf/accordStyles";
 import { Btn, Colours } from "@/src/constants/theme";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
-import { MainPerfumeList } from "@/src/data/dummyDatasfromServer";
 import React from "react";
 import {
   Image,
@@ -29,27 +28,25 @@ export default function PerfumeDetailModal({
 }: DetailModalProps) {
   const { myPerfumes, toggleFavourite, toggleHave } = useMyPerfume();
 
-  const perfume = MainPerfumeList.find((p) => p.perfId === selectedPerfId);
+  const perfume = myPerfumes.find((p) => p.perfId === selectedPerfId);
   const currData = myPerfumes.find((p) => p.perfId === selectedPerfId);
-  // if (!perfumeWithDetail) return null;
+
   if (!selectedPerfId || !perfume) return null;
 
   const isFavourite = currData?.isFavourite ?? false;
 
   const imageSource =
-    typeof perfume.imageUrl === "string"
-      ? { uri: perfume.imageUrl }
-      : perfume.imageUrl;
+    typeof perfume.details?.image_url === "string"
+      ? { uri: perfume.details?.image_url }
+      : perfume.details?.image_url;
 
   const handleToggleFavourite = () => {
-    toggleFavourite(perfume.perfId);
+    toggleFavourite(selectedPerfId);
   };
 
   const handleToggleHave = () => {
-    toggleHave(perfume.perfId);
-    if (currData) {
-      onClose();
-    }
+    toggleHave(selectedPerfId);
+    onClose();
   };
 
   return (
@@ -73,10 +70,10 @@ export default function PerfumeDetailModal({
                 </View>
                 <View style={styles.infoContainer}>
                   <AppText style={modalStyles.modalItemDetailBrand}>
-                    {perfume.brand}
+                    {perfume.details?.brand}
                   </AppText>
                   <AppText style={modalStyles.modalItemDetailName}>
-                    {perfume.name}
+                    {perfume.details?.name}
                   </AppText>
                 </View>
               </View>
@@ -101,7 +98,7 @@ export default function PerfumeDetailModal({
 
               {/* Main Accords */}
               <View style={accordStyles.accordsContainer}>
-                {perfume.mainAccords
+                {perfume.details?.main_accords
                   .sort((a, b) => b.score - a.score)
                   .map(({ accord, score }) => (
                     <View key={accord} style={accordStyles.accordItem}>

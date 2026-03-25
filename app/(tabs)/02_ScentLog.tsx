@@ -1,9 +1,9 @@
 import MyFavListModal from "@/src/components/scentlog/MyFavListModal";
 import { Colours, Months } from "@/src/constants/theme";
 import { useScentLog } from "@/src/context/ScentLogContext";
-import { MainPerfumeList } from "@/src/data/dummyDatasfromServer";
 import React, { useMemo, useState } from "react";
 import {
+  Alert,
   FlatList,
   Image,
   LayoutChangeEvent,
@@ -12,10 +12,11 @@ import {
   View,
 } from "react-native";
 
+import { ScentLog } from "@/src/types/scentLog";
+
 import { AppText } from "@/src/components/common/AppText";
 import SearchPerfumeModal from "@/src/components/common/SearchPerfumeModal";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
-import { ScentLog } from "@/src/types/scentLog";
 
 interface ScentLogItem {
   id: string;
@@ -25,24 +26,24 @@ interface ScentLogItem {
 }
 
 export default function ScentLogScreen() {
-  const { scentLogs, upsertScentLog, deleteScentLog } = useScentLog();
+  const { scentLogs, upsertScentLog, deleteScentLog, clearAllLogs } =
+    useScentLog();
+  const { myPerfumes } = useMyPerfume();
+
   const [listHeight, setListHeight] = useState(0);
   const dateItemHeight = listHeight / 7;
 
   const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
-
   const [favModalVisible, setFavModalVisible] = useState(false);
   const [searchModalVisible, setSearchModalVisible] = useState(false);
 
-  const { myPerfumes } = useMyPerfume();
-
-  // my fav perfume listup
+  // 1. favourite list (for exception)
   const favIds = useMemo(
     () => myPerfumes.filter((p) => p.isFavourite).map((p) => p.perfId),
     [myPerfumes],
   );
 
-  // dates listup
+  // 2. dates list (30 days)
   const logs: ScentLogItem[] = useMemo(() => {
     return Array.from({ length: 30 }).map((_, i) => {
       const date = new Date();
@@ -58,7 +59,7 @@ export default function ScentLogScreen() {
 
   const [selectedDate, setSelectedDate] = useState<ScentLogItem>(logs[29]);
 
-  // data matching
+  // 3. match selected date<->data details
   const selectedDayEntries = useMemo(() => {
     const dayLogs = scentLogs.filter(
       (log) => log.date === selectedDate.dateString,
@@ -66,11 +67,16 @@ export default function ScentLogScreen() {
     const slots = [null, null, null] as (any | null)[];
 
     dayLogs.forEach((log) => {
-      const detail = MainPerfumeList.find((p) => p.perfId === log.perfId);
-      if (detail) slots[log.orderIdx - 1] = { ...detail, logIdx: log.idx };
+      if (log.details) {
+        slots[log.orderIdx - 1] = {
+          ...log.details,
+          imageUrl: log.details.image_url || log.details.imageUrl,
+          logIdx: log.idx,
+        };
+      }
     });
     return slots;
-  }, [selectedDate, scentLogs]);
+  }, [selectedDate.dateString, scentLogs]);
 
   const onLayout = (event: LayoutChangeEvent) => {
     setListHeight(event.nativeEvent.layout.height);
@@ -81,20 +87,22 @@ export default function ScentLogScreen() {
     setFavModalVisible(true);
   };
 
-  const handleSelectPerfume = (perfId: string) => {
+  // 4. if select perfume
+  const handleSelectPerfume = (perfume: any) => {
     if (activeSlotIdx === null) return;
 
-    const currSlot = selectedDayEntries[activeSlotIdx];
-
     const newLogData: ScentLog = {
-      idx: currSlot ? currSlot.logIdx : 0,
-      userId: "u001", // auth 대체
+      userId: "u001",
       date: selectedDate.dateString,
-      perfId: perfId,
+      perfId: perfume.perfId || "",
       orderIdx: activeSlotIdx + 1,
     };
-    upsertScentLog(newLogData);
+
+    // pass object
+    upsertScentLog(newLogData, perfume);
+
     setFavModalVisible(false);
+    setSearchModalVisible(false);
   };
 
   const handleDeleteCurrSlot = () => {
@@ -105,16 +113,8 @@ export default function ScentLogScreen() {
         log.orderIdx === activeSlotIdx + 1,
     );
     if (logToDelete) {
-      console.log(
-        "delete date: ",
-        logToDelete.date,
-        " idx: ",
-        logToDelete.orderIdx,
-      );
       deleteScentLog(logToDelete.idx);
       setFavModalVisible(false);
-    } else {
-      console.log("No data");
     }
   };
 
@@ -137,6 +137,34 @@ export default function ScentLogScreen() {
         </AppText>
       </TouchableOpacity>
     );
+  };
+
+  const handleClearAll = () => {
+    Alert.alert("[TEST] Data All Clear", "cannot be undone", [
+      { text: "cancel", style: "cancel" },
+      {
+        text: "delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await clearAllLogs();
+            console.log("🧹 Scent Logs - all cleared");
+          } catch (e) {
+            console.error("❌ Scent Logs - Clear Failed:", e);
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleCheckLogs = () => {
+    Alert.alert("Debug", `Data #: ${scentLogs.length} (check logs)`);
+    console.log("========================================");
+    console.log(
+      "🚀 [DEBUG] scentLogs List:",
+      JSON.stringify(scentLogs, null, 2),
+    );
+    console.log("========================================");
   };
 
   return (
@@ -180,9 +208,11 @@ export default function ScentLogScreen() {
                 <View style={styles.filledSlot}>
                   <Image
                     source={
-                      typeof perfume.imageUrl === "string"
+                      perfume.imageUrl
                         ? { uri: perfume.imageUrl }
-                        : perfume.imageUrl
+                        : perfume.image_url
+                          ? { uri: perfume.image_url }
+                          : require("@/assets/images/default-perfume.png")
                     }
                     style={styles.perfumeImg}
                     resizeMode="contain"
@@ -198,10 +228,35 @@ export default function ScentLogScreen() {
         ))}
       </View>
 
+      {/* 🧪 TEST */}
+      <View style={styles.testFrame}>
+        <View style={styles.testLabelContainer}>
+          <AppText style={styles.testLabelText}>TEST MODE</AppText>
+        </View>
+        <View style={styles.testButtonGroupInner}>
+          <TouchableOpacity
+            style={[styles.testButton, { backgroundColor: "#4A90E2" }]}
+            onPress={handleCheckLogs}
+          >
+            <AppText style={styles.testButtonText}>Logs</AppText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.testButton, { backgroundColor: "#E94E77" }]}
+            onPress={handleClearAll}
+          >
+            <AppText style={styles.testButtonText}>Delete all</AppText>
+          </TouchableOpacity>
+        </View>
+      </View>
+
       <MyFavListModal
         visible={favModalVisible}
         onClose={() => setFavModalVisible(false)}
-        onSelect={handleSelectPerfume}
+        onSelect={(id) => {
+          // only from myperfumes
+          const found = myPerfumes.find((p) => p.perfId === id);
+          if (found) handleSelectPerfume(found.details);
+        }}
         onDelete={handleDeleteCurrSlot}
         onSearchOpen={() => {
           setFavModalVisible(false);
@@ -211,9 +266,8 @@ export default function ScentLogScreen() {
 
       <SearchPerfumeModal
         visible={searchModalVisible}
-        mainPerfumes={MainPerfumeList}
         excludeIds={favIds}
-        onSelect={(perfume) => handleSelectPerfume(perfume.perfId)}
+        onSelect={(perfume) => handleSelectPerfume(perfume)}
         onClose={() => setSearchModalVisible(false)}
       />
     </View>
@@ -277,5 +331,43 @@ const styles = StyleSheet.create({
     borderColor: Colours.border,
   },
   perfumeImg: { width: "80%", height: "70%" },
-  // perfumeName: { fontSize: 10, marginTop: 4, color: "#666" },
+  testFrame: {
+    position: "absolute",
+    bottom: 30,
+    right: 15,
+    borderWidth: 2,
+    borderColor: "#AAAAAA",
+    borderStyle: "dashed",
+    borderRadius: 15,
+    padding: 10,
+    paddingTop: 18,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    zIndex: 9999,
+    elevation: 10,
+  },
+  testLabelContainer: {
+    position: "absolute",
+    top: -10,
+    left: 10,
+    backgroundColor: "#AAAAAA",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 5,
+  },
+  testLabelText: {
+    color: "#FFFFFF",
+    fontSize: 9,
+    fontWeight: "900",
+    textTransform: "uppercase",
+  },
+  testButtonGroupInner: { flexDirection: "row", gap: 8 },
+  testButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    minWidth: 70,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  testButtonText: { color: "#FFFFFF", fontSize: 11, fontWeight: "bold" },
 });

@@ -1,7 +1,8 @@
 import { Colours } from "@/src/constants/theme";
 import { Perfume } from "@/src/types/perfume";
+import { Image } from "expo-image"; // loading issue
 import React from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 type Props = {
   perfume: Perfume;
   width?: number;
@@ -9,11 +10,13 @@ type Props = {
 };
 
 export default function PerfumeCard({ perfume, width, isFavourite }: Props) {
-  // imageUrl
-  const imageSource =
-    typeof perfume.imageUrl === "string"
-      ? { uri: perfume.imageUrl }
-      : perfume.imageUrl;
+  const rawUrl = perfume.image_url || (perfume as any).imageUrl;
+  const safeSource = React.useMemo(() => {
+    if (typeof rawUrl === "string") {
+      return encodeURI(decodeURI(rawUrl));
+    }
+    return rawUrl; // if local img
+  }, [rawUrl]);
 
   return (
     <View
@@ -24,7 +27,17 @@ export default function PerfumeCard({ perfume, width, isFavourite }: Props) {
         isFavourite && styles.favouriteCard,
       ]}
     >
-      <Image source={imageSource} style={styles.image} />
+      <Image
+        source={safeSource}
+        style={styles.image}
+        contentFit="contain"
+        transition={200}
+        cachePolicy="disk" // [TEST]]
+        onError={(e) => {
+          console.warn(`❌ [Decode Fail] ID: ${perfume.perfId}`, e);
+          console.log(`🔗 Error URL: ${rawUrl}`);
+        }}
+      />
     </View>
   );
 }
