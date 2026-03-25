@@ -2,7 +2,7 @@ import { AppText } from "@/src/components/common/AppText";
 import { Colours } from "@/src/constants/theme";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react"; // 💡 useState 추가
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -12,23 +12,33 @@ import {
   View,
 } from "react-native";
 
+import PerfumeDetailModal from "@/src/components/common/PerfumeDetailModal"; // 💡 상세 모달 임포트 확인
 import SearchPerfumeModal from "@/src/components/common/SearchPerfumeModal";
-
+import { usePerfumeActions } from "@/src/hooks/usePerfumehooks";
 export default function ShelfScreen() {
-  const { myPerfumes, isLoading, addMyPerfume, toggleFavourite, toggleHave } =
+  const { myPerfumes, isLoading, addMyPerfume, toggleFavourite } =
     useMyPerfume();
-
-  // state - search modal
+  const { confirmRemove } = usePerfumeActions();
   const [searchModalVisible, setSearchModalVisible] = useState(false);
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [selectedPerfume, setSelectedPerfume] = useState<any>(null);
 
   const handleOpenSearch = () => {
-    console.log("🚀 [Action] Opening Search Modal...");
     setSearchModalVisible(true);
   };
 
   const handleSelectPerfume = async (perfume: any) => {
-    await addMyPerfume(perfume); // SQLite save
+    await addMyPerfume(perfume);
     setSearchModalVisible(false);
+  };
+
+  const handlePressDetail = (perfume: any) => {
+    setSelectedPerfume({
+      ...perfume.details,
+      perfId: perfume.perfId,
+      isFavourite: perfume.isFavourite,
+    });
+    setDetailModalVisible(true);
   };
 
   if (isLoading) {
@@ -39,12 +49,10 @@ export default function ShelfScreen() {
     );
   }
 
-  // 2. Main List UI
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <AppText style={styles.headerTitle}>My Shelf</AppText>
-        {/* plus btn */}
         <TouchableOpacity
           onPress={handleOpenSearch}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -52,7 +60,7 @@ export default function ShelfScreen() {
           <Ionicons name="add" size={28} color={Colours.text} />
         </TouchableOpacity>
 
-        {/* search modal component */}
+        {/* Search Modal */}
         <SearchPerfumeModal
           visible={searchModalVisible}
           excludeIds={myPerfumes.map((p) => p.perfId)}
@@ -61,8 +69,14 @@ export default function ShelfScreen() {
         />
       </View>
 
+      {/* 💡 Detail Modal (아이템 클릭 시 뜨는 놈) */}
+      <PerfumeDetailModal
+        visible={detailModalVisible}
+        perfume={selectedPerfume}
+        onClose={() => setDetailModalVisible(false)}
+      />
+
       {myPerfumes.length === 0 ? (
-        /* Empty State */
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIconCircle}>
             <Ionicons name="flask-outline" size={60} color={Colours.textDim} />
@@ -77,27 +91,35 @@ export default function ShelfScreen() {
       ) : (
         <FlatList
           data={myPerfumes}
-          keyExtractor={(item) => item.perfId}
+          keyExtractor={(perfume) => perfume.perfId}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
             <View style={styles.card}>
-              <View style={styles.imageBox}>
-                {item.details?.image_url ? (
-                  <Image
-                    source={{ uri: item.details.image_url }}
-                    style={styles.image}
-                  />
-                ) : (
-                  <Ionicons name="beaker-outline" size={30} color="#ddd" />
-                )}
-              </View>
+              {/* onclick - details modal */}
+              <TouchableOpacity
+                style={styles.cardMainAction}
+                onPress={() => handlePressDetail(item)}
+              >
+                <View style={styles.imageBox}>
+                  {item.details?.image_url ? (
+                    <Image
+                      source={{ uri: item.details.image_url }}
+                      style={styles.image}
+                    />
+                  ) : (
+                    <Ionicons name="beaker-outline" size={30} color="#ddd" />
+                  )}
+                </View>
 
-              <View style={styles.infoBox}>
-                <AppText style={styles.brandText}>
-                  {item.details?.brand}
-                </AppText>
-                <AppText style={styles.nameText}>{item.details?.name}</AppText>
-              </View>
+                <View style={styles.infoBox}>
+                  <AppText style={styles.brandText}>
+                    {item.details?.brand}
+                  </AppText>
+                  <AppText style={styles.nameText}>
+                    {item.details?.name}
+                  </AppText>
+                </View>
+              </TouchableOpacity>
 
               <View style={styles.actionBox}>
                 <TouchableOpacity onPress={() => toggleFavourite(item.perfId)}>
@@ -109,7 +131,12 @@ export default function ShelfScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{ marginTop: 20 }}
-                  onPress={() => toggleHave(item.perfId)}
+                  onPress={() =>
+                    confirmRemove(
+                      item.perfId,
+                      item.details?.name || "Unknown Scent",
+                    )
+                  }
                 >
                   <Ionicons
                     name="trash-outline"
@@ -122,12 +149,19 @@ export default function ShelfScreen() {
           )}
         />
       )}
+
+      {/* Floating Plus Button */}
+      <TouchableOpacity
+        style={styles.floatingAddBtn}
+        onPress={handleOpenSearch}
+      >
+        <Ionicons name="add" size={32} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // ... (Styles same as previous response)
   container: { flex: 1, backgroundColor: Colours.background },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   header: {
@@ -180,10 +214,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    zIndex: 10,
   },
   card: {
     flexDirection: "row",
@@ -193,10 +224,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     alignItems: "center",
     elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
+  },
+  cardMainAction: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
   },
   imageBox: {
     width: 70,
@@ -210,13 +242,13 @@ const styles = StyleSheet.create({
     borderColor: "#f0f0f0",
   },
   image: { width: "100%", height: "100%", resizeMode: "contain" },
-  infoBox: { flex: 1, marginLeft: 18, justifyContent: "center" },
+  infoBox: { flex: 1, marginLeft: 15, justifyContent: "center" },
   brandText: {
     fontSize: 12,
     color: Colours.textDim,
     textTransform: "uppercase",
     marginBottom: 4,
   },
-  nameText: { fontSize: 17, fontWeight: "700", color: Colours.text },
+  nameText: { fontSize: 16, fontWeight: "700", color: Colours.text },
   actionBox: { paddingLeft: 10, alignItems: "center" },
 });
