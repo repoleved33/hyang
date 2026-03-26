@@ -78,30 +78,43 @@ export default function ReceiptScreen() {
 
   const handleShare = async () => {
     setModalVisible(false);
-
     setTimeout(async () => {
       try {
         if (!receiptRef.current) return;
+
         const uri = await captureRef(receiptRef, {
-          format: "jpg",
-          quality: 0.7,
+          format: "png",
+          quality: 0.8,
         });
 
-        if (uri) {
-          const isAvailable = await Sharing.isAvailableAsync();
-          if (isAvailable) {
-            await Sharing.shareAsync(uri);
-            //
-            // setTimeout(() => {
-            //   Alert.alert("Done", "Shared! 🎉");
-            // }, 10);
-          }
+        console.log("📸 Capture Success:", uri);
+        Alert.alert("📸 Capture Success!");
+
+        const isAvailable = await Sharing.isAvailableAsync();
+        if (isAvailable && uri) {
+          await Sharing.shareAsync(uri, {
+            mimeType: "image/png",
+            dialogTitle: "Share your Hyang Receipt",
+            UTI: "public.png", // for iOS stability
+          });
+        } else {
+          Alert.alert("Error", "Sharing is not available on this device.");
         }
       } catch (error) {
-        Alert.alert("Error", "Failed to share.");
+        console.error("❌ Share Error:", error);
+        Alert.alert("Error", "Failed to process receipt image.");
       }
-    }, 400);
+    }, 500);
   };
+
+  const DashedLine = () => (
+    <View style={styles.dashedWrapper}>
+      {/* 기기 너비에 상관없이 점선이 꽉 차도록 설정 */}
+      <AppText style={styles.dashedText} numberOfLines={1} ellipsizeMode="clip">
+        ----------------------------------------------------------------------
+      </AppText>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -131,9 +144,7 @@ export default function ReceiptScreen() {
           >
             <View style={styles.paperWrapper}>
               <View style={styles.receiptPaper}>
-                <AppText style={styles.divider}>
-                  --------------------------------------
-                </AppText>
+                <DashedLine />
                 <View style={styles.headerTitle}>
                   <AppText style={styles.title}>HYANGRECEIPT</AppText>
                   <AppText style={styles.subTitle}>
@@ -146,9 +157,7 @@ export default function ReceiptScreen() {
                     </AppText>
                   </View>
                 </View>
-                <AppText style={styles.divider}>
-                  --------------------------------------
-                </AppText>
+                <DashedLine />
 
                 <View style={styles.rowHeader}>
                   <AppText style={[styles.receiptText, { width: 25 }]}>
@@ -166,10 +175,7 @@ export default function ReceiptScreen() {
                     FREQ
                   </AppText>
                 </View>
-                <AppText style={styles.divider}>
-                  --------------------------------------
-                </AppText>
-
+                <DashedLine />
                 <View>
                   {topTenPerfumes.map((item, index) => (
                     <ItemRow
@@ -183,34 +189,50 @@ export default function ReceiptScreen() {
                 </View>
 
                 <View style={styles.footerSection}>
-                  <AppText style={styles.divider}>
-                    --------------------------------------
-                  </AppText>
+                  <DashedLine />
                   {/* Fixed: div tag removed, View used */}
-                  <View style={styles.rowHeader}>
+                  <View style={[styles.rowHeader]}>
                     <AppText style={styles.receiptText}>TOTAL ITEMS:</AppText>
                     <AppText style={styles.receiptText}>
                       {topTenPerfumes.length}
                     </AppText>
                   </View>
                   <View style={styles.rowHeader}>
-                    <AppText style={styles.receiptText}>TOTAL SCENTS:</AppText>
+                    <AppText style={styles.receiptText}>TOTAL HYANG:</AppText>
                     <AppText style={styles.receiptText}>
                       {totalScentCnt}
                     </AppText>
                   </View>
-                  <View style={styles.footerInfo}>
+                  <DashedLine />
+                  <View
+                    style={[styles.footerInfo, { alignItems: "flex-start" }]}
+                  >
                     <AppText style={styles.receiptText}>
-                      CARD #: **** **** **** 2026
+                      CARD #: **** **** **** {new Date().getFullYear()}
                     </AppText>
                     <AppText style={styles.receiptText}>
                       AUTH CODE: {Math.floor(1000 + Math.random() * 9000)}
                     </AppText>
+                    <AppText style={styles.receiptText}>
+                      CARDHOLDER: {/** user info */}
+                    </AppText>
                   </View>
-                  <AppText style={styles.receiptText}>
-                    THANK YOU FOR VISITING! ||||||||||||||||||||
+                  <AppText
+                    style={[
+                      styles.receiptText,
+                      { textAlign: "center", width: "100%", marginTop: 10 },
+                    ]}
+                  >
+                    THANK YOU FOR VISITING
                   </AppText>
-                  <AppText style={styles.receiptText}>HYANG 2026</AppText>
+                  <AppText
+                    style={[
+                      styles.receiptText,
+                      { textAlign: "center", width: "100%" },
+                    ]}
+                  >
+                    HYANG 2026
+                  </AppText>
                 </View>
               </View>
             </View>
@@ -285,11 +307,13 @@ function ItemRow({ num, name, brand, cnt }: any) {
         <View style={{ flex: 1 }}>
           <AppText
             style={[styles.receiptText, { fontSize: 10 }]}
-            numberOfLines={1}
+            numberOfLines={2}
           >
-            {name.toUpperCase()}
+            {name.toUpperCase()} - {brand.toUpperCase()}
           </AppText>
-          <AppText style={[styles.subTitle, { fontSize: 8 }]}>{brand}</AppText>
+          {/* <AppText style={[styles.subTitle, { fontSize: 8 }]}>
+            {brand.toUpperCase()}
+          </AppText> */}
         </View>
         <AppText
           style={[styles.receiptText, { width: 30, textAlign: "right" }]}
@@ -302,85 +326,148 @@ function ItemRow({ num, name, brand, cnt }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#111" },
+  container: {
+    flex: 1,
+    backgroundColor: Colours.black,
+  },
   headerBar: {
     height: 45,
-    backgroundColor: "black",
+    backgroundColor: Colours.black,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 50,
     zIndex: 100,
   },
-  headerText: { color: "white", fontSize: 14, fontWeight: "700" },
-  captureArea: { flex: 1, backgroundColor: "#F7F2F9" },
+  headerText: {
+    color: Colours.whiteText,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  captureArea: {
+    flex: 1,
+    backgroundColor: Colours.modalBackground,
+  },
   receiptContainer: { flex: 1 },
   backgroundImage: { flex: 1, alignItems: "center", justifyContent: "center" },
   paperWrapper: {
-    backgroundColor: Colours.transparentBackground,
+    backgroundColor: Colours.transparentWhite,
     width: SCREEN_WIDTH * 0.82,
     paddingVertical: 10,
     borderRadius: 0,
   },
-  receiptPaper: { paddingHorizontal: 20, paddingVertical: 10 },
-  divider: { textAlign: "center", fontSize: 10, marginVertical: 8 },
-  headerTitle: { alignItems: "center", paddingVertical: 10 },
+  receiptPaper: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  dashedWrapper: {
+    width: "100%",
+    overflow: "hidden",
+    marginVertical: 5,
+  },
+  dashedText: {
+    fontSize: 10,
+    letterSpacing: 2,
+    color: Colours.black,
+    opacity: 0.8,
+  },
+  headerTitle: { alignItems: "center", paddingVertical: 8 },
   title: {
     fontSize: 22,
     fontWeight: "900",
-    color: Colours.text,
+    color: Colours.primaryText,
     letterSpacing: 2,
   },
-  subTitle: { fontSize: 14, color: Colours.textDim },
-  headerInfo: { fontSize: 11, marginTop: 5, alignItems: "center" },
-  receiptText: { fontSize: 10, color: Colours.text },
-  rowHeader: { flexDirection: "row", justifyContent: "space-between" },
-  itemRowContainer: { height: 32, justifyContent: "center" },
-  textOverlay: { flexDirection: "row", alignItems: "center" },
-  footerSection: { marginTop: 10 },
-  footerInfo: { marginVertical: 8, alignItems: "center" },
+  subTitle: {
+    fontSize: 14,
+    color: Colours.secondaryText,
+  },
+  headerInfo: {
+    fontSize: 11,
+    marginTop: 5,
+    alignItems: "center",
+  },
+  receiptText: {
+    fontSize: 10,
+    color: Colours.primaryText,
+  },
+  rowHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  itemRowContainer: {
+    paddingVertical: 4,
+    justifyContent: "center",
+  },
+  textOverlay: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  footerSection: { marginTop: 0 },
+  footerInfo: {
+    marginVertical: 8,
+    alignItems: "center",
+  },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: Colours.overlay,
     justifyContent: "flex-start",
   },
   modalContent: {
-    backgroundColor: "black",
+    backgroundColor: Colours.black,
     paddingTop: 110,
     paddingBottom: 30,
     alignItems: "center",
     borderRadius: 0,
   },
   dropdownTitle: {
-    color: "white",
+    color: Colours.whiteText,
     fontSize: 16,
     marginBottom: 20,
     opacity: 0.9,
   },
-  buttonRow: { flexDirection: "row", gap: 15, marginBottom: 25 },
+  buttonRow: {
+    flexDirection: "row",
+    gap: 15,
+    marginBottom: 25,
+  },
   filterBtn: {
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderWidth: 1,
-    borderColor: "white",
+    borderColor: Colours.white,
     minWidth: 110,
     alignItems: "center",
     borderRadius: 0,
   },
-  activeBtn: { backgroundColor: "#333" },
-  buttonText: { color: "white", fontWeight: "bold", fontSize: 12 },
+  activeBtn: {
+    backgroundColor: Colours.active,
+  },
+  buttonText: {
+    color: Colours.whiteText,
+    fontWeight: "bold",
+    fontSize: 12,
+  },
   shareActionRow: { marginBottom: 20 },
   paperPlaneBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#222",
+    backgroundColor: Colours.active,
     paddingVertical: 12,
     paddingHorizontal: 35,
     borderRadius: 0,
     gap: 10,
     borderWidth: 0.5,
-    borderColor: "#444",
+    borderColor: Colours.secondaryText,
   },
-  shareBtnText: { color: "white", fontWeight: "900", fontSize: 14 },
+  shareBtnText: {
+    color: Colours.whiteText,
+    fontWeight: "900",
+    fontSize: 14,
+  },
   closeAction: { marginTop: 10 },
-  closeText: { color: "white", fontSize: 12, opacity: 0.6 },
+  closeText: {
+    color: Colours.whiteText,
+    fontSize: 12,
+    opacity: 0.6,
+  },
 });

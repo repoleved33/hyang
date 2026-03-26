@@ -7,7 +7,6 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
-  StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -15,7 +14,12 @@ import {
 import PerfumeDetailModal from "@/src/components/common/PerfumeDetailModal"; // 💡 상세 모달 임포트 확인
 import SearchPerfumeModal from "@/src/components/common/SearchPerfumeModal";
 import { usePerfumeActions } from "@/src/hooks/usePerfumehooks";
+
+import { styles } from "./Shelf.styles";
+
 export default function ShelfScreen() {
+  const [numColumns, setNumColumns] = useState(1);
+
   const { myPerfumes, isLoading, addMyPerfume, toggleFavourite } =
     useMyPerfume();
   const { confirmRemove } = usePerfumeActions();
@@ -41,10 +45,20 @@ export default function ShelfScreen() {
     setDetailModalVisible(true);
   };
 
+  const sortedPerfumes = React.useMemo(() => {
+    return [...myPerfumes].sort((a, b) => {
+      if (a.isFavourite !== b.isFavourite) {
+        return a.isFavourite ? -1 : 1;
+      }
+      // if both favourite
+      return (b.addedAt || 0) - (a.addedAt || 0);
+    });
+  }, [myPerfumes]);
+
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={Colours.text} />
+        <ActivityIndicator size="large" color={Colours.secondaryText} />
       </View>
     );
   }
@@ -52,37 +66,60 @@ export default function ShelfScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        {/* title */}
         <AppText style={styles.headerTitle}>My Shelf</AppText>
-        <TouchableOpacity
-          onPress={handleOpenSearch}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="add" size={28} color={Colours.text} />
-        </TouchableOpacity>
+        {/* show toggle / +(search) btn */}
+        <View style={styles.headerActionRow}>
+          {/* left - layout toggle */}
+          <TouchableOpacity
+            style={styles.layoutToggleButton}
+            onPress={() => setNumColumns(numColumns === 1 ? 2 : 1)}
+          >
+            <Ionicons
+              name={numColumns === 1 ? "grid-outline" : "list-outline"}
+              size={14}
+              color={Colours.secondaryText}
+            />
+            <AppText style={styles.layoutToggleText}>
+              {numColumns === 1 ? "SHOW 2X2" : "SHOW 1X1"}
+            </AppText>
+          </TouchableOpacity>
 
+          {/* right */}
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 15 }}>
+            {/* btn - option1 */}
+            <TouchableOpacity
+              onPress={handleOpenSearch}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="add" size={26} color={Colours.primaryText} />
+            </TouchableOpacity>
+
+            {/* btn - option2 */}
+            <TouchableOpacity
+              style={styles.headerInlineAddBtn}
+              onPress={handleOpenSearch}
+            >
+              <Ionicons name="add" size={20} color={Colours.whiteText} />
+            </TouchableOpacity>
+          </View>
+        </View>
         {/* Search Modal */}
         <SearchPerfumeModal
           visible={searchModalVisible}
           excludeIds={myPerfumes.map((p) => p.perfId)}
-          onSelect={(perfume) => handleSelectPerfume(perfume)}
+          onSelect={handleSelectPerfume}
           onClose={() => setSearchModalVisible(false)}
         />
       </View>
 
-      {/* Detail Modal */}
-      <PerfumeDetailModal
-        visible={detailModalVisible}
-        perfume={selectedPerfume}
-        onClose={() => setDetailModalVisible(false)}
-      />
-
       {myPerfumes.length === 0 ? (
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIconCircle}>
-            <Ionicons name="flask-outline" size={60} color={Colours.textDim} />
+            <Ionicons name="flask-outline" size={60} color={Colours.dimText} />
           </View>
           <AppText style={styles.emptyTitle}>
-            Your shelf seems lonely...
+            Your shelf seems Lonely...
           </AppText>
           <AppText style={styles.emptySub}>
             Search and add your favorite perfumes!
@@ -90,210 +127,103 @@ export default function ShelfScreen() {
         </View>
       ) : (
         <FlatList
-          data={myPerfumes}
+          data={sortedPerfumes}
+          key={numColumns}
+          numColumns={numColumns}
           keyExtractor={(perfume) => perfume.perfId}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              {/* onclick - details modal */}
-              <TouchableOpacity
-                style={styles.cardMainAction}
-                onPress={() => handlePressDetail(item)}
+          columnWrapperStyle={
+            numColumns === 2 ? { justifyContent: "space-between" } : null
+          }
+          renderItem={({ item }) => {
+            const isGrid = numColumns === 2;
+            return (
+              <View
+                style={[
+                  styles.card,
+                  isGrid && styles.cardGrid,
+                  item.isFavourite && styles.cardFavourite,
+                ]}
               >
-                <View style={styles.imageBox}>
-                  {item.details?.image_url ? (
-                    <Image
-                      source={{ uri: item.details.image_url }}
-                      style={styles.image}
-                    />
-                  ) : (
-                    <Ionicons name="beaker-outline" size={30} color="#ddd" />
-                  )}
-                </View>
-
-                <View style={styles.infoBox}>
-                  <AppText style={styles.brandText}>
-                    {item.details?.brand}
-                  </AppText>
-                  <AppText style={styles.nameText}>
-                    {item.details?.name}
-                  </AppText>
-                </View>
-              </TouchableOpacity>
-
-              <View style={styles.actionBox}>
-                <TouchableOpacity onPress={() => toggleFavourite(item.perfId)}>
-                  <Ionicons
-                    name={item.isFavourite ? "heart" : "heart-outline"}
-                    size={24}
-                    color={item.isFavourite ? "#ff4d4d" : Colours.textDim}
-                  />
-                </TouchableOpacity>
+                {/* onclick - details modal */}
                 <TouchableOpacity
-                  style={{ marginTop: 20 }}
-                  onPress={() =>
-                    confirmRemove(
-                      item.perfId,
-                      item.details?.name || "Unknown Scent",
-                    )
-                  }
+                  style={[
+                    styles.cardMainAction,
+                    isGrid && styles.cardMainActionGrid,
+                  ]}
+                  onPress={() => handlePressDetail(item)}
                 >
-                  <Ionicons
-                    name="trash-outline"
-                    size={20}
-                    color={Colours.textDim}
-                  />
+                  <View
+                    style={[styles.imageBox, isGrid && styles.imageBoxGrid]}
+                  >
+                    {item.details?.image_url ? (
+                      <Image
+                        source={{ uri: item.details.image_url }}
+                        style={styles.image}
+                      />
+                    ) : (
+                      <Ionicons
+                        name="beaker-outline"
+                        size={30}
+                        color={Colours.dimText}
+                      />
+                    )}
+                  </View>
+                  <View style={[styles.infoBox, isGrid && styles.infoBoxGrid]}>
+                    <AppText
+                      style={[styles.brandText, isGrid && styles.brandTextGrid]}
+                    >
+                      {item.details?.brand}
+                    </AppText>
+                    <AppText
+                      style={[styles.nameText, isGrid && styles.nameTextGrid]}
+                      numberOfLines={2}
+                    >
+                      {item.details?.name}
+                    </AppText>
+                  </View>
                 </TouchableOpacity>
+
+                <View
+                  style={[styles.actionBox, isGrid && styles.actionBoxGrid]}
+                >
+                  <TouchableOpacity
+                    onPress={() => toggleFavourite(item.perfId)}
+                  >
+                    <Ionicons
+                      name={item.isFavourite ? "heart" : "heart-outline"}
+                      size={24}
+                      color={
+                        item.isFavourite
+                          ? Colours.favourite
+                          : Colours.secondaryText
+                      }
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={!isGrid && { marginTop: 20 }} // 💡 1열일 때만 마진 유지
+                    onPress={() =>
+                      confirmRemove(item.perfId, item.details?.name || "Scent")
+                    }
+                  >
+                    <Ionicons
+                      name="trash-outline"
+                      size={20}
+                      color={Colours.secondaryText}
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          )}
+            );
+          }}
         />
       )}
-
-      {/* Floating Plus Button */}
-      <TouchableOpacity
-        style={styles.floatingAddBtn}
-        onPress={handleOpenSearch}
-      >
-        <Ionicons name="add" size={32} color="#fff" />
-      </TouchableOpacity>
+      {/* Detail Modal */}
+      <PerfumeDetailModal
+        visible={detailModalVisible}
+        perfume={selectedPerfume}
+        onClose={() => setDetailModalVisible(false)}
+      />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FEF9FF",
-  },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 10,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "900",
-    color: "#111111",
-    letterSpacing: -0.5,
-  },
-  listContent: {
-    padding: 20,
-    paddingBottom: 120,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 50,
-  },
-  emptyIconCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: "#FFF",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 25,
-    borderWidth: 1,
-    borderColor: "#5C5470",
-    opacity: 0.2,
-  },
-  emptyTitle: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#111111",
-    marginBottom: 12,
-  },
-  emptySub: {
-    fontSize: 15,
-    color: "#5C5470",
-    opacity: 0.6,
-    textAlign: "center",
-    lineHeight: 22,
-  },
-  floatingAddBtn: {
-    position: "absolute",
-    bottom: 30,
-    right: 30,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#111111",
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    zIndex: 10,
-  },
-  card: {
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 30,
-    padding: 15,
-    marginBottom: 16,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#5C5470",
-    shadowColor: "#5C5470",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 3,
-  },
-  cardMainAction: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  imageBox: {
-    width: 70,
-    height: 70,
-    borderRadius: 20,
-    backgroundColor: "#FEF9FF",
-    justifyContent: "center",
-    alignItems: "center",
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#5C5470",
-    opacity: 0.8,
-  },
-  image: {
-    width: "80%",
-    height: "80%",
-    resizeMode: "contain",
-  },
-  infoBox: {
-    flex: 1,
-    marginLeft: 15,
-    justifyContent: "center",
-  },
-  brandText: {
-    fontSize: 11,
-    color: "#5C5470",
-    fontWeight: "700",
-    textTransform: "uppercase",
-    marginBottom: 4,
-    opacity: 0.5,
-  },
-  nameText: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#111111",
-  },
-  actionBox: {
-    paddingLeft: 10,
-    alignItems: "center",
-  },
-});

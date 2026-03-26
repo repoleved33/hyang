@@ -32,7 +32,7 @@ export default function ScentLogScreen() {
   const { myPerfumes } = useMyPerfume();
 
   const [listHeight, setListHeight] = useState(0);
-  const dateItemHeight = listHeight / 7;
+  const dateItemHeight = listHeight / 7.5;
 
   const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
   const [favModalVisible, setFavModalVisible] = useState(false);
@@ -126,7 +126,6 @@ export default function ScentLogScreen() {
         onPress={() => setSelectedDate(item)}
         style={[styles.dateItem, { height: dateItemHeight }]}
       >
-        {/* 💡 선택 시 왼쪽 검은색 바 표시 */}
         {isSelected && <View style={styles.selectedBar} />}
 
         <AppText style={[styles.monthLabel, isSelected && { color: "#111" }]}>
@@ -232,7 +231,7 @@ export default function ScentLogScreen() {
         ))}
       </View>
 
-      {/* 🧪 TEST */}
+      {/* [TEST] */}
       <View style={styles.testFrame}>
         <View style={styles.testLabelContainer}>
           <AppText style={styles.testLabelText}>TEST MODE</AppText>
@@ -303,11 +302,10 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 2,
     borderBottomRightRadius: 2,
   },
-  // 💡 월 라벨: 선택 시 더 밝은 보라색으로 잘 보이게 수정
   monthLabel: {
     fontSize: 9,
     fontWeight: "800",
-    color: "#8E82A8", // 💡 블랙 위에서도 잘 보이는 연보라톤
+    color: "#8E82A8",
     textTransform: "uppercase",
     letterSpacing: 1.2,
     marginBottom: 4,
@@ -315,10 +313,9 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 16,
-    color: "#444444", // 비선택 날짜는 어둡게
+    color: "#444444",
     fontWeight: "600",
   },
-  // 💡 선택된 날짜: 확실하게 화이트로
   selectedDateText: {
     color: "#FFFFFF",
     fontWeight: "900",

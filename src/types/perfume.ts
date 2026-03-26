@@ -10,7 +10,6 @@ export type Perfume = {
 export type MyPerfume = {
   userId: string;
   perfId: string; // Perfume.perfId
-
   isFavourite: boolean;
   addedAt: number; // Date.now()
 };

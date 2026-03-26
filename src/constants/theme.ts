@@ -6,22 +6,41 @@ const cardMargin = 14;
 const cardWidth = (screenWidth - cardMargin * (cols + 1)) / cols;
 
 export const Colours = {
-  primary: "#000000",
-  secondary: "#fef9ffff",
+  // Base Backgrounds
+  background: "#FEF9FF",
+  modalBackground: "#F7F2F9",
+  white: "#FFFFFF",
+  black: "#111111",
 
-  background: "#fef9ffff",
+  // Text Colours
+  primaryText: "#111111",
+  secondaryText: "#5C5470",
+  dimText: "#AAA",
+  whiteText: "#FFFFFF",
+
+  // Components
+  border: "#5C5470",
   cardBackground: "#FFFFFF",
-  favCardBackground: "#BDABAE",
-  modalBackground: "rgba(0,0,0,0.5)",
-  transparentBackground: "rgba(255, 255, 255, 0.5)",
-  border: "#BDABAE",
-  text: "#333333",
-  textDim: "#86888B",
+  floatingBtn: "#111111",
 
-  // status
-  error: "#FF5252",
-  success: "#4CAF50",
-};
+  // States & Status
+  active: "#333333",
+  error: "#FF3B30",
+  favourite: "#FF4D4D",
+  favouriteBackground: "rgba(255, 77, 77, 0.03)",
+  favouriteBorder: "rgba(255, 77, 77, 0.3)",
+
+  // Transparency (Overlay 등)
+  overlay: "rgba(0,0,0,0.6)",
+  transparentWhite: "rgba(255,255,255,0.4)",
+} as const;
+
+export const Radius = {
+  small: 10, // icon, card
+  medium: 20, // receipt
+  large: 30, // floating btn, detail modal
+  round: 999, // circle
+} as const;
 
 export const Btn = StyleSheet.create({
   plusBtn: {
@@ -32,7 +51,7 @@ export const Btn = StyleSheet.create({
   closeBtn: { marginTop: 16, alignSelf: "center", padding: 8 },
   detailBtn: {
     borderWidth: 1,
-    borderColor: Colours.secondary,
+    borderColor: Colours.secondaryText,
     alignItems: "center",
     paddingVertical: 6,
     paddingHorizontal: 12,
