@@ -57,6 +57,14 @@ export const styles = StyleSheet.create({
   headerTitle: {
     alignItems: "center",
     paddingVertical: 8,
+    paddingBottom: 0,
+  },
+  headerInfo: {
+    fontSize: 11,
+    marginTop: 5,
+    width: "100%",
+    alignItems: "flex-start",
+    paddingHorizontal: 5,
   },
   title: {
     fontSize: 22,
@@ -67,11 +75,6 @@ export const styles = StyleSheet.create({
   subTitle: {
     fontSize: 14,
     color: Colours.secondaryText,
-  },
-  headerInfo: {
-    fontSize: 11,
-    marginTop: 5,
-    alignItems: "center",
   },
   receiptText: {
     fontSize: 10,
@@ -94,7 +97,7 @@ export const styles = StyleSheet.create({
   },
   footerInfo: {
     marginVertical: 8,
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   modalOverlay: {
     flex: 1,
@@ -184,5 +187,38 @@ export const styles = StyleSheet.create({
     color: Colours.whiteText,
     fontSize: 12,
     opacity: 0.6,
+  },
+  receiptTextNo: {
+    fontSize: 10,
+    color: Colours.primaryText,
+    width: 25,
+  },
+  receiptTextItem: {
+    fontSize: 10,
+    color: Colours.primaryText,
+    flex: 1,
+  },
+  receiptTextFreq: {
+    fontSize: 10,
+    color: Colours.primaryText,
+    width: 30,
+    textAlign: "right",
+  },
+  receiptTextCenter: {
+    fontSize: 10,
+    color: Colours.primaryText,
+    textAlign: "center",
+    width: "100%",
+  },
+  receiptTextThanks: {
+    fontSize: 10,
+    color: Colours.primaryText,
+    textAlign: "center",
+    width: "100%",
+    marginTop: 10,
+  },
+  itemRowName: {
+    fontSize: 10,
+    color: Colours.primaryText,
   },
 });

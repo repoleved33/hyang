@@ -138,7 +138,6 @@ export default function ReceiptScreen() {
           >
             <View style={styles.paperWrapper}>
               <View style={styles.receiptPaper}>
-                <DashedLine />
                 <View style={styles.headerTitle}>
                   <AppText style={styles.title}>HYANGRECEIPT</AppText>
                   <AppText style={styles.subTitle}>
@@ -146,9 +145,12 @@ export default function ReceiptScreen() {
                   </AppText>
                   <View style={styles.headerInfo}>
                     <AppText style={styles.receiptText}>
-                      ORDER #0001 FOR USER |{" "}
-                      {new Date().toDateString().toUpperCase()}
+                      INVOICE NO: #0001
                     </AppText>
+                    <AppText style={styles.receiptText}>
+                      DATE: {new Date().toDateString().toUpperCase()}
+                    </AppText>
+                    <AppText style={styles.receiptText}>CASHER: </AppText>
                   </View>
                 </View>
                 <DashedLine />
@@ -184,49 +186,36 @@ export default function ReceiptScreen() {
 
                 <View style={styles.footerSection}>
                   <DashedLine />
-                  {/* Fixed: div tag removed, View used */}
-                  <View style={[styles.rowHeader]}>
-                    <AppText style={styles.receiptText}>TOTAL ITEMS:</AppText>
+                  <View style={styles.rowHeader}>
+                    <AppText style={styles.receiptText}>TOTAL SCENTS:</AppText>
                     <AppText style={styles.receiptText}>
                       {topTenPerfumes.length}
                     </AppText>
                   </View>
                   <View style={styles.rowHeader}>
-                    <AppText style={styles.receiptText}>TOTAL HYANG:</AppText>
+                    <AppText style={styles.receiptText}>TOTAL SPRAYS:</AppText>
                     <AppText style={styles.receiptText}>
                       {totalScentCnt}
                     </AppText>
                   </View>
                   <DashedLine />
-                  <View
-                    style={[styles.footerInfo, { alignItems: "flex-start" }]}
-                  >
+
+                  <View style={styles.footerInfo}>
                     <AppText style={styles.receiptText}>
                       CARD #: **** **** **** {new Date().getFullYear()}
                     </AppText>
                     <AppText style={styles.receiptText}>
                       AUTH CODE: {Math.floor(1000 + Math.random() * 9000)}
                     </AppText>
-                    <AppText style={styles.receiptText}>
-                      CARDHOLDER: {/** user info */}
-                    </AppText>
+                    <AppText style={styles.receiptText}>CARDHOLDER:</AppText>
                   </View>
-                  <AppText
-                    style={[
-                      styles.receiptText,
-                      { textAlign: "center", width: "100%", marginTop: 10 },
-                    ]}
-                  >
-                    THANK YOU FOR VISITING
+                  <AppText style={styles.receiptTextThanks}>
+                    THANKS FOR YOUR SPRAY
                   </AppText>
-                  <AppText
-                    style={[
-                      styles.receiptText,
-                      { textAlign: "center", width: "100%" },
-                    ]}
-                  >
-                    HYANG 2026
+                  <AppText style={styles.receiptTextCenter}>
+                    [BARCODE IMAGE]
                   </AppText>
+                  <AppText style={styles.receiptTextCenter}>HYANG 2026</AppText>
                 </View>
               </View>
             </View>
@@ -302,7 +291,7 @@ function ItemRow({ num, name, brand, cnt }: any) {
   return (
     <View style={styles.itemRowContainer}>
       <View style={styles.textOverlay}>
-        <AppText style={[styles.receiptText, { width: 25 }]}>{num}</AppText>
+        <AppText style={styles.receiptTextNo}>{num}</AppText>
         <View style={{ flex: 1 }}>
           <AppText
             style={[styles.receiptText, { fontSize: 10 }]}
