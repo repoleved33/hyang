@@ -33,6 +33,8 @@ export const Colours = {
   // Transparency (Overlay 등)
   overlay: "rgba(0,0,0,0.6)",
   transparentWhite: "rgba(255,255,255,0.4)",
+  transparentBlack: "rgba(17, 17, 17, 0.1)", // dividing
+  slotBg: "rgba(17, 17, 17, 0.05)",
 } as const;
 
 export const Radius = {

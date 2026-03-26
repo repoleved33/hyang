@@ -1,3 +1,6 @@
+import { AppText } from "@/src/components/common/AppText";
+import { useScentLog } from "@/src/context/ScentLogContext";
+import { styles } from "@/src/styles/01_Receipt.styles";
 import { Ionicons } from "@expo/vector-icons";
 import * as Sharing from "expo-sharing";
 import { StatusBar } from "expo-status-bar";
@@ -5,21 +8,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
   Animated,
-  Dimensions,
   ImageBackground,
   Modal,
   Pressable,
-  StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
 import { captureRef } from "react-native-view-shot";
-
-import { AppText } from "@/src/components/common/AppText";
-import { Colours } from "@/src/constants/theme";
-import { useScentLog } from "@/src/context/ScentLogContext";
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function ReceiptScreen() {
   const { scentLogs } = useScentLog();
@@ -109,7 +104,6 @@ export default function ReceiptScreen() {
 
   const DashedLine = () => (
     <View style={styles.dashedWrapper}>
-      {/* 기기 너비에 상관없이 점선이 꽉 차도록 설정 */}
       <AppText style={styles.dashedText} numberOfLines={1} ellipsizeMode="clip">
         ----------------------------------------------------------------------
       </AppText>
@@ -138,7 +132,7 @@ export default function ReceiptScreen() {
           style={styles.receiptContainer}
         >
           <ImageBackground
-            source={require("@/assets/images/receiptBG.jpg")}
+            source={require("@/assets/images/receiptBG.png")}
             style={styles.backgroundImage}
             resizeMode="cover"
           >
@@ -256,7 +250,7 @@ export default function ReceiptScreen() {
               { transform: [{ translateY: slideAnim }] },
             ]}
           >
-            <AppText style={styles.dropdownTitle}>customise receipt</AppText>
+            <AppText style={styles.dropdownTitle}>SHARE YOUR HYANG</AppText>
             <View style={styles.buttonRow}>
               <TouchableOpacity
                 style={[styles.filterBtn, period === 30 && styles.activeBtn]}
@@ -282,8 +276,13 @@ export default function ReceiptScreen() {
                 style={styles.paperPlaneBtn}
                 onPress={handleShare}
               >
-                <Ionicons name="paper-plane-outline" size={20} color="white" />
-                <AppText style={styles.shareBtnText}>SHARE</AppText>
+                <View style={styles.iconCircle}>
+                  <Ionicons
+                    name="paper-plane-outline"
+                    size={20}
+                    color="white"
+                  />
+                </View>
               </TouchableOpacity>
             </View>
             <TouchableOpacity
@@ -324,150 +323,3 @@ function ItemRow({ num, name, brand, cnt }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colours.black,
-  },
-  headerBar: {
-    height: 45,
-    backgroundColor: Colours.black,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 50,
-    zIndex: 100,
-  },
-  headerText: {
-    color: Colours.whiteText,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  captureArea: {
-    flex: 1,
-    backgroundColor: Colours.modalBackground,
-  },
-  receiptContainer: { flex: 1 },
-  backgroundImage: { flex: 1, alignItems: "center", justifyContent: "center" },
-  paperWrapper: {
-    backgroundColor: Colours.transparentWhite,
-    width: SCREEN_WIDTH * 0.82,
-    paddingVertical: 10,
-    borderRadius: 0,
-  },
-  receiptPaper: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  dashedWrapper: {
-    width: "100%",
-    overflow: "hidden",
-    marginVertical: 5,
-  },
-  dashedText: {
-    fontSize: 10,
-    letterSpacing: 2,
-    color: Colours.black,
-    opacity: 0.8,
-  },
-  headerTitle: { alignItems: "center", paddingVertical: 8 },
-  title: {
-    fontSize: 22,
-    fontWeight: "900",
-    color: Colours.primaryText,
-    letterSpacing: 2,
-  },
-  subTitle: {
-    fontSize: 14,
-    color: Colours.secondaryText,
-  },
-  headerInfo: {
-    fontSize: 11,
-    marginTop: 5,
-    alignItems: "center",
-  },
-  receiptText: {
-    fontSize: 10,
-    color: Colours.primaryText,
-  },
-  rowHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  itemRowContainer: {
-    paddingVertical: 4,
-    justifyContent: "center",
-  },
-  textOverlay: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-  },
-  footerSection: { marginTop: 0 },
-  footerInfo: {
-    marginVertical: 8,
-    alignItems: "center",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: Colours.overlay,
-    justifyContent: "flex-start",
-  },
-  modalContent: {
-    backgroundColor: Colours.black,
-    paddingTop: 110,
-    paddingBottom: 30,
-    alignItems: "center",
-    borderRadius: 0,
-  },
-  dropdownTitle: {
-    color: Colours.whiteText,
-    fontSize: 16,
-    marginBottom: 20,
-    opacity: 0.9,
-  },
-  buttonRow: {
-    flexDirection: "row",
-    gap: 15,
-    marginBottom: 25,
-  },
-  filterBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderWidth: 1,
-    borderColor: Colours.white,
-    minWidth: 110,
-    alignItems: "center",
-    borderRadius: 0,
-  },
-  activeBtn: {
-    backgroundColor: Colours.active,
-  },
-  buttonText: {
-    color: Colours.whiteText,
-    fontWeight: "bold",
-    fontSize: 12,
-  },
-  shareActionRow: { marginBottom: 20 },
-  paperPlaneBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colours.active,
-    paddingVertical: 12,
-    paddingHorizontal: 35,
-    borderRadius: 0,
-    gap: 10,
-    borderWidth: 0.5,
-    borderColor: Colours.secondaryText,
-  },
-  shareBtnText: {
-    color: Colours.whiteText,
-    fontWeight: "900",
-    fontSize: 14,
-  },
-  closeAction: { marginTop: 10 },
-  closeText: {
-    color: Colours.whiteText,
-    fontSize: 12,
-    opacity: 0.6,
-  },
-});

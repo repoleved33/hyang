@@ -8,7 +8,6 @@ import {
   FlatList,
   Image,
   LayoutChangeEvent,
-  StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -16,6 +15,8 @@ import {
 import { AppText } from "@/src/components/common/AppText";
 import SearchPerfumeModal from "@/src/components/common/SearchPerfumeModal";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
+import { styles } from "@/src/styles/02_ScentLog.styles";
+import { headerStyles } from "@/src/styles/commonHeader.styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface ScentLogItem {
@@ -32,19 +33,19 @@ export default function ScentLogScreen() {
   const { myPerfumes } = useMyPerfume();
 
   const [listHeight, setListHeight] = useState(0);
-  const dateItemHeight = listHeight / 7.5;
+  const dateItemHeight = listHeight / 8; // space between dates
 
   const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
   const [favModalVisible, setFavModalVisible] = useState(false);
   const [searchModalVisible, setSearchModalVisible] = useState(false);
 
-  // 1. favourite list (for exception)
+  // favourite list (for exception)
   const favIds = useMemo(
     () => myPerfumes.filter((p) => p.isFavourite).map((p) => p.perfId),
     [myPerfumes],
   );
 
-  // 2. dates list (30 days)
+  // dates list (30 days)
   const logs: ScentLogItem[] = useMemo(() => {
     return Array.from({ length: 30 }).map((_, i) => {
       const date = new Date();
@@ -60,7 +61,7 @@ export default function ScentLogScreen() {
 
   const [selectedDate, setSelectedDate] = useState<ScentLogItem>(logs[29]);
 
-  // 3. match selected date<->data details
+  // match selected date<->data details
   const selectedDayEntries = useMemo(() => {
     const dayLogs = scentLogs.filter(
       (log) => log.date === selectedDate.dateString,
@@ -88,7 +89,7 @@ export default function ScentLogScreen() {
     setFavModalVisible(true);
   };
 
-  // 4. if select perfume
+  // if select perfume
   const handleSelectPerfume = (perfume: any) => {
     if (activeSlotIdx === null) return;
 
@@ -127,12 +128,13 @@ export default function ScentLogScreen() {
         style={[styles.dateItem, { height: dateItemHeight }]}
       >
         {isSelected && <View style={styles.selectedBar} />}
-
-        <AppText style={[styles.monthLabel, isSelected && { color: "#111" }]}>
+        <AppText
+          style={[styles.monthLabel, isSelected && styles.monthLabelSelected]}
+        >
           {item.month.slice(0, 3)}
         </AppText>
         <AppText
-          style={[styles.dateText, isSelected && styles.selectedDateText]}
+          style={[styles.dateText, isSelected && styles.dateTextSelected]}
         >
           {item.day}
         </AppText>
@@ -173,78 +175,94 @@ export default function ScentLogScreen() {
       style={[styles.container, { paddingTop: insets.top }]}
       onLayout={onLayout}
     >
-      {/* LEFT : Date Selector */}
-      <View style={styles.leftColumn}>
-        {listHeight > 0 && (
-          <FlatList
-            data={logs}
-            keyExtractor={(item) => item.id}
-            renderItem={renderDateItem}
-            showsVerticalScrollIndicator={false}
-            snapToInterval={dateItemHeight}
-            decelerationRate="fast"
-            initialScrollIndex={23} // show 7 days
-            getItemLayout={(_, index) => ({
-              length: dateItemHeight,
-              offset: dateItemHeight * index,
-              index,
-            })}
-          />
-        )}
+      {/* Header */}
+
+      <View style={headerStyles.header}>
+        <AppText style={headerStyles.headerTitle}>Scent Log</AppText>
       </View>
 
-      {/* RIGHT: Details View */}
-      <View style={styles.rightColumn}>
-        <AppText style={styles.headerTitle}>
-          {selectedDate.month} {selectedDate.day}
-        </AppText>
+      <View style={styles.contentBody}>
+        {/* LEFT : Date Selector */}
+        <View style={styles.leftColumn}>
+          {listHeight > 0 && (
+            <FlatList
+              data={logs}
+              keyExtractor={(item) => item.id}
+              renderItem={renderDateItem}
+              showsVerticalScrollIndicator={false}
+              snapToInterval={dateItemHeight}
+              decelerationRate="fast"
+              initialScrollIndex={23} // show 7 days
+              getItemLayout={(_, index) => ({
+                length: dateItemHeight,
+                offset: dateItemHeight * index,
+                index,
+              })}
+            />
+          )}
+        </View>
 
-        {selectedDayEntries.map((perfume, index) => (
-          <View key={index} style={styles.scentRow}>
-            <View style={styles.labelWrapper}>
-              <AppText style={styles.slotLabel}># 0{index + 1}</AppText>
-              <View style={styles.verticalLine} />
-            </View>
+        {/* RIGHT: Details View */}
 
-            <TouchableOpacity
-              style={[
-                styles.imageSlot,
-                perfume ? styles.filledSlotBorder : styles.emptySlotBorder,
-              ]}
-              onPress={() => handleOpenModal(index)}
-            >
-              {perfume ? (
-                <View style={styles.filledSlot}>
+        <View style={styles.rightColumn}>
+          {/* 👈 여기서 AppText(Title) 삭제함 */}
+          {selectedDayEntries.map((perfume, index) => (
+            <View key={index} style={styles.scentRow}>
+              <View style={styles.labelWrapper}>
+                <AppText style={styles.slotLabel}># 0{index + 1}</AppText>
+                <View style={styles.verticalLine} />
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.imageSlot,
+                  perfume ? styles.filledSlot : styles.emptySlot,
+                ]}
+                onPress={() => handleOpenModal(index)}
+              >
+                {!perfume ? (
+                  /* 1. 데이터가 아예 없을 때 */
+                  <AppText style={styles.plusText}>+</AppText>
+                ) : perfume.imageUrl || perfume.image_url ? (
+                  /* 2. 데이터가 있고 이미지도 있을 때 */
                   <Image
                     source={{ uri: perfume.imageUrl || perfume.image_url }}
                     style={styles.perfumeImg}
                     resizeMode="contain"
                   />
-                </View>
-              ) : (
-                <View style={styles.addPlaceholder}>
-                  <AppText style={styles.plusText}>+</AppText>
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
-        ))}
+                ) : (
+                  /* 3. 데이터는 있는데 이미지가 없을 때 (브랜드 & 이름) */
+                  <View style={styles.textDetailsSlot}>
+                    <AppText style={styles.brandText} numberOfLines={1}>
+                      {perfume.brand}
+                    </AppText>
+                    <AppText style={styles.nameText} numberOfLines={2}>
+                      {perfume.name}
+                    </AppText>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
       </View>
-
       {/* [TEST] */}
       <View style={styles.testFrame}>
         <View style={styles.testLabelContainer}>
           <AppText style={styles.testLabelText}>TEST MODE</AppText>
         </View>
+
         <View style={styles.testButtonGroupInner}>
+          {/* 💡 깔끔하게 스타일 클래스만 호출 */}
           <TouchableOpacity
-            style={[styles.testButton, { backgroundColor: "#4A90E2" }]}
+            style={styles.testButtonLog}
             onPress={handleCheckLogs}
           >
             <AppText style={styles.testButtonText}>Logs</AppText>
           </TouchableOpacity>
+
           <TouchableOpacity
-            style={[styles.testButton, { backgroundColor: "#E94E77" }]}
+            style={styles.testButtonDelete}
             onPress={handleClearAll}
           >
             <AppText style={styles.testButtonText}>Delete all</AppText>
@@ -276,169 +294,3 @@ export default function ScentLogScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "row",
-    backgroundColor: "#F7F2F9",
-  },
-  leftColumn: {
-    width: 70,
-    backgroundColor: "#111111",
-    borderRightWidth: 0,
-  },
-  dateItem: {
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 15,
-  },
-  selectedBar: {
-    position: "absolute",
-    left: 0,
-    width: 4,
-    height: "25%",
-    backgroundColor: "#FFFFFF",
-    borderTopRightRadius: 2,
-    borderBottomRightRadius: 2,
-  },
-  monthLabel: {
-    fontSize: 9,
-    fontWeight: "800",
-    color: "#8E82A8",
-    textTransform: "uppercase",
-    letterSpacing: 1.2,
-    marginBottom: 4,
-    opacity: 0.6,
-  },
-  dateText: {
-    fontSize: 16,
-    color: "#444444",
-    fontWeight: "600",
-  },
-  selectedDateText: {
-    color: "#FFFFFF",
-    fontWeight: "900",
-    fontSize: 22,
-  },
-  rightColumn: {
-    flex: 1,
-    padding: 25,
-    paddingTop: 80,
-    backgroundColor: "#F7F2F9",
-  },
-  headerTitle: {
-    fontSize: 34,
-    fontWeight: "900",
-    marginBottom: 45,
-    letterSpacing: -1.5,
-    color: "#111111",
-    textTransform: "uppercase",
-  },
-  scentRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 40,
-  },
-  labelWrapper: {
-    alignItems: "center",
-    marginRight: 20,
-    width: 35,
-  },
-  slotLabel: {
-    fontSize: 11,
-    color: "#5C5470",
-    fontWeight: "900",
-    opacity: 0.4,
-    marginBottom: 8,
-  },
-  verticalLine: {
-    width: 1,
-    height: 50,
-    backgroundColor: "#111111",
-    opacity: 0.15,
-  },
-  imageSlot: {
-    flex: 1,
-    height: 130,
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  emptySlotBorder: {
-    borderWidth: 1,
-    borderColor: "#111111",
-    opacity: 0.1,
-    borderStyle: "dashed",
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-  },
-  filledSlotBorder: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(17, 17, 17, 0.05)",
-    shadowColor: "#5C5470",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 5,
-  },
-  addPlaceholder: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  plusText: {
-    fontSize: 20,
-    color: "#111111",
-    opacity: 0.2,
-    fontWeight: "200",
-  },
-  filledSlot: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  perfumeImg: {
-    width: "85%",
-    height: "75%",
-  },
-  testFrame: {
-    position: "absolute",
-    bottom: 30,
-    right: 15,
-    borderWidth: 1,
-    borderColor: "#111111",
-    borderStyle: "dashed",
-    borderRadius: 4,
-    padding: 10,
-    paddingTop: 18,
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    zIndex: 9999,
-  },
-  testLabelContainer: {
-    position: "absolute",
-    top: -10,
-    left: 8,
-    backgroundColor: "#111111",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 2,
-  },
-  testLabelText: {
-    color: "#FFFFFF",
-    fontSize: 8,
-    fontWeight: "900",
-  },
-  testButtonGroupInner: { flexDirection: "row", gap: 6 },
-  testButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 4,
-    minWidth: 60,
-    alignItems: "center",
-  },
-  testButtonText: { color: "#FFFFFF", fontSize: 10, fontWeight: "800" },
-});

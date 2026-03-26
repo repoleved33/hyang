@@ -1,0 +1,167 @@
+import { Colours, Radius } from "@/src/constants/theme";
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colours.background,
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  layoutToggleText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: Colours.secondaryText,
+  },
+  layoutToggleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colours.white,
+    borderWidth: 0.5,
+    borderColor: Colours.border,
+    borderRadius: Radius.small,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    gap: 6,
+  },
+  listContent: {
+    padding: 20,
+    paddingBottom: 120,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 50,
+    width: "100%",
+  },
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: Colours.primaryText,
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  emptySub: {
+    fontSize: 15,
+    color: Colours.secondaryText,
+    opacity: 0.6,
+    textAlign: "center",
+    lineHeight: 22,
+  },
+  emptyIconCircle: {
+    width: 120,
+    height: 120,
+    backgroundColor: Colours.white,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 25,
+    borderWidth: 1,
+    borderColor: Colours.border,
+    borderRadius: Radius.round,
+    opacity: 0.2,
+  },
+  card: {
+    flexDirection: "row",
+    backgroundColor: Colours.cardBackground,
+    padding: 15,
+    marginBottom: 16,
+    alignItems: "center",
+    // not favourite
+    borderWidth: 1,
+    borderColor: Colours.border,
+    borderRadius: Radius.small,
+    elevation: 1,
+    shadowColor: Colours.border,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+  },
+  cardFavourite: {
+    backgroundColor: Colours.favouriteBackground,
+    borderColor: Colours.favourite,
+    borderWidth: 1,
+    elevation: 2,
+  },
+  cardMainAction: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  imageBox: {
+    width: 70,
+    height: 70,
+    backgroundColor: Colours.white,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: Colours.border,
+    borderRadius: Radius.small,
+    opacity: 1,
+  },
+  image: {
+    width: "80%",
+    height: "80%",
+    resizeMode: "contain",
+  },
+  infoBox: {
+    flex: 1,
+    marginLeft: 15,
+    justifyContent: "center",
+  },
+  brandText: {
+    fontSize: 11,
+    color: Colours.secondaryText,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    marginBottom: 4,
+    opacity: 0.5,
+  },
+  nameText: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: Colours.primaryText,
+  },
+  actionBox: {
+    paddingLeft: 10,
+    alignItems: "center",
+  },
+
+  cardGrid: {
+    flexDirection: "column",
+    width: "48%",
+    alignItems: "center",
+    padding: 10,
+  },
+  cardMainActionGrid: {
+    flexDirection: "column",
+    width: "100%",
+  },
+  imageBoxGrid: {
+    backgroundColor: Colours.white,
+    width: "100%",
+    height: 100,
+    marginBottom: 10,
+  },
+  infoBoxGrid: {
+    marginLeft: 0,
+    alignItems: "center",
+  },
+  brandTextGrid: {
+    textAlign: "center",
+  },
+  nameTextGrid: {
+    textAlign: "center",
+    fontSize: 14,
+  },
+  actionBoxGrid: {
+    flexDirection: "row",
+    marginTop: 10,
+    paddingLeft: 0,
+    gap: 15,
+  },
+});

@@ -14,10 +14,13 @@ import {
 import PerfumeDetailModal from "@/src/components/common/PerfumeDetailModal"; // 💡 상세 모달 임포트 확인
 import SearchPerfumeModal from "@/src/components/common/SearchPerfumeModal";
 import { usePerfumeActions } from "@/src/hooks/usePerfumehooks";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { styles } from "./Shelf.styles";
+import { styles } from "@/src/styles/03_Shelf.styles";
+import { headerStyles } from "@/src/styles/commonHeader.styles";
 
 export default function ShelfScreen() {
+  const insets = useSafeAreaInsets();
   const [numColumns, setNumColumns] = useState(1);
 
   const { myPerfumes, isLoading, addMyPerfume, toggleFavourite } =
@@ -64,12 +67,13 @@ export default function ShelfScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        {/* title */}
-        <AppText style={styles.headerTitle}>My Shelf</AppText>
-        {/* show toggle / +(search) btn */}
-        <View style={styles.headerActionRow}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={headerStyles.header}>
+        {/* HEADER LEFT - title */}
+        <AppText style={headerStyles.headerTitle}>MY SHELF</AppText>
+
+        {/* HEADER RIGHT - show toggle / +(search) btn */}
+        <View style={headerStyles.headerActionRow}>
           {/* left - layout toggle */}
           <TouchableOpacity
             style={styles.layoutToggleButton}
@@ -94,10 +98,9 @@ export default function ShelfScreen() {
             >
               <Ionicons name="add" size={26} color={Colours.primaryText} />
             </TouchableOpacity>
-
             {/* btn - option2 */}
             <TouchableOpacity
-              style={styles.headerInlineAddBtn}
+              style={headerStyles.headerInlineAddBtn}
               onPress={handleOpenSearch}
             >
               <Ionicons name="add" size={20} color={Colours.whiteText} />
