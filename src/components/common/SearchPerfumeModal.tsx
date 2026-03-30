@@ -1,19 +1,19 @@
-import { modalStyles } from "@/src/components/common/modalStyles";
-import { Btn, Input } from "@/src/constants/theme";
+import { Btn, Colours, Input } from "@/src/constants/theme";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
+import { modalStyles } from "@/src/styles/modalStyles";
 import { Perfume } from "@/src/types/perfume";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   Modal,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { AppText } from "./AppText";
-
 interface perfumeSearchModalProps {
   visible: boolean;
   onClose: () => void;
@@ -30,16 +30,14 @@ export default function SearchPerfumeModal({
   const [searchKeyword, setSearchKeyword] = useState("");
   const [searchResults, setSearchResults] = useState<Perfume[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const [page, setPage] = useState(0); // track current page
-  const [hasMore, setHasMore] = useState(true); // check if more data exists
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   const { searchPerfumes } = useMyPerfume();
 
   const handleSearchUpdate = async (text: string) => {
     setSearchKeyword(text);
 
-    // if not exist
     if (!text.trim()) {
       setSearchResults([]);
       setLoading(false);
@@ -48,22 +46,20 @@ export default function SearchPerfumeModal({
 
     setLoading(true);
     try {
-      // [Supabase]
       const results = await searchPerfumes(text);
-
-      // filter excludeIds
       const filtered = results.filter(
         (p: Perfume) => !excludeIds?.includes(p.perfId || ""),
       );
       setSearchResults(filtered);
+      setPage(0);
+      setHasMore(true);
     } catch (error) {
-      console.error("[Supabase] search error:", error);
+      console.error("search error:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // 💡 Load More Data when reaching the bottom
   const loadMoreResults = async () => {
     if (loading || !hasMore || !searchKeyword.trim()) return;
 
@@ -71,10 +67,10 @@ export default function SearchPerfumeModal({
     const nextPage = page + 1;
     const newResults = await searchPerfumes(searchKeyword, nextPage);
 
-    if (newResults.length < 50) setHasMore(false); // No more data to fetch
+    if (newResults.length < 50) setHasMore(false);
 
     const filtered = newResults.filter((p) => !excludeIds.includes(p.perfId!));
-    setSearchResults((prev) => [...prev, ...filtered]); // Append to existing list
+    setSearchResults((prev) => [...prev, ...filtered]);
     setPage(nextPage);
     setLoading(false);
   };
@@ -97,14 +93,21 @@ export default function SearchPerfumeModal({
           <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
             <View style={modalStyles.modalContainer}>
               <TextInput
-                style={Input.searchInput}
-                placeholder="Perfume or Brand Name"
+                style={[
+                  Input.searchInput,
+                  {
+                    borderRadius: 15,
+                    borderWidth: 1,
+                    paddingHorizontal: 15,
+                  },
+                ]}
+                placeholder="PERFUME OR BRAND NAME"
                 value={searchKeyword}
-                onChangeText={(text) => handleSearchUpdate(text)} //
+                onChangeText={(text) => handleSearchUpdate(text)}
                 autoCapitalize="none"
                 autoFocus={true}
                 returnKeyType="search"
-                clearButtonMode="while-editing" // iOS
+                clearButtonMode="while-editing"
               />
 
               {loading && (
@@ -115,10 +118,10 @@ export default function SearchPerfumeModal({
 
               <FlatList
                 data={searchResults}
-                keyExtractor={(item) => item.perfId!} // essential val
+                keyExtractor={(item) => item.perfId!}
                 style={{ maxHeight: 350, marginTop: 10 }}
                 onEndReached={loadMoreResults}
-                onEndReachedThreshold={0.5} // Trigger when 50% from the bottom
+                onEndReachedThreshold={0.5}
                 keyboardShouldPersistTaps="handled"
                 ListFooterComponent={() =>
                   loading ? (
@@ -132,7 +135,9 @@ export default function SearchPerfumeModal({
                 ListEmptyComponent={() =>
                   !loading && searchKeyword.length > 0 ? (
                     <View style={{ padding: 20, alignItems: "center" }}>
-                      <AppText style={{ color: "#999" }}>No Results</AppText>
+                      <AppText style={{ color: Colours.secondaryText }}>
+                        No Results
+                      </AppText>
                     </View>
                   ) : null
                 }
@@ -157,7 +162,7 @@ export default function SearchPerfumeModal({
               />
 
               <TouchableOpacity style={Btn.closeBtn} onPress={handleClose}>
-                <AppText style={modalStyles.modalText}>Close</AppText>
+                <AppText style={modalStyles.modalText}>CLOSE</AppText>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
@@ -166,11 +171,12 @@ export default function SearchPerfumeModal({
     </Modal>
   );
 }
-const styles = {
+
+const styles = StyleSheet.create({
   fullScreenOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: Colours.overlay,
     justifyContent: "center",
     alignItems: "center",
-  } as const,
-};
+  },
+});

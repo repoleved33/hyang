@@ -248,7 +248,7 @@ export default function ReceiptScreen() {
                   setModalVisible(false);
                 }}
               >
-                <AppText style={styles.buttonText}>last month</AppText>
+                <AppText style={styles.buttonText}>LAST MONTH</AppText>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.filterBtn, period === 7 && styles.activeBtn]}
@@ -257,7 +257,7 @@ export default function ReceiptScreen() {
                   setModalVisible(false);
                 }}
               >
-                <AppText style={styles.buttonText}>last week</AppText>
+                <AppText style={styles.buttonText}>LAST WEEK</AppText>
               </TouchableOpacity>
             </View>
             <View style={styles.shareActionRow}>
@@ -278,7 +278,7 @@ export default function ReceiptScreen() {
               style={styles.closeAction}
               onPress={() => setModalVisible(false)}
             >
-              <AppText style={styles.closeText}>close ▲</AppText>
+              <AppText style={styles.closeText}>CLOSE ▲</AppText>
             </TouchableOpacity>
           </Animated.View>
         </Pressable>

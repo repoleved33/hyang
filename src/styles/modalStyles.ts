@@ -10,7 +10,6 @@ export const modalStyles = StyleSheet.create({
     padding: 24,
   },
   modalContainer: {
-    // backgroundColor: Colours.background || "#FFFFFF",
     backgroundColor: Colours.background,
     width: "100%",
     maxHeight: "80%",
@@ -20,32 +19,32 @@ export const modalStyles = StyleSheet.create({
     gap: 12,
   },
   modalItemDetailName: {
-    color: Colours.text,
+    color: Colours.primaryText,
     fontSize: 16,
     fontWeight: "600",
     marginTop: 4,
     // textAlign: "center",
   },
   modalItemDetailBrand: {
-    color: Colours.textDim,
+    color: Colours.secondaryText,
     fontSize: 14,
     letterSpacing: 1,
     textTransform: "uppercase",
     marginTop: 2,
   },
   modalItemSearchName: {
-    color: Colours.text,
+    color: Colours.primaryText,
     fontSize: 16,
     fontWeight: "600",
   },
 
   modalItemSearchBrand: {
-    color: Colours.textDim,
+    color: Colours.secondaryText,
     fontSize: 10,
     letterSpacing: 1,
     textTransform: "uppercase",
   },
-  modalText: { color: Colours.text },
+  modalText: { color: Colours.primaryText },
 
   modalsearchItem: {
     paddingVertical: 10,

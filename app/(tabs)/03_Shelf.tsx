@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 
-import PerfumeDetailModal from "@/src/components/common/PerfumeDetailModal"; // 💡 상세 모달 임포트 확인
+import PerfumeDetailModal from "@/src/components/common/PerfumeDetailModal";
 import SearchPerfumeModal from "@/src/components/common/SearchPerfumeModal";
 import { usePerfumeActions } from "@/src/hooks/usePerfumehooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -204,7 +204,7 @@ export default function ShelfScreen() {
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={!isGrid && { marginTop: 20 }} // 💡 1열일 때만 마진 유지
+                    style={!isGrid && { marginTop: 20 }}
                     onPress={() =>
                       confirmRemove(item.perfId, item.details?.name || "Scent")
                     }

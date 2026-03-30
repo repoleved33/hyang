@@ -1,5 +1,4 @@
 import { Dimensions, StyleSheet } from "react-native";
-// import { Platform } from 'react-native';
 const screenWidth = Dimensions.get("window").width;
 const cols = 2;
 const cardMargin = 14;
@@ -11,6 +10,13 @@ export const Colours = {
   modalBackground: "#F7F2F9",
   white: "#FFFFFF",
   black: "#111111",
+  lavender: "#4A4A63",
+
+  // Tab bars
+  tabBarBg: "#F4EEFF",
+  lavenderActive: "#FFFFFF",
+  lavenderInactive: "#A3A3C2",
+  // tabBarBorder: "#4A4A63",
 
   // Text Colours
   primaryText: "#111111",
@@ -22,6 +28,9 @@ export const Colours = {
   border: "#5C5470",
   cardBackground: "#FFFFFF",
   floatingBtn: "#111111",
+
+  // Modal
+  modalBg: "",
 
   // States & Status
   active: "#333333",

@@ -1,4 +1,4 @@
-import MyFavListModal from "@/src/components/scentlog/MyFavListModal";
+import MyFavListModal from "@/src/components/common/MyFavListModal";
 import { Months } from "@/src/constants/theme";
 import { useScentLog } from "@/src/context/ScentLogContext";
 import { ScentLog } from "@/src/types/scentLog";
@@ -205,7 +205,6 @@ export default function ScentLogScreen() {
         {/* RIGHT: Details View */}
 
         <View style={styles.rightColumn}>
-          {/* 👈 여기서 AppText(Title) 삭제함 */}
           {selectedDayEntries.map((perfume, index) => (
             <View key={index} style={styles.scentRow}>
               <View style={styles.labelWrapper}>
@@ -221,17 +220,17 @@ export default function ScentLogScreen() {
                 onPress={() => handleOpenModal(index)}
               >
                 {!perfume ? (
-                  /* 1. 데이터가 아예 없을 때 */
+                  /* 1. no data */
                   <AppText style={styles.plusText}>+</AppText>
                 ) : perfume.imageUrl || perfume.image_url ? (
-                  /* 2. 데이터가 있고 이미지도 있을 때 */
+                  /* 2. no data & image */
                   <Image
                     source={{ uri: perfume.imageUrl || perfume.image_url }}
                     style={styles.perfumeImg}
                     resizeMode="contain"
                   />
                 ) : (
-                  /* 3. 데이터는 있는데 이미지가 없을 때 (브랜드 & 이름) */
+                  /* 3. data & no image */
                   <View style={styles.textDetailsSlot}>
                     <AppText style={styles.brandText} numberOfLines={1}>
                       {perfume.brand}
@@ -253,7 +252,6 @@ export default function ScentLogScreen() {
         </View>
 
         <View style={styles.testButtonGroupInner}>
-          {/* 💡 깔끔하게 스타일 클래스만 호출 */}
           <TouchableOpacity
             style={styles.testButtonLog}
             onPress={handleCheckLogs}
@@ -274,12 +272,19 @@ export default function ScentLogScreen() {
         visible={favModalVisible}
         onClose={() => setFavModalVisible(false)}
         onSelect={(id) => {
+          console.log("✅ selected ID: ", id);
           // only from myperfumes
           const found = myPerfumes.find((p) => p.perfId === id);
-          if (found) handleSelectPerfume(found.details);
+          if (found) {
+            console.log("✅ found details: ", found.details);
+            handleSelectPerfume(found.details);
+          } else {
+            console.log("❌ ID not exist");
+          }
         }}
         onDelete={handleDeleteCurrSlot}
         onSearchOpen={() => {
+          console.log("🔍 Open Search");
           setFavModalVisible(false);
           setTimeout(() => setSearchModalVisible(true), 300);
         }}
