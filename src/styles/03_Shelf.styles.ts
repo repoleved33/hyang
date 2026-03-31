@@ -72,7 +72,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     // not favourite
     borderWidth: 1,
-    borderColor: Colours.border,
+    borderColor: Colours.transparentBlack,
     borderRadius: Radius.small,
     elevation: 1,
     shadowColor: Colours.border,
@@ -82,7 +82,7 @@ export const styles = StyleSheet.create({
   },
   cardFavourite: {
     backgroundColor: Colours.favouriteBackground,
-    borderColor: Colours.favourite,
+    borderColor: Colours.favouriteBorder,
     borderWidth: 1,
     elevation: 2,
   },

@@ -51,5 +51,6 @@ credentials.json
 # Local Expo env
 .expo-shared/
 
-# supabase info
-/src/lib/supabase.ts
+# env info (dbl check)
+.env
+.env.local

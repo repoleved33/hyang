@@ -2,6 +2,7 @@ import { AppText } from "@/src/components/common/AppText";
 import { useScentLog } from "@/src/context/ScentLogContext";
 import { styles } from "@/src/styles/01_Receipt.styles";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "expo-router";
 import * as Sharing from "expo-sharing";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -12,15 +13,41 @@ import {
   Modal,
   Pressable,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { captureRef } from "react-native-view-shot";
 
 export default function ReceiptScreen() {
+  const navigation = useNavigation();
+  const [isTabBarVisible, setIsTabBarVisible] = useState(false);
+
   const { scentLogs } = useScentLog();
   const receiptRef = useRef<View>(null);
   const [period, setPeriod] = useState<7 | 30>(30);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const toggleTabBar = () => {
+    const parent = navigation.getParent();
+    if (!parent) return;
+
+    // 💡 현재 상태 반전시켜서 애니메이션 실행
+    const toValue = isTabBarVisible ? -100 : 0;
+
+    // 💡 부모(TabsLayout)의 tabBarStyle에 직접 애니메이션 명령
+    parent.setOptions({
+      tabBarStyle: {
+        height: 65,
+        position: "absolute",
+        left: 0,
+        right: 0,
+        bottom: toValue, // 💡 여기서 바로 꽂아넣음
+        backgroundColor: "#1E1E26", // Colours.tabBarBg
+      },
+    });
+
+    setIsTabBarVisible(!isTabBarVisible);
+  };
 
   // Animation for smooth sliding dropdown
   const slideAnim = useRef(new Animated.Value(-400)).current;
@@ -111,179 +138,187 @@ export default function ReceiptScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
+    <TouchableWithoutFeedback onPress={toggleTabBar}>
+      <View style={styles.container}>
+        <StatusBar style="light" />
 
-      {/* Header Menu Trigger */}
-      <TouchableOpacity
-        style={styles.headerBar}
-        onPress={() => setModalVisible(true)}
-        activeOpacity={1}
-      >
-        <AppText style={styles.headerText}>
-          OPTION {modalVisible ? "▲" : "▼"}
-        </AppText>
-      </TouchableOpacity>
-
-      <View style={styles.captureArea}>
-        <View
-          ref={receiptRef}
-          collapsable={false}
-          style={styles.receiptContainer}
+        {/* Header Menu Trigger */}
+        <TouchableOpacity
+          style={styles.headerBar}
+          onPress={() => setModalVisible(true)}
+          activeOpacity={1}
         >
-          <ImageBackground
-            source={require("@/assets/images/receiptBG.png")}
-            style={styles.backgroundImage}
-            resizeMode="cover"
+          <AppText style={styles.headerText}>
+            OPTION {modalVisible ? "▲" : "▼"}
+          </AppText>
+        </TouchableOpacity>
+
+        <View style={styles.captureArea}>
+          <View
+            ref={receiptRef}
+            collapsable={false}
+            style={styles.receiptContainer}
           >
-            <View style={styles.paperWrapper}>
-              <View style={styles.receiptPaper}>
-                <View style={styles.headerTitle}>
-                  <AppText style={styles.title}>HYANGRECEIPT</AppText>
-                  <AppText style={styles.subTitle}>
-                    LAST {period === 7 ? "WEEK" : "MONTH"}
-                  </AppText>
-                  <View style={styles.headerInfo}>
-                    <AppText style={styles.receiptText}>
-                      INVOICE NO: #0001
+            <ImageBackground
+              source={require("@/assets/images/receiptBG.png")}
+              style={styles.backgroundImage}
+              resizeMode="cover"
+            >
+              <View style={styles.paperWrapper}>
+                <View style={styles.receiptPaper}>
+                  <View style={styles.headerTitle}>
+                    <AppText style={styles.title}>HYANGRECEIPT</AppText>
+                    <AppText style={styles.subTitle}>
+                      LAST {period === 7 ? "WEEK" : "MONTH"}
                     </AppText>
-                    <AppText style={styles.receiptText}>
-                      DATE: {new Date().toDateString().toUpperCase()}
-                    </AppText>
-                    <AppText style={styles.receiptText}>CASHER: </AppText>
-                  </View>
-                </View>
-                <DashedLine />
-
-                <View style={styles.rowHeader}>
-                  <AppText style={[styles.receiptText, { width: 25 }]}>
-                    NO
-                  </AppText>
-                  <AppText style={[styles.receiptText, { flex: 1 }]}>
-                    ITEM
-                  </AppText>
-                  <AppText
-                    style={[
-                      styles.receiptText,
-                      { width: 30, textAlign: "right" },
-                    ]}
-                  >
-                    FREQ
-                  </AppText>
-                </View>
-                <DashedLine />
-                <View>
-                  {topTenPerfumes.map((item, index) => (
-                    <ItemRow
-                      key={item.perfId}
-                      num={String(index + 1).padStart(2, "0")}
-                      name={item.name}
-                      brand={item.brand}
-                      cnt={String(item.count)}
-                    />
-                  ))}
-                </View>
-
-                <View style={styles.footerSection}>
-                  <DashedLine />
-                  <View style={styles.rowHeader}>
-                    <AppText style={styles.receiptText}>TOTAL SCENTS:</AppText>
-                    <AppText style={styles.receiptText}>
-                      {topTenPerfumes.length}
-                    </AppText>
-                  </View>
-                  <View style={styles.rowHeader}>
-                    <AppText style={styles.receiptText}>TOTAL SPRAYS:</AppText>
-                    <AppText style={styles.receiptText}>
-                      {totalScentCnt}
-                    </AppText>
+                    <View style={styles.headerInfo}>
+                      <AppText style={styles.receiptText}>
+                        INVOICE NO: #0001
+                      </AppText>
+                      <AppText style={styles.receiptText}>
+                        DATE: {new Date().toDateString().toUpperCase()}
+                      </AppText>
+                      <AppText style={styles.receiptText}>CASHER: </AppText>
+                    </View>
                   </View>
                   <DashedLine />
 
-                  <View style={styles.footerInfo}>
-                    <AppText style={styles.receiptText}>
-                      CARD #: **** **** **** {new Date().getFullYear()}
+                  <View style={styles.rowHeader}>
+                    <AppText style={[styles.receiptText, { width: 25 }]}>
+                      NO
                     </AppText>
-                    <AppText style={styles.receiptText}>
-                      AUTH CODE: {Math.floor(1000 + Math.random() * 9000)}
+                    <AppText style={[styles.receiptText, { flex: 1 }]}>
+                      ITEM
                     </AppText>
-                    <AppText style={styles.receiptText}>CARDHOLDER:</AppText>
+                    <AppText
+                      style={[
+                        styles.receiptText,
+                        { width: 30, textAlign: "right" },
+                      ]}
+                    >
+                      FREQ
+                    </AppText>
                   </View>
-                  <AppText style={styles.receiptTextThanks}>
-                    THANKS FOR YOUR SPRAY
-                  </AppText>
-                  <AppText style={styles.receiptTextCenter}>
-                    [BARCODE IMAGE]
-                  </AppText>
-                  <AppText style={styles.receiptTextCenter}>HYANG 2026</AppText>
+                  <DashedLine />
+                  <View>
+                    {topTenPerfumes.map((item, index) => (
+                      <ItemRow
+                        key={item.perfId}
+                        num={String(index + 1).padStart(2, "0")}
+                        name={item.name}
+                        brand={item.brand}
+                        cnt={String(item.count)}
+                      />
+                    ))}
+                  </View>
+
+                  <View style={styles.footerSection}>
+                    <DashedLine />
+                    <View style={styles.rowHeader}>
+                      <AppText style={styles.receiptText}>
+                        TOTAL SCENTS:
+                      </AppText>
+                      <AppText style={styles.receiptText}>
+                        {topTenPerfumes.length}
+                      </AppText>
+                    </View>
+                    <View style={styles.rowHeader}>
+                      <AppText style={styles.receiptText}>
+                        TOTAL SPRAYS:
+                      </AppText>
+                      <AppText style={styles.receiptText}>
+                        {totalScentCnt}
+                      </AppText>
+                    </View>
+                    <DashedLine />
+
+                    <View style={styles.footerInfo}>
+                      <AppText style={styles.receiptText}>
+                        CARD #: **** **** **** {new Date().getFullYear()}
+                      </AppText>
+                      <AppText style={styles.receiptText}>
+                        AUTH CODE: {Math.floor(1000 + Math.random() * 9000)}
+                      </AppText>
+                      <AppText style={styles.receiptText}>CARDHOLDER:</AppText>
+                    </View>
+                    <AppText style={styles.receiptTextThanks}>
+                      THANKS FOR YOUR SPRAY
+                    </AppText>
+                    <AppText style={styles.receiptTextCenter}>
+                      [BARCODE IMAGE]
+                    </AppText>
+                    <AppText style={styles.receiptTextCenter}>
+                      HYANG 2026
+                    </AppText>
+                  </View>
                 </View>
               </View>
-            </View>
-          </ImageBackground>
+            </ImageBackground>
+          </View>
         </View>
-      </View>
 
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() => setModalVisible(false)}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
         >
-          <Animated.View
-            style={[
-              styles.modalContent,
-              { transform: [{ translateY: slideAnim }] },
-            ]}
+          <Pressable
+            style={styles.modalOverlay}
+            onPress={() => setModalVisible(false)}
           >
-            <AppText style={styles.dropdownTitle}>SHARE YOUR HYANG</AppText>
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={[styles.filterBtn, period === 30 && styles.activeBtn]}
-                onPress={() => {
-                  setPeriod(30);
-                  setModalVisible(false);
-                }}
-              >
-                <AppText style={styles.buttonText}>LAST MONTH</AppText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.filterBtn, period === 7 && styles.activeBtn]}
-                onPress={() => {
-                  setPeriod(7);
-                  setModalVisible(false);
-                }}
-              >
-                <AppText style={styles.buttonText}>LAST WEEK</AppText>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.shareActionRow}>
-              <TouchableOpacity
-                style={styles.paperPlaneBtn}
-                onPress={handleShare}
-              >
-                <View style={styles.iconCircle}>
-                  <Ionicons
-                    name="paper-plane-outline"
-                    size={20}
-                    color="white"
-                  />
-                </View>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity
-              style={styles.closeAction}
-              onPress={() => setModalVisible(false)}
+            <Animated.View
+              style={[
+                styles.modalContent,
+                { transform: [{ translateY: slideAnim }] },
+              ]}
             >
-              <AppText style={styles.closeText}>CLOSE ▲</AppText>
-            </TouchableOpacity>
-          </Animated.View>
-        </Pressable>
-      </Modal>
-    </View>
+              <AppText style={styles.dropdownTitle}>SHARE YOUR HYANG</AppText>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={[styles.filterBtn, period === 30 && styles.activeBtn]}
+                  onPress={() => {
+                    setPeriod(30);
+                    setModalVisible(false);
+                  }}
+                >
+                  <AppText style={styles.buttonText}>LAST MONTH</AppText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.filterBtn, period === 7 && styles.activeBtn]}
+                  onPress={() => {
+                    setPeriod(7);
+                    setModalVisible(false);
+                  }}
+                >
+                  <AppText style={styles.buttonText}>LAST WEEK</AppText>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.shareActionRow}>
+                <TouchableOpacity
+                  style={styles.paperPlaneBtn}
+                  onPress={handleShare}
+                >
+                  <View style={styles.iconCircle}>
+                    <Ionicons
+                      name="paper-plane-outline"
+                      size={20}
+                      color="white"
+                    />
+                  </View>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                style={styles.closeAction}
+                onPress={() => setModalVisible(false)}
+              >
+                <AppText style={styles.closeText}>CLOSE ▲</AppText>
+              </TouchableOpacity>
+            </Animated.View>
+          </Pressable>
+        </Modal>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 

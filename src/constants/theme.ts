@@ -13,10 +13,10 @@ export const Colours = {
   lavender: "#4A4A63",
 
   // Tab bars
-  tabBarBg: "#F4EEFF",
-  lavenderActive: "#FFFFFF",
+  tabBarBg: "#F9F0FF",
+  lavenderActive: "#4A4A63",
   lavenderInactive: "#A3A3C2",
-  // tabBarBorder: "#4A4A63",
+  // tabBarBorder: "#4A4A63",#4A4A63
 
   // Text Colours
   primaryText: "#111111",
@@ -35,9 +35,9 @@ export const Colours = {
   // States & Status
   active: "#333333",
   error: "#FF3B30",
-  favourite: "#FF4D4D",
-  favouriteBackground: "rgba(255, 77, 77, 0.03)",
-  favouriteBorder: "rgba(255, 77, 77, 0.3)",
+  favourite: "#FF4D4D", //#FF4D4D
+  favouriteBackground: "rgba(74, 74, 99, 0.05)", // "rgba(255, 77, 77, 0.03)",
+  favouriteBorder: "#4A4A63", //"rgba(255, 77, 77, 0.3)",
 
   // Transparency (Overlay 등)
   overlay: "rgba(0,0,0,0.6)",
