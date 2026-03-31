@@ -1,17 +1,17 @@
-import { Colours } from "@/src/constants/Theme";
+import { Colours, Radius } from "@/src/constants/Theme";
 import { StyleSheet } from "react-native";
-
+import { modalStyles } from "./modalStyles";
 export const styles = StyleSheet.create({
   modalOverlay: {
-    flex: 1,
-    backgroundColor: Colours.overlay,
-    justifyContent: "flex-end", // bottom to top
+    ...modalStyles.fullScreenOverlay,
+    justifyContent: "flex-end",
+    alignItems: "stretch",
   },
   modalSheet: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    height: "85%",
+    backgroundColor: Colours.background,
+    borderTopLeftRadius: Radius.medium,
+    borderTopRightRadius: Radius.medium,
+    height: "80%",
     overflow: "hidden",
     paddingTop: 10,
   },
@@ -35,17 +35,16 @@ export const styles = StyleSheet.create({
     width: 140,
     height: 140,
     backgroundColor: "#fff",
-    borderRadius: 70, // 원형
+    borderRadius: 70, // circle
     justifyContent: "center",
     alignItems: "center",
     padding: 15,
-    borderWidth: 1,
-    borderColor: "#f5f5f5",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+    ...modalStyles.modalBorder,
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 4 },
+    // shadowOpacity: 0.05,
+    // shadowRadius: 10,
+    // elevation: 3,
   },
   perfumeImage: { width: "100%", height: "100%" },
   noImage: {
@@ -61,16 +60,13 @@ export const styles = StyleSheet.create({
     gap: 5,
   },
   brandText: {
-    fontSize: 13,
-    color: Colours.secondaryText,
-    textTransform: "uppercase",
-    letterSpacing: 1.5,
-    fontWeight: "600",
+    ...modalStyles.modalItemDetailBrand,
+    textAlign: "center",
+    marginBottom: 5,
   },
   nameText: {
+    ...modalStyles.modalItemDetailName,
     fontSize: 22,
-    fontWeight: "800",
-    color: Colours.primaryText,
     textAlign: "center",
   },
   statusContainer: {
@@ -96,7 +92,11 @@ export const styles = StyleSheet.create({
     backgroundColor: Colours.lavender,
     borderColor: "#111",
   },
-  btnText: { fontSize: 14, color: Colours.primaryText, fontWeight: "600" },
+  btnText: {
+    fontSize: 14,
+    color: modalStyles.modalText.color,
+    fontWeight: "600",
+  },
   btnTextActive: { color: Colours.white },
 
   deleteBtn: {
@@ -119,7 +119,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: Colours.primaryText,
+    color: modalStyles.modalText.color,
     marginBottom: 20,
   },
   accordRow: {

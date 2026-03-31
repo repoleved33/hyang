@@ -2,6 +2,12 @@ import { Colours } from "@/src/constants/Theme";
 import { StyleSheet } from "react-native";
 
 export const modalStyles = StyleSheet.create({
+  fullScreenOverlay: {
+    flex: 1,
+    backgroundColor: Colours.overlay,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   modalBackground: {
     flex: 1,
     backgroundColor: Colours.modalBackground,
@@ -10,11 +16,10 @@ export const modalStyles = StyleSheet.create({
     padding: 24,
   },
   modalContainer: {
-    backgroundColor: Colours.background,
+    backgroundColor: Colours.modalBackground,
     width: "100%",
     maxHeight: "80%",
     padding: 24,
-
     elevation: 5,
     gap: 12,
   },
@@ -44,12 +49,21 @@ export const modalStyles = StyleSheet.create({
     letterSpacing: 1,
     textTransform: "uppercase",
   },
-  modalText: { color: Colours.primaryText },
-
+  modalText: {
+    color: Colours.primaryText,
+  },
   modalsearchItem: {
     paddingVertical: 10,
     paddingHorizontal: 10,
     // borderBottomWidth: 1,
     // borderBottomColor: Colours.border,
+  },
+  modalBorder: {
+    borderWidth: 1,
+    borderColor: Colours.border,
+  },
+  modalBottomBorder: {
+    borderBottomWidth: 0.5,
+    borderBottomColor: Colours.border,
   },
 });

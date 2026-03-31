@@ -1,6 +1,6 @@
 import { Btn, Colours, Input } from "@/src/constants/Theme";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
-import { modalStyles } from "@/src/styles/modalStyles";
+// import { modalStyles } from "@/src/styles/modalStyles";
 import { styles } from "@/src/styles/SearchPerfumeModal.styles";
 import { Perfume } from "@/src/types/perfume";
 import React, { useEffect, useState } from "react";
@@ -135,9 +135,9 @@ export default function SearchPerfumeModal({
       onRequestClose={handleClose}
     >
       <TouchableWithoutFeedback onPress={handleClose}>
-        <View style={styles.fullScreenOverlay}>
+        <View style={styles.modalOverlay}>
           <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-            <View style={modalStyles.modalContainer}>
+            <View style={styles.modalContainer}>
               <TextInput
                 style={[
                   Input.searchInput,
@@ -201,12 +201,8 @@ export default function SearchPerfumeModal({
                   >
                     {/* LEFT - name / brand */}
                     <View style={{ flex: 1 }}>
-                      <AppText style={modalStyles.modalItemSearchName}>
-                        {item.name}
-                      </AppText>
-                      <AppText style={modalStyles.modalItemSearchBrand}>
-                        {item.brand}
-                      </AppText>
+                      <AppText style={styles.itemName}>{item.name}</AppText>
+                      <AppText style={styles.itemBrand}>{item.brand}</AppText>
                     </View>
 
                     {/* RIGHT - isMy:true? */}
@@ -220,7 +216,7 @@ export default function SearchPerfumeModal({
               />
 
               <TouchableOpacity style={Btn.closeBtn} onPress={handleClose}>
-                <AppText style={modalStyles.modalText}>CLOSE</AppText>
+                <AppText style={styles.closeText}>CLOSE</AppText>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
