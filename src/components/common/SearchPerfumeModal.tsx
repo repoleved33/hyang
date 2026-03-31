@@ -1,24 +1,26 @@
-import { Btn, Colours, Input } from "@/src/constants/theme";
+import { Btn, Colours, Input } from "@/src/constants/Theme";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
 import { modalStyles } from "@/src/styles/modalStyles";
+import { styles } from "@/src/styles/SearchPerfumeModal.styles";
 import { Perfume } from "@/src/types/perfume";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   Modal,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { AppText } from "./AppText";
+
 interface perfumeSearchModalProps {
   visible: boolean;
   onClose: () => void;
   excludeIds?: string[];
   onSelect: (perfume: Perfume) => void;
+  isLogScreen?: boolean;
 }
 
 export default function SearchPerfumeModal({
@@ -26,30 +28,74 @@ export default function SearchPerfumeModal({
   onClose,
   excludeIds = [],
   onSelect,
+  isLogScreen = false,
 }: perfumeSearchModalProps) {
+  const { searchPerfumes, myPerfumes } = useMyPerfume();
+
   const [searchKeyword, setSearchKeyword] = useState("");
   const [searchResults, setSearchResults] = useState<Perfume[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
-  const { searchPerfumes } = useMyPerfume();
+  // init
+  useEffect(() => {
+    if (visible && isLogScreen && myPerfumes.length > 0) {
+      const initialList = myPerfumes
+        .filter((p) => !p.isFavourite)
+        .slice(0, 5)
+        .map((p) => ({ ...p.details, isMy: true }));
+
+      setSearchResults(initialList as any[]);
+    } else if (visible) {
+      setSearchResults([]);
+    }
+  }, [visible, isLogScreen, myPerfumes]);
 
   const handleSearchUpdate = async (text: string) => {
     setSearchKeyword(text);
 
+    // no search words
     if (!text.trim()) {
-      setSearchResults([]);
+      if (isLogScreen) {
+        const shelfNotFav = myPerfumes
+          .filter((p) => !p.isFavourite)
+          .map((p) => ({ ...p.details, isMy: true })) as any[];
+
+        setSearchResults(shelfNotFav);
+      } else {
+        setSearchResults([]);
+      }
       setLoading(false);
       return;
     }
 
+    // with search words
     setLoading(true);
     try {
       const results = await searchPerfumes(text);
-      const filtered = results.filter(
+      let filtered: any[] = results.filter(
         (p: Perfume) => !excludeIds?.includes(p.perfId || ""),
       );
+      // Scent Log - top 5: insert my shelf perfumes(except favs)
+      if (isLogScreen) {
+        const shelfNotFav = myPerfumes
+          .filter(
+            (p) =>
+              !p.isFavourite &&
+              (p.details?.name?.toLowerCase().includes(text.toLowerCase()) ||
+                p.details?.brand?.toLowerCase().includes(text.toLowerCase())) &&
+              !excludeIds.includes(p.perfId),
+          )
+          .map((p) => ({ ...p.details, isMy: true }));
+
+        filtered = [
+          ...shelfNotFav,
+          ...filtered.filter(
+            (r) => !shelfNotFav.some((l) => l.perfId === r.perfId),
+          ),
+        ];
+      }
       setSearchResults(filtered);
       setPage(0);
       setHasMore(true);
@@ -141,15 +187,20 @@ export default function SearchPerfumeModal({
                     </View>
                   ) : null
                 }
-                renderItem={({ item }) => (
+                renderItem={({
+                  item,
+                }: {
+                  item: Perfume & { isMy?: boolean };
+                }) => (
                   <TouchableOpacity
-                    style={modalStyles.modalsearchItem}
+                    style={styles.itemContainer}
                     onPress={() => {
                       onSelect(item);
                       handleClose();
                     }}
                   >
-                    <View>
+                    {/* LEFT - name / brand */}
+                    <View style={{ flex: 1 }}>
                       <AppText style={modalStyles.modalItemSearchName}>
                         {item.name}
                       </AppText>
@@ -157,6 +208,13 @@ export default function SearchPerfumeModal({
                         {item.brand}
                       </AppText>
                     </View>
+
+                    {/* RIGHT - isMy:true? */}
+                    {item.isMy && (
+                      <View style={styles.myBadge}>
+                        <AppText style={styles.myBadgeText}>MY</AppText>
+                      </View>
+                    )}
                   </TouchableOpacity>
                 )}
               />
@@ -171,12 +229,3 @@ export default function SearchPerfumeModal({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  fullScreenOverlay: {
-    flex: 1,
-    backgroundColor: Colours.overlay,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});

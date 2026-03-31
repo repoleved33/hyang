@@ -1,5 +1,5 @@
 import PerfumeCard from "@/src/components/common/PerfumeCard";
-import { Colours } from "@/src/constants/theme";
+import { Colours } from "@/src/constants/Theme";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
 import { styles } from "@/src/styles/myFavListModal.styles";
 import { Ionicons } from "@expo/vector-icons";
@@ -58,7 +58,7 @@ export default function MyFavListModal({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <Pressable style={styles.overlay} onPress={onClose}>
+      <Pressable style={styles.modalOverlay} onPress={onClose}>
         <View
           style={styles.modalContent}
           onStartShouldSetResponder={() => true}

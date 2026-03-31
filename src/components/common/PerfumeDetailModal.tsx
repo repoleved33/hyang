@@ -1,4 +1,4 @@
-import { Colours } from "@/src/constants/theme";
+import { Colours } from "@/src/constants/Theme";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
 import { styles } from "@/src/styles/PerfumeDetailModal.styles";
 import { ACCORD_META } from "@/src/types/perfume";

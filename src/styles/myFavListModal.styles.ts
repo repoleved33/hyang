@@ -1,14 +1,13 @@
-import { Colours, Radius } from "@/src/constants/theme";
+import { Colours, Radius } from "@/src/constants/Theme";
 import { Dimensions, StyleSheet } from "react-native";
-
+import { modalStyles } from "./modalStyles";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: Colours.overlay || "rgba(0,0,0,0.8)",
-    justifyContent: "center",
-    alignItems: "center",
+  modalOverlay: {
+    ...modalStyles.modalBackground,
+    justifyContent: "flex-end",
+    padding: 0,
   },
   modalContent: {
     width: SCREEN_WIDTH * 0.9,

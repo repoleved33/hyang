@@ -1,4 +1,4 @@
-import { Colours } from "@/src/constants/theme";
+import { Colours } from "@/src/constants/Theme";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 

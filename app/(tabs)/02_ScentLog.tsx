@@ -1,5 +1,5 @@
 import MyFavListModal from "@/src/components/common/MyFavListModal";
-import { Months } from "@/src/constants/theme";
+import { Months } from "@/src/constants/Theme";
 import { useScentLog } from "@/src/context/ScentLogContext";
 import { ScentLog } from "@/src/types/scentLog";
 import React, { useMemo, useState } from "react";
@@ -18,7 +18,6 @@ import { useMyPerfume } from "@/src/context/MyPerfumeContext";
 import { styles } from "@/src/styles/02_ScentLog.styles";
 import { headerStyles } from "@/src/styles/commonHeader.styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 interface ScentLogItem {
   id: string;
   day: number;
@@ -295,6 +294,7 @@ export default function ScentLogScreen() {
         excludeIds={favIds}
         onSelect={(perfume) => handleSelectPerfume(perfume)}
         onClose={() => setSearchModalVisible(false)}
+        isLogScreen={true}
       />
     </View>
   );

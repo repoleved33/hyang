@@ -1,4 +1,4 @@
-import { Colours, Radius } from "@/src/constants/theme";
+import { Colours, Radius } from "@/src/constants/Theme";
 import { StyleSheet } from "react-native";
 
 export const headerStyles = StyleSheet.create({

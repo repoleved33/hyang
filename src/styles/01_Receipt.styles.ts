@@ -1,4 +1,4 @@
-import { Colours, Radius } from "@/src/constants/theme";
+import { Colours, Radius } from "@/src/constants/Theme";
 import { Dimensions, StyleSheet } from "react-native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");

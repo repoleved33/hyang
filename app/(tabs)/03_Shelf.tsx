@@ -1,5 +1,5 @@
 import { AppText } from "@/src/components/common/AppText";
-import { Colours } from "@/src/constants/theme";
+import { Colours } from "@/src/constants/Theme";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
@@ -113,6 +113,7 @@ export default function ShelfScreen() {
           excludeIds={myPerfumes.map((p) => p.perfId)}
           onSelect={handleSelectPerfume}
           onClose={() => setSearchModalVisible(false)}
+          isLogScreen={false}
         />
       </View>
 

@@ -1,3 +1,4 @@
+import { MAX_FAVOURITES, MAX_SHELF_SIZE } from "@/src/constants/Config";
 import { supabase } from "@/src/lib/supabase";
 import { MyPerfumeWithDetail, Perfume } from "@/src/types/perfume";
 import * as SQLite from "expo-sqlite";
@@ -8,7 +9,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-
+import { Alert } from "react-native";
 // connect SQLite
 const db = SQLite.openDatabaseSync("hyang_myperfume.db");
 
@@ -85,6 +86,21 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
 
     console.log(`💾 [SQLite] Add attempt: ${perfume.name}`);
     try {
+      const countRow = await db.getFirstAsync<any>(
+        "SELECT COUNT(*) as count FROM my_perfumes",
+      );
+      const currentCount = countRow?.count || 0;
+      // limit: MAX_SHELF_SIZE
+      if (currentCount >= MAX_SHELF_SIZE) {
+        Alert.alert(
+          "Shelf is Full! 🧴",
+          `Your fragrance shelf is at its limit of ${MAX_SHELF_SIZE}. Remove a scent to add this new discovery.`,
+        );
+        console.log(
+          `⚠️ [SQLite] Shelf limit reached (${currentCount}/${MAX_SHELF_SIZE})`,
+        );
+        return;
+      }
       const exists = await db.getFirstAsync<any>(
         "SELECT * FROM my_perfumes WHERE perf_id = ?",
         [perfume.perfId],
@@ -126,7 +142,7 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // 5. toggle favourite (ScentLog 스타일)
+  // 5. toggle favourite
   const toggleFavourite = async (perfId: string) => {
     console.log(`🔄 [SQLite] Toggling favorite for: ${perfId}`);
     try {
@@ -137,7 +153,27 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
 
       if (!target) return;
 
-      const nextStatus = target.is_favourite === 0 ? 1 : 0;
+      const isCurrentFav = target.is_favourite === 1;
+
+      // Fav limit: MAX_FAVOURITES
+      if (!isCurrentFav) {
+        const favCountRow = await db.getFirstAsync<any>(
+          "SELECT COUNT(*) as count FROM my_perfumes WHERE is_favourite = 1",
+        );
+        const currentFavCount = favCountRow?.count || 0;
+        if (currentFavCount >= MAX_FAVOURITES) {
+          Alert.alert(
+            "Favourite Wardrobe is Full! ✨",
+            `You've reached your limit of ${MAX_FAVOURITES} favourites. Give one a rest to make room for a new one.`,
+          );
+          console.log(
+            `⚠️ [SQLite] Favourite limit reached (Max: ${MAX_FAVOURITES})`,
+          );
+          return;
+        }
+      }
+      const nextStatus = isCurrentFav ? 0 : 1;
+
       await db.runAsync(
         "UPDATE my_perfumes SET is_favourite = ? WHERE perf_id = ?",
         [nextStatus, perfId],
