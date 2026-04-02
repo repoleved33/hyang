@@ -132,7 +132,7 @@ export default function ReceiptScreen() {
           style={styles.receiptContainer}
         >
           <ImageBackground
-            source={require("@/assets/images/receiptBG.png")}
+            source={require("@/assets/images/receipt-bg.png")}
             style={styles.backgroundImage}
             resizeMode="cover"
           >
