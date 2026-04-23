@@ -11,8 +11,8 @@ export const usePerfumeActions = () => {
     onAfterRemove?: () => void,
   ) => {
     Alert.alert(
-      `say goodbye to '${perfumeName.toUpperCase()}'?`,
-      `This perfume is ready to leave if you are. 🥹"`,
+      `Say Goodbye to...`,
+      `${perfumeName.toUpperCase()} 🥹`,
       [
         { text: "Not yet", style: "cancel" },
         {

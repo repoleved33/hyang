@@ -95,6 +95,11 @@ export const styles = StyleSheet.create({
   footerSection: {
     marginTop: 0,
   },
+  footerContent: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    gap: "10",
+  },
   footerInfo: {
     marginVertical: 8,
     alignItems: "flex-start",
@@ -118,7 +123,28 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     opacity: 0.9,
+    marginTop: 20, // 위 섹션과 간격
+    marginBottom: 10,
+    textAlign: "center",
   },
+  inputSection: {
+    width: SCREEN_WIDTH * 0.8,
+    gap: 10,
+    marginBottom: 10,
+  },
+  receiptInput: {
+    backgroundColor: "#1a1a1a", // 어두운 배경에 맞는 컬러
+    color: Colours.whiteText,
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderRadius: Radius.small,
+    borderWidth: 1,
+    borderColor: "#333",
+    fontSize: 13,
+    fontWeight: "600",
+    letterSpacing: 1,
+  },
+
   buttonRow: {
     flexDirection: "row",
     gap: 15,

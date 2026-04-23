@@ -11,6 +11,7 @@ import {
   ImageBackground,
   Modal,
   Pressable,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -110,6 +111,9 @@ export default function ReceiptScreen() {
     </View>
   );
 
+  const [cardHolder, setCardHolder] = useState("");
+  const [customNumber, setCustomNumber] = useState("");
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -145,12 +149,15 @@ export default function ReceiptScreen() {
                   </AppText>
                   <View style={styles.headerInfo}>
                     <AppText style={styles.receiptText}>
-                      INVOICE NO: #0001
+                      INVOICE NO: {customNumber || "#0001"}
                     </AppText>
                     <AppText style={styles.receiptText}>
-                      DATE: {new Date().toDateString().toUpperCase()}
+                      DATE:{" "}
+                      {`${new Date().getDate().toString().padStart(2, "0")}-${(new Date().getMonth() + 1).toString().padStart(2, "0")}-${new Date().getFullYear()}`}
                     </AppText>
-                    <AppText style={styles.receiptText}>CASHER: </AppText>
+                    <AppText style={styles.receiptText}>
+                      CASHER: OUROLDPLACE
+                    </AppText>
                   </View>
                 </View>
                 <DashedLine />
@@ -186,28 +193,31 @@ export default function ReceiptScreen() {
 
                 <View style={styles.footerSection}>
                   <DashedLine />
-                  <View style={styles.rowHeader}>
+                  <View style={styles.footerContent}>
                     <AppText style={styles.receiptText}>TOTAL SCENTS:</AppText>
                     <AppText style={styles.receiptText}>
                       {topTenPerfumes.length}
                     </AppText>
                   </View>
-                  <View style={styles.rowHeader}>
+                  {/* <View style={styles.rowHeader}>
                     <AppText style={styles.receiptText}>TOTAL SPRAYS:</AppText>
                     <AppText style={styles.receiptText}>
                       {totalScentCnt}
                     </AppText>
-                  </View>
+                  </View> */}
                   <DashedLine />
 
                   <View style={styles.footerInfo}>
                     <AppText style={styles.receiptText}>
-                      CARD #: **** **** **** {new Date().getFullYear()}
+                      CARD #: **** **** ****{" "}
+                      {customNumber || new Date().getFullYear()}
                     </AppText>
                     <AppText style={styles.receiptText}>
                       AUTH CODE: {Math.floor(1000 + Math.random() * 9000)}
                     </AppText>
-                    <AppText style={styles.receiptText}>CARDHOLDER:</AppText>
+                    <AppText style={styles.receiptText}>
+                      CARDHOLDER: {cardHolder || "GUEST"}
+                    </AppText>
                   </View>
                   <AppText style={styles.receiptTextThanks}>
                     THANKS FOR YOUR SPRAY
@@ -260,6 +270,28 @@ export default function ReceiptScreen() {
                 <AppText style={styles.buttonText}>LAST WEEK</AppText>
               </TouchableOpacity>
             </View>
+
+            <AppText style={styles.dropdownTitle}>RECEIPT INFO</AppText>
+            <View style={styles.inputSection}>
+              <TextInput
+                style={styles.receiptInput}
+                placeholder="CARD HOLDER"
+                placeholderTextColor="#666"
+                value={cardHolder}
+                onChangeText={setCardHolder}
+                maxLength={15}
+              />
+              <TextInput
+                style={styles.receiptInput}
+                placeholder="CARD NUMBER (e.g. 1234)"
+                placeholderTextColor="#666"
+                value={customNumber}
+                onChangeText={setCustomNumber}
+                keyboardType="numeric"
+                maxLength={19}
+              />
+            </View>
+
             <View style={styles.shareActionRow}>
               <TouchableOpacity
                 style={styles.paperPlaneBtn}
