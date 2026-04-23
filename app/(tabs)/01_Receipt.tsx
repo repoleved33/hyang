@@ -1,6 +1,7 @@
 import { AppText } from "@/src/components/common/AppText";
 import { Colours, Input } from "@/src/constants/Theme";
 import { useScentLog } from "@/src/context/ScentLogContext";
+import { useUser } from "@/src/context/UserContext";
 import { styles } from "@/src/styles/01_Receipt.styles";
 import { Ionicons } from "@expo/vector-icons";
 import * as Sharing from "expo-sharing";
@@ -20,6 +21,8 @@ import { captureRef } from "react-native-view-shot";
 
 export default function ReceiptScreen() {
   const { scentLogs } = useScentLog();
+  const { userInfo, updateUserInfo } = useUser();
+
   const receiptRef = useRef<View>(null);
   const [period, setPeriod] = useState<7 | 30>(30);
   const [modalVisible, setModalVisible] = useState(false);
@@ -112,9 +115,6 @@ export default function ReceiptScreen() {
     </View>
   );
 
-  const [cardHolder, setCardHolder] = useState("");
-  const [customNumber, setCustomNumber] = useState("");
-
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -150,7 +150,7 @@ export default function ReceiptScreen() {
                   </AppText>
                   <View style={styles.headerInfo}>
                     <AppText style={styles.receiptText}>
-                      INVOICE NO: {customNumber || "#0001"}
+                      INVOICE NO: {userInfo?.customCode || "#0001"}
                     </AppText>
                     <AppText style={styles.receiptText}>
                       DATE:{" "}
@@ -210,14 +210,13 @@ export default function ReceiptScreen() {
 
                   <View style={styles.footerInfo}>
                     <AppText style={styles.receiptText}>
-                      CARD #: **** **** ****{" "}
-                      {customNumber || new Date().getFullYear()}
+                      CARD #: **** **** **** {userInfo?.customCode || "0000"}
                     </AppText>
                     <AppText style={styles.receiptText}>
-                      AUTH CODE: {Math.floor(1000 + Math.random() * 9000)}
+                      AUTH CODE: {userInfo?.authCode || "000000"}
                     </AppText>
                     <AppText style={styles.receiptText}>
-                      CARDHOLDER: {cardHolder || "GUEST"}
+                      CARDHOLDER: {userInfo?.cardholderName || "GUEST"}
                     </AppText>
                   </View>
                   <AppText style={styles.receiptTextThanks}>
@@ -286,9 +285,13 @@ export default function ReceiptScreen() {
                   },
                 ]}
                 placeholder="CARD HOLDER"
-                value={cardHolder}
-                onChangeText={setCardHolder}
+                // placeholderTextColor="#666"
+                value={userInfo?.cardholderName}
+                onChangeText={(text) =>
+                  updateUserInfo({ cardholderName: text })
+                }
                 maxLength={15}
+                autoCapitalize="characters"
               />
               <TextInput
                 style={[
@@ -302,10 +305,11 @@ export default function ReceiptScreen() {
                   },
                 ]}
                 placeholder="CUSTOM NUMBER (e.g. 1234)"
-                value={customNumber}
-                onChangeText={setCustomNumber}
+                // placeholderTextColor="#666"
+                value={userInfo?.customCode}
+                onChangeText={(text) => updateUserInfo({ customCode: text })}
                 keyboardType="numeric"
-                maxLength={19}
+                maxLength={4}
               />
             </View>
 

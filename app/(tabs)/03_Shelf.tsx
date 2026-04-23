@@ -1,7 +1,9 @@
 import { AppText } from "@/src/components/common/AppText";
 import { Colours } from "@/src/constants/Theme";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
-import { Ionicons } from "@expo/vector-icons";
+
+import { useUser } from "@/src/context/UserContext";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -16,10 +18,18 @@ import SearchPerfumeModal from "@/src/components/common/SearchPerfumeModal";
 import { usePerfumeActions } from "@/src/hooks/usePerfumehooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import UserSettingModal from "@/src/components/common/UserSettingModal";
 import { styles } from "@/src/styles/03_Shelf.styles";
 import { headerStyles } from "@/src/styles/commonHeader.styles";
-
 export default function ShelfScreen() {
+  const { userInfo } = useUser(); // 전역 정보 가져오기
+  const [userModalVisible, setUserModalVisible] = useState(false);
+
+  // screen title
+  const shelfTitle = userInfo?.userName
+    ? `${userInfo.userName.toUpperCase()}'S SHELF`
+    : "MY SHELF";
+
   const insets = useSafeAreaInsets();
   const [numColumns, setNumColumns] = useState(1);
 
@@ -69,8 +79,21 @@ export default function ShelfScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={headerStyles.header}>
-        {/* HEADER LEFT - title */}
-        <AppText style={headerStyles.headerTitle}>MY SHELF</AppText>
+        {/* HEADER LEFT - Dynamic Title & Icon */}
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <AppText style={headerStyles.headerTitle}>{shelfTitle}</AppText>
+          <TouchableOpacity onPress={() => setUserModalVisible(true)}>
+            <FontAwesome5
+              name="id-card"
+              size={16}
+              color={Colours.primaryText}
+            />
+          </TouchableOpacity>
+        </View>
+        <UserSettingModal
+          visible={userModalVisible}
+          onClose={() => setUserModalVisible(false)}
+        />
 
         {/* HEADER RIGHT - show toggle / +(search) btn */}
         <View style={headerStyles.headerActionRow}>

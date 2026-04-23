@@ -1,5 +1,6 @@
 import { MyPerfumeProvider } from "@/src/context/MyPerfumeContext";
 import { ScentLogProvider } from "@/src/context/ScentLogContext";
+import { UserProvider } from "@/src/context/UserContext";
 import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -15,22 +16,27 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <MyPerfumeProvider>
-        <ScentLogProvider>
-          <View style={{ flex: 1, backgroundColor: "#111111" }}>
-            {/* 💡 android background */}
-            {Platform.OS === "android" && (
-              <RNStatusBar backgroundColor="#111111" barStyle="light-content" />
-            )}
-            <StatusBar
-              style="light"
-              translucent={false}
-              backgroundColor="#111111"
-            />
-            <Slot />
-          </View>
-        </ScentLogProvider>
-      </MyPerfumeProvider>
+      <UserProvider>
+        <MyPerfumeProvider>
+          <ScentLogProvider>
+            <View style={{ flex: 1, backgroundColor: "#111111" }}>
+              {/* 💡 android background */}
+              {Platform.OS === "android" && (
+                <RNStatusBar
+                  backgroundColor="#111111"
+                  barStyle="light-content"
+                />
+              )}
+              <StatusBar
+                style="light"
+                translucent={false}
+                backgroundColor="#111111"
+              />
+              <Slot />
+            </View>
+          </ScentLogProvider>
+        </MyPerfumeProvider>
+      </UserProvider>
     </SafeAreaProvider>
   );
 }
