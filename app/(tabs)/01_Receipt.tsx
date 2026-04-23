@@ -87,16 +87,23 @@ export default function ReceiptScreen() {
           quality: 0.8,
         });
 
-        console.log("📸 Capture Success:", uri);
-        Alert.alert("📸 Capture Success!");
-
         const isAvailable = await Sharing.isAvailableAsync();
+
         if (isAvailable && uri) {
           await Sharing.shareAsync(uri, {
             mimeType: "image/png",
             dialogTitle: "Share your Hyang Receipt",
-            UTI: "public.png", // for iOS stability
+            UTI: "public.png",
           });
+
+          // after closing share popup
+          setTimeout(() => {
+            Alert.alert(
+              "RECEIPT GENERATED",
+              "Returning to the app. Check your gallery if you saved the receipt! ✨",
+              [{ text: "OK", onPress: () => console.log("Popup closed") }],
+            );
+          }, 300);
         } else {
           Alert.alert("Error", "Sharing is not available on this device.");
         }
