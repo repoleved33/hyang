@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
     width: 140,
     height: 140,
     backgroundColor: "#fff",
-    borderRadius: 70, // circle
+    // borderRadius: 70, // circle
     justifyContent: "center",
     alignItems: "center",
     padding: 15,
@@ -83,7 +83,7 @@ export const styles = StyleSheet.create({
     borderColor: "#ddd",
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 30,
+    borderRadius: Radius.large,
     gap: 10,
     minWidth: 160,
     justifyContent: "center",

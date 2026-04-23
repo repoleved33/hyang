@@ -18,7 +18,7 @@ export default function RootLayout() {
       <MyPerfumeProvider>
         <ScentLogProvider>
           <View style={{ flex: 1, backgroundColor: "#111111" }}>
-            {/* 💡 안드로이드 전용 강제 배경색 설정 */}
+            {/* 💡 android background */}
             {Platform.OS === "android" && (
               <RNStatusBar backgroundColor="#111111" barStyle="light-content" />
             )}

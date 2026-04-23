@@ -91,14 +91,6 @@ export default function ShelfScreen() {
 
           {/* right */}
           <View style={{ flexDirection: "row", alignItems: "center", gap: 15 }}>
-            {/* btn - option1 */}
-            <TouchableOpacity
-              onPress={handleOpenSearch}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="add" size={26} color={Colours.primaryText} />
-            </TouchableOpacity>
-            {/* btn - option2 */}
             <TouchableOpacity
               style={headerStyles.headerInlineAddBtn}
               onPress={handleOpenSearch}

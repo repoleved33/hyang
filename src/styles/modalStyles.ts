@@ -1,4 +1,4 @@
-import { Colours } from "@/src/constants/Theme";
+import { Colours, Radius } from "@/src/constants/Theme";
 import { StyleSheet } from "react-native";
 
 export const modalStyles = StyleSheet.create({
@@ -61,6 +61,7 @@ export const modalStyles = StyleSheet.create({
   modalBorder: {
     borderWidth: 1,
     borderColor: Colours.border,
+    borderRadius: Radius.medium,
   },
   modalBottomBorder: {
     borderBottomWidth: 0.5,

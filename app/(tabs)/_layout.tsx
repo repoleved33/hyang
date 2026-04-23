@@ -1,5 +1,6 @@
 import { Colours } from "@/src/constants/Theme";
 import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Tabs } from "expo-router";
 
 export default function TabsLayout() {
@@ -54,7 +55,11 @@ export default function TabsLayout() {
         options={{
           title: "SHELF",
           tabBarIcon: ({ color }) => (
-            <Ionicons name="layers" size={22} color={color} />
+            <MaterialCommunityIcons
+              name="folder-heart"
+              size={22}
+              color={color}
+            />
           ),
         }}
       />

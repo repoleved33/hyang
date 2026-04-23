@@ -27,7 +27,7 @@ export const Colours = {
   // Components
   border: "#5C5470",
   cardBackground: "#FFFFFF",
-  floatingBtn: "#111111",
+  floatingBtn: "#3d3542",
 
   // Modal
   modalBg: "",

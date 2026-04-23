@@ -8,11 +8,9 @@ export const styles = StyleSheet.create({
     ...modalStyles.fullScreenOverlay,
   },
   modalContent: {
-    // ...modalStyles.modalContainer,
     ...modalStyles.modalBorder,
     width: SCREEN_WIDTH * 0.9,
     backgroundColor: Colours.modalBackground,
-    borderRadius: Radius.medium,
     paddingBottom: 10,
   },
   header: {
