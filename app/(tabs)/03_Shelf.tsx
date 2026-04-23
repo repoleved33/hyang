@@ -84,8 +84,8 @@ export default function ShelfScreen() {
           <AppText style={headerStyles.headerTitle}>{shelfTitle}</AppText>
           <TouchableOpacity onPress={() => setUserModalVisible(true)}>
             <FontAwesome5
-              name="id-card"
-              size={16}
+              name="id-card-alt"
+              size={20}
               color={Colours.primaryText}
             />
           </TouchableOpacity>

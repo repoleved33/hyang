@@ -282,10 +282,10 @@ export default function ReceiptScreen() {
                     borderColor: Colours.white,
                     paddingHorizontal: 15,
                     backgroundColor: Colours.transparentBlack,
+                    color: Colours.whiteText,
                   },
                 ]}
                 placeholder="CARD HOLDER"
-                // placeholderTextColor="#666"
                 value={userInfo?.cardholderName}
                 onChangeText={(text) =>
                   updateUserInfo({ cardholderName: text })
@@ -302,10 +302,10 @@ export default function ReceiptScreen() {
                     borderColor: Colours.white,
                     paddingHorizontal: 15,
                     backgroundColor: Colours.transparentBlack,
+                    color: Colours.whiteText,
                   },
                 ]}
                 placeholder="CUSTOM NUMBER (e.g. 1234)"
-                // placeholderTextColor="#666"
                 value={userInfo?.customCode}
                 onChangeText={(text) => updateUserInfo({ customCode: text })}
                 keyboardType="numeric"

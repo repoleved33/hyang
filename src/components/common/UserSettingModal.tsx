@@ -1,5 +1,6 @@
+import { Colours, Input } from "@/src/constants/Theme";
 import { useUser } from "@/src/context/UserContext";
-import { styles } from "@/src/styles/UserSettingModal.styles"; // 별도 스타일 파일 추천
+import { styles } from "@/src/styles/UserSettingModal.styles";
 import React, { useEffect, useState } from "react";
 import {
   Keyboard,
@@ -22,12 +23,10 @@ export default function UserSettingModal({
 }: UserSettingModalProps) {
   const { userInfo, updateUserInfo } = useUser();
 
-  // 내부 수정을 위한 임시 상태
   const [tempName, setTempName] = useState("");
   const [tempCode, setTempCode] = useState("");
   const [tempHolder, setTempHolder] = useState("");
 
-  // 모달이 열릴 때 현재 유저 정보로 초기화
   useEffect(() => {
     if (visible && userInfo) {
       setTempName(userInfo.userName || "");
@@ -45,6 +44,19 @@ export default function UserSettingModal({
     onClose();
   };
 
+  const commonInputStyle = [
+    Input.searchInput,
+    {
+      borderRadius: 15,
+      borderWidth: 1,
+      borderColor: Colours.white,
+      paddingHorizontal: 15,
+      backgroundColor: Colours.transparentBlack,
+      marginTop: 8,
+      height: 45,
+    },
+  ];
+
   return (
     <Modal
       visible={visible}
@@ -57,16 +69,11 @@ export default function UserSettingModal({
           <View style={styles.container}>
             <AppText style={styles.title}>USER PROFILE</AppText>
 
-            {/* Read-only Auth Code Section */}
-            <View style={styles.authSection}>
-              <AppText style={styles.label}>SPECIAL AUTH CODE</AppText>
-              <AppText style={styles.authValue}>{userInfo?.authCode}</AppText>
-            </View>
-
+            {/* SHELF NAME */}
             <View style={styles.inputGroup}>
               <AppText style={styles.inputLabel}>SHELF NAME</AppText>
               <TextInput
-                style={styles.input}
+                style={commonInputStyle}
                 value={tempName}
                 onChangeText={setTempName}
                 placeholder="ENTER USER NAME"
@@ -75,10 +82,11 @@ export default function UserSettingModal({
               />
             </View>
 
+            {/* RECEIPT CARD HOLDER */}
             <View style={styles.inputGroup}>
               <AppText style={styles.inputLabel}>RECEIPT CARD HOLDER</AppText>
               <TextInput
-                style={styles.input}
+                style={commonInputStyle}
                 value={tempHolder}
                 onChangeText={setTempHolder}
                 placeholder="CARD HOLDER NAME"
@@ -87,15 +95,17 @@ export default function UserSettingModal({
               />
             </View>
 
+            {/* CUSTOM CODE */}
             <View style={styles.inputGroup}>
               <AppText style={styles.inputLabel}>CUSTOM CODE</AppText>
               <TextInput
-                style={styles.input}
+                style={commonInputStyle}
                 value={tempCode}
                 onChangeText={setTempCode}
                 placeholder="4-DIGIT CODE"
                 placeholderTextColor="#666"
                 keyboardType="numeric"
+                maxLength={4}
               />
             </View>
 
