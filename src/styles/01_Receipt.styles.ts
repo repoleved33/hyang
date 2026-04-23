@@ -133,7 +133,7 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
   receiptInput: {
-    backgroundColor: "#1a1a1a", // 어두운 배경에 맞는 컬러
+    backgroundColor: "#1a1a1a",
     color: Colours.whiteText,
     paddingVertical: 12,
     paddingHorizontal: 15,
@@ -219,17 +219,7 @@ export const styles = StyleSheet.create({
     color: Colours.primaryText,
     width: 25,
   },
-  receiptTextItem: {
-    fontSize: 10,
-    color: Colours.primaryText,
-    flex: 1,
-  },
-  receiptTextFreq: {
-    fontSize: 10,
-    color: Colours.primaryText,
-    width: 30,
-    textAlign: "right",
-  },
+
   receiptTextCenter: {
     fontSize: 10,
     color: Colours.primaryText,

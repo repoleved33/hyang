@@ -1,4 +1,5 @@
 import { AppText } from "@/src/components/common/AppText";
+import { Colours, Input } from "@/src/constants/Theme";
 import { useScentLog } from "@/src/context/ScentLogContext";
 import { styles } from "@/src/styles/01_Receipt.styles";
 import { Ionicons } from "@expo/vector-icons";
@@ -274,17 +275,33 @@ export default function ReceiptScreen() {
             <AppText style={styles.dropdownTitle}>RECEIPT INFO</AppText>
             <View style={styles.inputSection}>
               <TextInput
-                style={styles.receiptInput}
+                style={[
+                  Input.searchInput,
+                  {
+                    borderRadius: 15,
+                    borderWidth: 1,
+                    borderColor: Colours.white,
+                    paddingHorizontal: 15,
+                    backgroundColor: Colours.transparentBlack,
+                  },
+                ]}
                 placeholder="CARD HOLDER"
-                placeholderTextColor="#666"
                 value={cardHolder}
                 onChangeText={setCardHolder}
                 maxLength={15}
               />
               <TextInput
-                style={styles.receiptInput}
-                placeholder="CARD NUMBER (e.g. 1234)"
-                placeholderTextColor="#666"
+                style={[
+                  Input.searchInput,
+                  {
+                    borderRadius: 15,
+                    borderWidth: 1,
+                    borderColor: Colours.white,
+                    paddingHorizontal: 15,
+                    backgroundColor: Colours.transparentBlack,
+                  },
+                ]}
+                placeholder="CUSTOM NUMBER (e.g. 1234)"
                 value={customNumber}
                 onChangeText={setCustomNumber}
                 keyboardType="numeric"
