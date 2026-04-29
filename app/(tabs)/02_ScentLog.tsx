@@ -244,7 +244,7 @@ export default function ScentLogScreen() {
           ))}
         </View>
       </View>
-      {/* [TEST] */}
+      {/* [TEST]
       <View style={styles.testFrame}>
         <View style={styles.testLabelContainer}>
           <AppText style={styles.testLabelText}>TEST MODE</AppText>
@@ -265,7 +265,7 @@ export default function ScentLogScreen() {
             <AppText style={styles.testButtonText}>Delete all</AppText>
           </TouchableOpacity>
         </View>
-      </View>
+      </View> */}
 
       <MyFavListModal
         visible={favModalVisible}
