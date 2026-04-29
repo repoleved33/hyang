@@ -1,5 +1,4 @@
 import { AppText } from "@/src/components/common/AppText";
-import { Colours, Input } from "@/src/constants/Theme";
 import { useScentLog } from "@/src/context/ScentLogContext";
 import { useUser } from "@/src/context/UserContext";
 import { styles } from "@/src/styles/01_Receipt.styles";
@@ -13,7 +12,6 @@ import {
   ImageBackground,
   Modal,
   Pressable,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -278,7 +276,7 @@ export default function ReceiptScreen() {
               </TouchableOpacity>
             </View>
 
-            <AppText style={styles.dropdownTitle}>RECEIPT INFO</AppText>
+            {/* <AppText style={styles.dropdownTitle}>RECEIPT INFO</AppText>
             <View style={styles.inputSection}>
               <TextInput
                 style={[
@@ -318,7 +316,7 @@ export default function ReceiptScreen() {
                 keyboardType="numeric"
                 maxLength={4}
               />
-            </View>
+            </View> */}
 
             <View style={styles.shareActionRow}>
               <TouchableOpacity

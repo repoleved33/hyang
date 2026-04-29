@@ -5,7 +5,6 @@ const db = SQLite.openDatabaseSync("hyang.db");
 
 // 1. Define User Info Interface
 interface UserInfo {
-  userName: string;
   customCode: string;
   cardholderName: string;
   authCode: string; // Primary Key
@@ -31,7 +30,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         await db.execAsync(`
           CREATE TABLE IF NOT EXISTS user_info (
             auth_code TEXT PRIMARY KEY,
-            user_name TEXT,
             custom_code TEXT,
             cardholder_name TEXT
           );
@@ -44,14 +42,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (result) {
           const loadedUser = {
-            userName: result.user_name,
             customCode: result.custom_code,
             cardholderName: result.cardholder_name,
             authCode: result.auth_code,
           };
           setUserInfo(loadedUser);
           console.log(
-            `✅ [UserContext] User loaded: ${loadedUser.userName} (${loadedUser.authCode})`,
+            `✅ [UserContext] User loaded: ${loadedUser.cardholderName} (${loadedUser.authCode})`,
           );
         } else {
           console.log(
@@ -69,10 +66,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           };
 
           await db.runAsync(
-            "INSERT INTO user_info (auth_code, user_name, custom_code, cardholder_name) VALUES (?, ?, ?, ?);",
+            "INSERT INTO user_info (auth_code, custom_code, cardholder_name) VALUES (?, ?, ?, ?);",
             [
               guestUser.authCode,
-              guestUser.userName,
               guestUser.customCode,
               guestUser.cardholderName,
             ],
@@ -101,16 +97,10 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await db.runAsync(
         `UPDATE user_info SET 
-          user_name = ?, 
           custom_code = ?, 
           cardholder_name = ? 
         WHERE auth_code = ?;`,
-        [
-          updated.userName,
-          updated.customCode,
-          updated.cardholderName,
-          updated.authCode,
-        ],
+        [updated.customCode, updated.cardholderName, updated.authCode],
       );
       setUserInfo(updated);
       console.log(

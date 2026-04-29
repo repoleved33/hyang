@@ -22,12 +22,12 @@ import UserSettingModal from "@/src/components/common/UserSettingModal";
 import { styles } from "@/src/styles/03_Shelf.styles";
 import { headerStyles } from "@/src/styles/commonHeader.styles";
 export default function ShelfScreen() {
-  const { userInfo } = useUser(); // 전역 정보 가져오기
+  const { userInfo } = useUser();
   const [userModalVisible, setUserModalVisible] = useState(false);
 
   // screen title
-  const shelfTitle = userInfo?.userName
-    ? `${userInfo.userName.toUpperCase()}'S SHELF`
+  const shelfTitle = userInfo?.cardholderName
+    ? `${userInfo.cardholderName.toUpperCase()}'S SHELF`
     : "MY SHELF";
 
   const insets = useSafeAreaInsets();
@@ -80,7 +80,7 @@ export default function ShelfScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={headerStyles.header}>
         {/* HEADER LEFT - Dynamic Title & Icon */}
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 20 }}>
           <AppText style={headerStyles.headerTitle}>{shelfTitle}</AppText>
           <TouchableOpacity onPress={() => setUserModalVisible(true)}>
             <FontAwesome5
