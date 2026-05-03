@@ -19,7 +19,7 @@
         "READ_MEDIA_IMAGES"
       ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon-adaptive.png",
+        "foregroundImage": "./assets/images/icon-adaptive.png",
         "backgroundColor": "##FEF9FF"
       },
       // "adaptiveIcon": {
