@@ -8,12 +8,14 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.8)",
   },
   container: {
-    width: "60%",
+    width: "65%",
+    alignSelf: "center",
     height: 280,
     backgroundColor: "#E6E6E6",
     borderRadius: 14,
     flexDirection: "row",
     overflow: "hidden",
+    position: "relative",
   },
 
   charcoalVerticalStripe: {
@@ -21,17 +23,22 @@ export const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: Colours.black,
     marginLeft: 25,
+    marginRight: 25,
   },
 
   content: {
     flex: 1,
+    width: "100%",
     paddingVertical: 18,
     paddingHorizontal: 15,
+    justifyContent: "space-between",
+    alignItems: "stretch",
+    marginRight: 0,
   },
   cardBrand: {
     fontSize: 8,
     fontWeight: "900",
-    color: "#AAA", // 더 흐리게 해서 은은하게 각인된 느낌
+    color: "#AAA",
     textAlign: "right",
     letterSpacing: 1,
   },
@@ -40,9 +47,12 @@ export const styles = StyleSheet.create({
     justifyContent: "flex-end",
     marginBottom: 12,
     gap: 4,
+    width: "100%",
+    alignItems: "stretch",
   },
   inputGroup: {
     marginBottom: 0,
+    width: "100%",
   },
   infoLabel: {
     fontSize: 8,
@@ -56,6 +66,8 @@ export const styles = StyleSheet.create({
     ...Input.searchInput,
     backgroundColor: Colours.white,
     height: 28,
+    width: "100%",
+    alignItems: "stretch",
     justifyContent: "center",
     paddingHorizontal: 0,
     paddingVertical: 0,
@@ -66,6 +78,7 @@ export const styles = StyleSheet.create({
   sharedTextInput: {
     ...Input.searchInput,
     flex: 1,
+    width: "100%",
     height: "100%", // cursor
     borderWidth: 0,
     marginBottom: 0,
