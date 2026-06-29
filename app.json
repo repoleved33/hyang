@@ -7,13 +7,13 @@
     "icon": "./assets/images/icon-logo.png",
     "scheme": "hyang",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.repoleved33.hyang"
+      "bundleIdentifier": "com.gwpark.hyang"
     },
     "android": {
-      "package": "com.repoleved33.hyang",
+      "package": "com.gwpark.hyang",
       "permissions": [
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
@@ -23,7 +23,7 @@
         "foregroundImage": "./assets/images/icon-adaptive.png",
         "backgroundColor": "#FEF9FF"
       },
-      "edgeToEdgeEnabled": true,
+      "edgeToEdgeEnabled": false,
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -45,11 +45,12 @@
         }
       ],
       "expo-font",
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true,
+      "reactCompiler": false,
       "tsconfigPaths": true
     },
     "extra": {

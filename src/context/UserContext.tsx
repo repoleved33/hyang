@@ -66,7 +66,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           };
 
           await db.runAsync(
-            "INSERT INTO user_info (auth_code, custom_code, cardholder_name) VALUES (?, ?, ?, ?);",
+            "INSERT INTO user_info (auth_code, custom_code, cardholder_name) VALUES (?, ?, ?);",
             [
               guestUser.authCode,
               guestUser.customCode,
