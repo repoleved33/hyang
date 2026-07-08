@@ -16,7 +16,7 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const db = SQLite.openDatabaseSync("hyang.db");
+  const db = SQLite.useSQLiteContext();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 

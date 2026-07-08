@@ -18,7 +18,7 @@ const ScentLogContext = createContext<ScentLogContextType | undefined>(
 export const ScentLogProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const db = SQLite.openDatabaseSync("hyang_scentlogs.db");
+  const db = SQLite.useSQLiteContext();
   const [scentLogs, setScentLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -80,10 +80,6 @@ export const ScentLogProvider: React.FC<{ children: React.ReactNode }> = ({
       );
 
       const detailsStr = perfumeDetails ? JSON.stringify(perfumeDetails) : null;
-      console.log(
-        "💾 [SQLite] Upsert data: \n",
-        JSON.stringify(perfumeDetails, null, 2),
-      );
 
       if (existing) {
         console.log(`🔄 [SQLite] Updating existing log (idx: ${existing.idx})`);
