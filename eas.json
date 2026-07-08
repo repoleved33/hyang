@@ -19,9 +19,12 @@
     },
     "production": {
       "autoIncrement": true,
-      "prebuildCommand": "npx expo prebuild --platform ios",
       "ios": {
+        "buildConfiguration": "Release",
         "cocoapods": "1.16.2"
+      },
+      "env": {
+        "EXPO_NO_CAPABILITY_SYNC": "1"
       }
     }
   },
