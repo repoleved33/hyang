@@ -19,6 +19,7 @@
     },
     "production": {
       "autoIncrement": true,
+      "prebuildCommand": "npx expo prebuild --platform ios",
       "ios": {
         "cocoapods": "1.16.2"
       }
