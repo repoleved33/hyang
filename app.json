@@ -9,8 +9,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.gwpark.hyang"
+      "supportsTablet": false,
+      "bundleIdentifier": "com.gwpark.hyang",
+      "requireFullScreen": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIRequiresFullScreen": true,
+        "UISupportedInterfaceOrientations~ipad": []
+      }
     },
     "android": {
       "package": "com.gwpark.hyang",

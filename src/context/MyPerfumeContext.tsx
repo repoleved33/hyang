@@ -10,8 +10,6 @@ import React, {
   useState,
 } from "react";
 import { Alert } from "react-native";
-// connect SQLite
-const db = SQLite.openDatabaseSync("hyang_myperfume.db");
 
 type MyPerfumeContextType = {
   myPerfumes: MyPerfumeWithDetail[];
@@ -28,10 +26,10 @@ const MyPerfumeContext = createContext<MyPerfumeContextType | undefined>(
 );
 
 export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
+  const db = SQLite.openDatabaseSync("hyang_myperfume.db");
   const [myPerfumes, setMyPerfumes] = useState<MyPerfumeWithDetail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. init
   useEffect(() => {
     const initDB = async () => {
       console.log("📂 [SQLite] Initializing My Perfume Data ...");
@@ -59,7 +57,6 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
     initDB();
   }, []);
 
-  // 2. search / fetch
   const selectMyPerfumes = async () => {
     try {
       const allRows = await db.getAllAsync<any>(
@@ -80,7 +77,6 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // 3. insert to my perfume shelf
   const addMyPerfume = async (perfume: Perfume) => {
     if (!perfume || !perfume.perfId) return;
 
@@ -90,7 +86,7 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
         "SELECT COUNT(*) as count FROM my_perfumes",
       );
       const currentCount = countRow?.count || 0;
-      // limit: MAX_SHELF_SIZE
+
       if (currentCount >= MAX_SHELF_SIZE) {
         Alert.alert(
           "Shelf is Full! 🧴",
@@ -101,6 +97,7 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
         );
         return;
       }
+
       const exists = await db.getFirstAsync<any>(
         "SELECT * FROM my_perfumes WHERE perf_id = ?",
         [perfume.perfId],
@@ -124,7 +121,6 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // 4. delete from my perfume shelf
   const toggleHave = async (perfId: string) => {
     console.log(`🗑️ [SQLite] Delete attempt: ${perfId}`);
     try {
@@ -142,7 +138,6 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // 5. toggle favourite
   const toggleFavourite = async (perfId: string) => {
     console.log(`🔄 [SQLite] Toggling favorite for: ${perfId}`);
     try {
@@ -155,7 +150,6 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
 
       const isCurrentFav = target.is_favourite === 1;
 
-      // Fav limit: MAX_FAVOURITES
       if (!isCurrentFav) {
         const favCountRow = await db.getFirstAsync<any>(
           "SELECT COUNT(*) as count FROM my_perfumes WHERE is_favourite = 1",
@@ -172,6 +166,7 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
       }
+
       const nextStatus = isCurrentFav ? 0 : 1;
 
       await db.runAsync(
@@ -186,15 +181,13 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // 6. search from Supabase (with pagination)
   const searchPerfumes = async (
     keyword: string,
     page: number = 0,
   ): Promise<Perfume[]> => {
     if (keyword.trim().length < 1) return [];
 
-    // scroll limit
-    const PAGE_SIZE = 50; // at once
+    const PAGE_SIZE = 50;
     const from = page * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
@@ -203,7 +196,6 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
       .from("main_perfume_list")
       .select("*")
       .or(`name.ilike.%${keyword}%,brand.ilike.%${keyword}%`)
-      // .limit(50);
       .range(from, to);
 
     if (error) {

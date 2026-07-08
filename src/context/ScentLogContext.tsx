@@ -2,9 +2,6 @@ import { ScentLog } from "@/src/types/scentLog";
 import * as SQLite from "expo-sqlite";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-// connect SQLite
-const db = SQLite.openDatabaseSync("hyang_scentlogs.db");
-
 interface ScentLogContextType {
   scentLogs: any[];
   clearAllLogs: () => Promise<void>;
@@ -21,10 +18,10 @@ const ScentLogContext = createContext<ScentLogContextType | undefined>(
 export const ScentLogProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const db = SQLite.openDatabaseSync("hyang_scentlogs.db");
   const [scentLogs, setScentLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. init
   useEffect(() => {
     const initDB = async () => {
       console.log("📂 [SQLite] Resetting Scent logs Data ...");
@@ -55,14 +52,12 @@ export const ScentLogProvider: React.FC<{ children: React.ReactNode }> = ({
     initDB();
   }, []);
 
-  // 2. search / fetch
   const selectLogs = async () => {
     try {
       const allRows = await db.getAllAsync<any>(
         "SELECT * FROM scent_logs ORDER BY date DESC, orderIdx ASC",
       );
 
-      // details_json -> details
       const formattedRows = allRows.map((row) => ({
         ...row,
         details: row.details_json ? JSON.parse(row.details_json) : null,
@@ -74,7 +69,6 @@ export const ScentLogProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // 3. insert & update
   const upsertScentLog = async (logData: ScentLog, perfumeDetails?: any) => {
     console.log(
       `💾 [SQLite] Upsert attempt: ${logData.date}, Slot #: ${logData.orderIdx}`,
@@ -85,7 +79,6 @@ export const ScentLogProvider: React.FC<{ children: React.ReactNode }> = ({
         [logData.date, logData.orderIdx],
       );
 
-      // json -> str
       const detailsStr = perfumeDetails ? JSON.stringify(perfumeDetails) : null;
       console.log(
         "💾 [SQLite] Upsert data: \n",
@@ -117,7 +110,6 @@ export const ScentLogProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // 4. delete specific log
   const deleteScentLog = async (idx: number) => {
     try {
       const result = await db.runAsync("DELETE FROM scent_logs WHERE idx = ?", [
@@ -132,7 +124,6 @@ export const ScentLogProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // 5. [test] clear all scent logs
   const clearAllLogs = async () => {
     try {
       await db.runAsync("DELETE FROM scent_logs");

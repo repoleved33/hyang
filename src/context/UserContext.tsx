@@ -1,13 +1,10 @@
 import * as SQLite from "expo-sqlite";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-const db = SQLite.openDatabaseSync("hyang.db");
-
-// 1. Define User Info Interface
 interface UserInfo {
   customCode: string;
   cardholderName: string;
-  authCode: string; // Primary Key
+  authCode: string;
 }
 
 interface UserContextType {
@@ -19,10 +16,10 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
+  const db = SQLite.openDatabaseSync("hyang.db");
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 2. Initialize and Load Data
   useEffect(() => {
     const initUser = async () => {
       console.log("📂 [UserContext] Initializing 'user_info' table...");
@@ -35,7 +32,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           );
         `);
 
-        // Fetch the first user (assuming single user for local app)
         const result: any = await db.getFirstAsync(
           "SELECT * FROM user_info LIMIT 1;",
         );
@@ -54,17 +50,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           console.log(
             "ℹ️ [UserContext] No user found. Creating initial guest profile...",
           );
-          // Create initial record with a random auth_code if empty
           const initialCode = Math.floor(
             100000 + Math.random() * 900000,
           ).toString();
           const guestUser = {
-            userName: "GUEST",
             customCode: "0000",
             cardholderName: "HYANG",
             authCode: initialCode,
           };
-
           await db.runAsync(
             "INSERT INTO user_info (auth_code, custom_code, cardholder_name) VALUES (?, ?, ?);",
             [
@@ -84,16 +77,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setIsLoading(false);
       }
     };
+
     initUser();
   }, []);
 
-  // 3. Update User Info (Partial Update)
   const updateUserInfo = async (newData: Partial<UserInfo>) => {
     if (!userInfo) return;
-
     const updated = { ...userInfo, ...newData };
     console.log("🔄 [UserContext] Updating User Info in SQLite...");
-
     try {
       await db.runAsync(
         `UPDATE user_info SET 
