@@ -219,7 +219,13 @@ export const styles = StyleSheet.create({
     color: Colours.primaryText,
     width: 25,
   },
-
+  barcodeImage: {
+    width: "100%",
+    height: 40,
+    alignSelf: "center",
+    marginTop: 8,
+    marginBottom: 4,
+  },
   receiptTextCenter: {
     fontSize: 10,
     color: Colours.primaryText,

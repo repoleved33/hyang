@@ -9,6 +9,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
   Animated,
+  Image,
   ImageBackground,
   Modal,
   Pressable,
@@ -225,11 +226,13 @@ export default function ReceiptScreen() {
                     </AppText>
                   </View>
                   <AppText style={styles.receiptTextThanks}>
-                    THANKS FOR YOUR SPRAY
+                    THANKS FOR YOUR SPRAY!
                   </AppText>
-                  <AppText style={styles.receiptTextCenter}>
-                    [BARCODE IMAGE]
-                  </AppText>
+                  <Image
+                    source={require("@/assets/images/barcode_transparent.png")}
+                    style={styles.barcodeImage}
+                    resizeMode="contain"
+                  />
                   <AppText style={styles.receiptTextCenter}>HYANG 2026</AppText>
                 </View>
               </View>
