@@ -221,12 +221,21 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
   ): Promise<Perfume[]> => {
     if (!keyword.trim()) return [];
 
+    // 1. 순수 알파벳/숫자만 남긴 키워드
+    const cleanKeyword = keyword.replace(/[^a-zA-Z0-9]/g, "");
+    if (!cleanKeyword) return [];
+
+    // 2. 입력된 검색어 자체를 다루는 패턴
+    // 단어 내부의 공백이나 특수문자 자리에만 %를 허용하는 방식
+    const exactLike = `%${cleanKeyword}%`; // 일반 ilike (%papier%)
+
     const PAGE_SIZE = 50;
 
+    // 정확히 papier가 포함된 항목을 우선 검색
     const { data, error } = await supabase
       .from("main_perfume_list")
       .select("*")
-      .or(`name.ilike.%${keyword}%,brand.ilike.%${keyword}%`)
+      .or(`name.ilike.${exactLike},brand.ilike.${exactLike}`)
       .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
 
     if (error) {
