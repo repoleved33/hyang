@@ -1,6 +1,7 @@
 import { Colours, Radius } from "@/src/constants/Theme";
 import { StyleSheet } from "react-native";
 import { modalStyles } from "./modalStyles";
+
 export const styles = StyleSheet.create({
   modalOverlay: {
     ...modalStyles.fullScreenOverlay,
@@ -11,69 +12,70 @@ export const styles = StyleSheet.create({
     backgroundColor: Colours.background,
     borderTopLeftRadius: Radius.medium,
     borderTopRightRadius: Radius.medium,
-    height: "80%",
-    overflow: "hidden",
-    paddingTop: 10,
+    maxHeight: "85%",
+    paddingTop: 12,
+    width: "100%",
+    position: "relative",
   },
   handleBar: {
-    width: 50,
-    height: 6,
-    backgroundColor: "#f0f0f0",
+    width: 40,
+    height: 5,
+    backgroundColor: "#e0e0e0",
     borderRadius: 3,
     alignSelf: "center",
-    marginBottom: 20,
+    marginBottom: 10,
   },
-  scrollContent: {
+  listContainer: {
     paddingHorizontal: 25,
-    paddingBottom: 60,
+    paddingBottom: 40,
+  },
+  headerWrapper: {
+    paddingTop: 10,
   },
   headerSection: {
     alignItems: "center",
-    marginBottom: 25,
+    marginBottom: 20,
   },
   imageContainer: {
-    width: 140,
-    height: 140,
+    width: 130,
+    height: 130,
     backgroundColor: "#fff",
-    // borderRadius: 70, // circle
     justifyContent: "center",
     alignItems: "center",
-    padding: 15,
+    padding: 12,
     ...modalStyles.modalBorder,
-    // shadowColor: "#000",
-    // shadowOffset: { width: 0, height: 4 },
-    // shadowOpacity: 0.05,
-    // shadowRadius: 10,
-    // elevation: 3,
   },
-  perfumeImage: { width: "100%", height: "100%" },
+  perfumeImage: {
+    width: "100%",
+    height: "100%",
+  },
   noImage: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
     justifyContent: "center",
     alignItems: "center",
   },
 
   infoContainer: {
     alignItems: "center",
-    marginTop: 20,
-    gap: 5,
+    marginTop: 16,
+    gap: 4,
   },
   brandText: {
     ...modalStyles.modalItemDetailBrand,
     textAlign: "center",
-    marginBottom: 5,
   },
   nameText: {
     ...modalStyles.modalItemDetailName,
-    fontSize: 22,
+    fontSize: 20,
     textAlign: "center",
   },
   statusContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    gap: 15,
-    marginBottom: 35,
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 28,
   },
   favouriteBtn: {
     flexDirection: "row",
@@ -81,11 +83,11 @@ export const styles = StyleSheet.create({
     backgroundColor: "transparent",
     borderWidth: 1,
     borderColor: "#ddd",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
     borderRadius: Radius.large,
-    gap: 10,
-    minWidth: 160,
+    gap: 8,
+    minWidth: 150,
     justifyContent: "center",
   },
   favouriteBtnActive: {
@@ -97,14 +99,17 @@ export const styles = StyleSheet.create({
     color: modalStyles.modalText.color,
     fontWeight: "600",
   },
-  btnTextActive: { color: Colours.white },
+  btnTextActive: {
+    color: Colours.white,
+  },
 
   deleteBtn: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
     justifyContent: "center",
-    paddingHorizontal: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   deleteBtnText: {
     fontSize: 13,
@@ -112,60 +117,57 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // Graph
-  accordsSection: {
-    marginBottom: 20,
+  // Accords Section
+  accordsTitleSection: {
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
     color: modalStyles.modalText.color,
-    marginBottom: 20,
   },
   accordRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 14,
   },
   accordLabelColumn: {
-    width: 90,
+    width: 95,
     marginRight: 10,
   },
   accordLabel: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
     color: Colours.secondaryText,
     textTransform: "capitalize",
-    marginBottom: 2,
-  },
-  accordValue: {
-    fontSize: 11,
-    color: Colours.secondaryText,
   },
   accordBarBackground: {
-    flex: 1, // rest
-    height: 10,
+    flex: 1,
+    height: 8,
     backgroundColor: "#F0F0F0",
-    borderRadius: 5,
-    overflow: "hidden", // 내부 바 잘리게
+    borderRadius: 4,
+    overflow: "hidden",
   },
   accordBarFill: {
     height: "100%",
-    borderRadius: 5,
+    borderRadius: 4,
   },
   emptyAccords: {
-    padding: 40,
+    padding: 30,
     alignItems: "center",
     backgroundColor: "#f9f9f9",
-    borderRadius: 15,
+    borderRadius: 12,
   },
-  emptyText: { fontSize: 14, color: Colours.secondaryText },
+  emptyText: {
+    fontSize: 14,
+    color: Colours.secondaryText,
+  },
 
   closeBtn: {
     position: "absolute",
-    top: 20,
+    top: 16,
     right: 20,
     zIndex: 100,
-    padding: 5,
+    padding: 6,
   },
 });
