@@ -3,6 +3,8 @@ export type ScentLog = {
   userId: string;
   date: string;
   perfId: string;
+  name: string;
+  brand: string;
   orderIdx: number;
-  details?: any; //parsed object from details_json
+  // details?: any; //parsed object from details_json
 };

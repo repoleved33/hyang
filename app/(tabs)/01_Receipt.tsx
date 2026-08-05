@@ -16,11 +16,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
 import { captureRef } from "react-native-view-shot";
 
 export default function ReceiptScreen() {
   const { scentLogs } = useScentLog();
-  const { userInfo, updateUserInfo } = useUser();
+  const { userInfo } = useUser();
 
   const receiptRef = useRef<View>(null);
   const [period, setPeriod] = useState<7 | 30>(30);
@@ -36,7 +37,6 @@ export default function ReceiptScreen() {
       useNativeDriver: true,
     }).start();
   };
-
   useEffect(() => {
     toggleMenu(modalVisible);
   }, [modalVisible]);
@@ -51,11 +51,22 @@ export default function ReceiptScreen() {
       return logDate >= startDate && logDate <= endDate;
     });
 
-    const logDataMap: { [key: string]: { count: number; details: any } } = {};
+    const logDataMap: {
+      [key: string]: {
+        count: number;
+        name: string;
+        brand: string;
+      };
+    } = {};
     filteredLogs.forEach((log) => {
       if (!logDataMap[log.perfId]) {
-        logDataMap[log.perfId] = { count: 0, details: log.details };
+        logDataMap[log.perfId] = {
+          count: 0,
+          name: log.name,
+          brand: log.brand,
+        };
       }
+
       logDataMap[log.perfId].count += 1;
     });
 
@@ -63,17 +74,17 @@ export default function ReceiptScreen() {
       .map(([perfId, data]) => ({
         perfId,
         count: data.count,
-        name: data.details?.name || "Unknown Scent",
-        brand: data.details?.brand || "Unknown Brand",
+        name: data.name,
+        brand: data.brand,
       }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
   }, [scentLogs, period]);
 
-  const totalScentCnt = topTenPerfumes.reduce(
-    (acc, curr) => acc + curr.count,
-    0,
-  );
+  // const totalScentCnt = topTenPerfumes.reduce(
+  //   (acc, curr) => acc + curr.count,
+  //   0,
+  // );
 
   const handleShare = async () => {
     setModalVisible(false);

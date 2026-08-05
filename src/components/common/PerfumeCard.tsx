@@ -37,7 +37,7 @@ export default function PerfumeCard({ perfume, width, isFavourite }: Props) {
               {perfume.brand || "UNKNOWN"}
             </AppText>
             <AppText style={styles.nameText} numberOfLines={2}>
-              {perfume.name || "SCENT"}
+              {perfume.name || "UNKOWN"}
             </AppText>
           </View>
         )}

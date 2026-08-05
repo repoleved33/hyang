@@ -1,4 +1,5 @@
 import { MAX_FAVOURITES, MAX_SHELF_SIZE } from "@/src/constants/Config";
+import { useUser } from "@/src/context/UserContext";
 import { supabase } from "@/src/lib/supabase";
 import { MyPerfumeWithDetail, Perfume } from "@/src/types/perfume";
 import * as SQLite from "expo-sqlite";
@@ -27,28 +28,25 @@ const MyPerfumeContext = createContext<MyPerfumeContextType | undefined>(
 
 export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
   const db = SQLite.useSQLiteContext();
+  const { userInfo } = useUser();
+
   const [myPerfumes, setMyPerfumes] = useState<MyPerfumeWithDetail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const initDB = async () => {
-      console.log("📂 [SQLite] Initializing My Perfume Data ...");
-      setIsLoading(true);
-
       try {
         await db.execAsync(`
           CREATE TABLE IF NOT EXISTS my_perfumes (
             perf_id TEXT PRIMARY KEY NOT NULL,
             is_favourite INTEGER DEFAULT 0,
-            added_at INTEGER,
-            details_json TEXT
+            added_at INTEGER
           );
         `);
 
         await selectMyPerfumes();
-        console.log("✅ [SQLite] My Perfumes initialized.");
       } catch (error) {
-        console.error("❌ [SQLite] Init failed:", error);
+        console.error("❌ SQLite Init error:", error);
       } finally {
         setIsLoading(false);
       }
@@ -58,120 +56,162 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const selectMyPerfumes = async () => {
+    console.log("🔥 selectMyPerfumes called");
+
     try {
-      const allRows = await db.getAllAsync<any>(
-        "SELECT * FROM my_perfumes ORDER BY added_at DESC",
+      const rows = await db.getAllAsync<any>(
+        `
+        SELECT *
+        FROM my_perfumes
+        ORDER BY added_at DESC
+        `,
       );
 
-      const formattedData: MyPerfumeWithDetail[] = allRows.map((row) => ({
-        userId: "u001",
-        perfId: row.perf_id,
-        isFavourite: row.is_favourite === 1,
-        addedAt: row.added_at,
-        details: row.details_json ? JSON.parse(row.details_json) : null,
-      }));
+      if (rows.length === 0) {
+        setMyPerfumes([]);
+        return;
+      }
 
-      setMyPerfumes(formattedData);
+      const ids = rows.map((row) => row.perf_id);
+
+      const { data, error } = await supabase
+        .from("main_perfume_list")
+        .select("*")
+        .in("perf_id", ids);
+
+      if (error) throw error;
+
+      const result = rows.map((row) => {
+        const detail = data?.find((item) => item.perf_id === row.perf_id);
+
+        return {
+          userId: userInfo?.authCode ?? "",
+          perfId: row.perf_id,
+          isFavourite: row.is_favourite === 1,
+          addedAt: row.added_at,
+
+          // master DB에서 삭제된 데이터 여부
+          isDeleted: !detail,
+
+          details: detail
+            ? {
+                ...detail,
+                perfId: detail.perf_id,
+              }
+            : null,
+        };
+      });
+
+      setMyPerfumes(result as MyPerfumeWithDetail[]);
     } catch (error) {
-      console.error("❌ [SQLite] Select error:", error);
+      console.error("❌ Select My Perfume error:", error);
     }
   };
 
   const addMyPerfume = async (perfume: Perfume) => {
-    if (!perfume || !perfume.perfId) return;
+    if (!perfume?.perfId) return;
 
-    console.log(`💾 [SQLite] Add attempt: ${perfume.name}`);
     try {
-      const countRow = await db.getFirstAsync<any>(
-        "SELECT COUNT(*) as count FROM my_perfumes",
+      const count = await db.getFirstAsync<any>(
+        `
+        SELECT COUNT(*) as count
+        FROM my_perfumes
+        `,
       );
-      const currentCount = countRow?.count || 0;
 
-      if (currentCount >= MAX_SHELF_SIZE) {
-        Alert.alert(
-          "Shelf is Full! 🧴",
-          `Your fragrance shelf is at its limit of ${MAX_SHELF_SIZE}. Remove a scent to add this new discovery.`,
-        );
+      if ((count?.count ?? 0) >= MAX_SHELF_SIZE) {
+        Alert.alert("Shelf is Full!");
         return;
       }
 
       const exists = await db.getFirstAsync<any>(
-        "SELECT * FROM my_perfumes WHERE perf_id = ?",
+        `
+        SELECT *
+        FROM my_perfumes
+        WHERE perf_id = ?
+        `,
         [perfume.perfId],
       );
 
-      if (exists) {
-        console.log(`ℹ️ [SQLite] '${perfume.name}' already exists.`);
-        return;
-      }
+      if (exists) return;
 
-      const addedAt = Date.now();
       await db.runAsync(
-        "INSERT INTO my_perfumes (perf_id, is_favourite, added_at, details_json) VALUES (?, ?, ?, ?)",
-        [perfume.perfId, 0, addedAt, JSON.stringify(perfume)],
+        `
+        INSERT INTO my_perfumes
+        (
+          perf_id,
+          is_favourite,
+          added_at
+        )
+        VALUES (?, ?, ?)
+        `,
+        [perfume.perfId, 0, Date.now()],
       );
 
-      console.log(`✨ [SQLite] Saved: ${perfume.name}`);
       await selectMyPerfumes();
     } catch (error) {
-      console.error("❌ [SQLite] Add error:", error);
+      console.error("❌ Add error:", error);
     }
   };
 
   const toggleHave = async (perfId: string) => {
-    console.log(`🗑️ [SQLite] Delete attempt: ${perfId}`);
     try {
-      const result = await db.runAsync(
-        "DELETE FROM my_perfumes WHERE perf_id = ?",
+      await db.runAsync(
+        `
+        DELETE FROM my_perfumes
+        WHERE perf_id = ?
+        `,
         [perfId],
       );
 
-      if (result.changes > 0) {
-        console.log(`✅ [SQLite] Deleted from shelf: ${perfId}`);
-        await selectMyPerfumes();
-      }
+      await selectMyPerfumes();
     } catch (error) {
-      console.error("❌ [SQLite] Delete error:", error);
+      console.error("❌ Delete error:", error);
     }
   };
 
   const toggleFavourite = async (perfId: string) => {
-    console.log(`🔄 [SQLite] Toggling favorite for: ${perfId}`);
     try {
       const target = await db.getFirstAsync<any>(
-        "SELECT is_favourite FROM my_perfumes WHERE perf_id = ?",
+        `
+        SELECT is_favourite
+        FROM my_perfumes
+        WHERE perf_id = ?
+        `,
         [perfId],
       );
 
       if (!target) return;
 
-      const isCurrentFav = target.is_favourite === 1;
+      const current = target.is_favourite === 1;
 
-      if (!isCurrentFav) {
-        const favCountRow = await db.getFirstAsync<any>(
-          "SELECT COUNT(*) as count FROM my_perfumes WHERE is_favourite = 1",
+      if (!current) {
+        const favCount = await db.getFirstAsync<any>(
+          `
+          SELECT COUNT(*) as count
+          FROM my_perfumes
+          WHERE is_favourite = 1
+          `,
         );
-        const currentFavCount = favCountRow?.count || 0;
-        if (currentFavCount >= MAX_FAVOURITES) {
-          Alert.alert(
-            "Favourite Wardrobe is Full! ✨",
-            `You've reached your limit of ${MAX_FAVOURITES} favourites.`,
-          );
+
+        if ((favCount?.count ?? 0) >= MAX_FAVOURITES) {
+          Alert.alert("Favourite limit reached");
           return;
         }
       }
 
-      const nextStatus = isCurrentFav ? 0 : 1;
-
       await db.runAsync(
-        "UPDATE my_perfumes SET is_favourite = ? WHERE perf_id = ?",
-        [nextStatus, perfId],
+        `
+        UPDATE my_perfumes
+        SET is_favourite = ?
+        WHERE perf_id = ?
+        `,
+        [current ? 0 : 1, perfId],
       );
 
-      console.log(`${nextStatus ? "❤️" : "🤍"} [SQLite] Fav status updated`);
       await selectMyPerfumes();
     } catch (error) {
-      console.error("❌ [SQLite] Toggle Fav error:", error);
+      console.error("❌ Favourite error:", error);
     }
   };
 
@@ -179,25 +219,22 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
     keyword: string,
     page: number = 0,
   ): Promise<Perfume[]> => {
-    if (keyword.trim().length < 1) return [];
+    if (!keyword.trim()) return [];
 
     const PAGE_SIZE = 50;
-    const from = page * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
 
-    console.log(`🔍 [Supabase] Searching: '${keyword}'`);
     const { data, error } = await supabase
       .from("main_perfume_list")
       .select("*")
       .or(`name.ilike.%${keyword}%,brand.ilike.%${keyword}%`)
-      .range(from, to);
+      .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
 
     if (error) {
-      console.error("❌ [Supabase] Search error:", error);
+      console.error(error);
       return [];
     }
 
-    return (data || []).map((item) => ({
+    return (data ?? []).map((item) => ({
       ...item,
       perfId: item.perf_id,
     }));
@@ -222,7 +259,10 @@ export const MyPerfumeProvider = ({ children }: { children: ReactNode }) => {
 
 export const useMyPerfume = () => {
   const context = useContext(MyPerfumeContext);
-  if (!context)
+
+  if (!context) {
     throw new Error("useMyPerfume must be used within MyPerfumeProvider");
+  }
+
   return context;
 };

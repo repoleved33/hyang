@@ -1,10 +1,9 @@
 import { AppText } from "@/src/components/common/AppText";
 import { Colours } from "@/src/constants/Theme";
 import { useMyPerfume } from "@/src/context/MyPerfumeContext";
-
 import { useUser } from "@/src/context/UserContext";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -15,55 +14,75 @@ import {
 
 import PerfumeDetailModal from "@/src/components/common/PerfumeDetailModal";
 import SearchPerfumeModal from "@/src/components/common/SearchPerfumeModal";
-import { usePerfumeActions } from "@/src/hooks/usePerfumehooks";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 import UserSettingModal from "@/src/components/common/UserSettingModal";
+
+import { usePerfumeActions } from "@/src/hooks/usePerfumehooks";
 import { styles } from "@/src/styles/03_Shelf.styles";
 import { headerStyles } from "@/src/styles/commonHeader.styles";
+
+import { useFocusEffect } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 export default function ShelfScreen() {
   const { userInfo } = useUser();
+
   const [userModalVisible, setUserModalVisible] = useState(false);
 
-  // screen title
   const shelfTitle = userInfo?.cardholderName
     ? `${userInfo.cardholderName.toUpperCase()}'S SHELF`
     : "MY SHELF";
 
   const insets = useSafeAreaInsets();
+
   const [numColumns, setNumColumns] = useState(1);
 
-  const { myPerfumes, isLoading, addMyPerfume, toggleFavourite } =
-    useMyPerfume();
-  const { confirmRemove } = usePerfumeActions();
-  const [searchModalVisible, setSearchModalVisible] = useState(false);
-  const [detailModalVisible, setDetailModalVisible] = useState(false);
-  const [selectedPerfume, setSelectedPerfume] = useState<any>(null);
+  const {
+    myPerfumes,
+    isLoading,
+    addMyPerfume,
+    toggleFavourite,
+    selectMyPerfumes,
+  } = useMyPerfume();
 
-  const handleOpenSearch = () => {
-    setSearchModalVisible(true);
-  };
+  // 화면 다시 열릴 때 최신 데이터 가져오기
+  useFocusEffect(
+    useCallback(() => {
+      selectMyPerfumes();
+    }, []),
+  );
+
+  const { confirmRemove } = usePerfumeActions();
+
+  const [searchModalVisible, setSearchModalVisible] = useState(false);
+
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+
+  const [selectedPerfume, setSelectedPerfume] = useState<any>(null);
 
   const handleSelectPerfume = async (perfume: any) => {
     await addMyPerfume(perfume);
+
     setSearchModalVisible(false);
   };
 
   const handlePressDetail = (perfume: any) => {
     setSelectedPerfume({
       ...perfume.details,
+
       perfId: perfume.perfId,
+
       isFavourite: perfume.isFavourite,
     });
+
     setDetailModalVisible(true);
   };
 
-  const sortedPerfumes = React.useMemo(() => {
+  const sortedPerfumes = useMemo(() => {
     return [...myPerfumes].sort((a, b) => {
       if (a.isFavourite !== b.isFavourite) {
         return a.isFavourite ? -1 : 1;
       }
-      // if both favourite
+
       return (b.addedAt || 0) - (a.addedAt || 0);
     });
   }, [myPerfumes]);
@@ -77,11 +96,24 @@ export default function ShelfScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          paddingTop: insets.top,
+        },
+      ]}
+    >
       <View style={headerStyles.header}>
-        {/* HEADER LEFT - Dynamic Title & Icon */}
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 20 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 20,
+          }}
+        >
           <AppText style={headerStyles.headerTitle}>{shelfTitle}</AppText>
+
           <TouchableOpacity onPress={() => setUserModalVisible(true)}>
             <FontAwesome5
               name="id-card-alt"
@@ -90,14 +122,13 @@ export default function ShelfScreen() {
             />
           </TouchableOpacity>
         </View>
+
         <UserSettingModal
           visible={userModalVisible}
           onClose={() => setUserModalVisible(false)}
         />
 
-        {/* HEADER RIGHT - show toggle / +(search) btn */}
         <View style={headerStyles.headerActionRow}>
-          {/* left - layout toggle */}
           <TouchableOpacity
             style={styles.layoutToggleButton}
             onPress={() => setNumColumns(numColumns === 1 ? 2 : 1)}
@@ -107,22 +138,20 @@ export default function ShelfScreen() {
               size={14}
               color={Colours.secondaryText}
             />
+
             <AppText style={styles.layoutToggleText}>
               {numColumns === 1 ? "SHOW 2X2" : "SHOW 1X1"}
             </AppText>
           </TouchableOpacity>
 
-          {/* right */}
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 15 }}>
-            <TouchableOpacity
-              style={headerStyles.headerInlineAddBtn}
-              onPress={handleOpenSearch}
-            >
-              <Ionicons name="add" size={20} color={Colours.whiteText} />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={headerStyles.headerInlineAddBtn}
+            onPress={() => setSearchModalVisible(true)}
+          >
+            <Ionicons name="add" size={20} color={Colours.whiteText} />
+          </TouchableOpacity>
         </View>
-        {/* Search Modal */}
+
         <SearchPerfumeModal
           visible={searchModalVisible}
           excludeIds={myPerfumes.map((p) => p.perfId)}
@@ -137,9 +166,11 @@ export default function ShelfScreen() {
           <View style={styles.emptyIconCircle}>
             <Ionicons name="flask-outline" size={60} color={Colours.dimText} />
           </View>
+
           <AppText style={styles.emptyTitle}>
             Your shelf seems Lonely...
           </AppText>
+
           <AppText style={styles.emptySub}>
             Search and add your favorite perfumes!
           </AppText>
@@ -149,13 +180,14 @@ export default function ShelfScreen() {
           data={sortedPerfumes}
           key={numColumns}
           numColumns={numColumns}
-          keyExtractor={(perfume) => perfume.perfId}
+          keyExtractor={(item) => item.perfId}
           contentContainerStyle={styles.listContent}
           columnWrapperStyle={
-            numColumns === 2 ? { justifyContent: "space-between" } : null
+            numColumns === 2 ? { justifyContent: "space-between" } : undefined
           }
           renderItem={({ item }) => {
             const isGrid = numColumns === 2;
+
             return (
               <View
                 style={[
@@ -164,20 +196,25 @@ export default function ShelfScreen() {
                   item.isFavourite && styles.cardFavourite,
                 ]}
               >
-                {/* onclick - details modal */}
                 <TouchableOpacity
                   style={[
                     styles.cardMainAction,
                     isGrid && styles.cardMainActionGrid,
                   ]}
-                  onPress={() => handlePressDetail(item)}
+                  onPress={() => {
+                    if (!item.isDeleted) {
+                      handlePressDetail(item);
+                    }
+                  }}
                 >
                   <View
                     style={[styles.imageBox, isGrid && styles.imageBoxGrid]}
                   >
-                    {item.details?.image_url ? (
+                    {item.details?.image_url && !item.isDeleted ? (
                       <Image
-                        source={{ uri: item.details.image_url }}
+                        source={{
+                          uri: item.details.image_url,
+                        }}
                         style={styles.image}
                       />
                     ) : (
@@ -188,17 +225,21 @@ export default function ShelfScreen() {
                       />
                     )}
                   </View>
+
                   <View style={[styles.infoBox, isGrid && styles.infoBoxGrid]}>
                     <AppText
                       style={[styles.brandText, isGrid && styles.brandTextGrid]}
                     >
-                      {item.details?.brand}
+                      {item.isDeleted
+                        ? "DATA UNAVAILABLE"
+                        : item.details?.brand}
                     </AppText>
+
                     <AppText
                       style={[styles.nameText, isGrid && styles.nameTextGrid]}
                       numberOfLines={2}
                     >
-                      {item.details?.name}
+                      {item.isDeleted ? "REMOVED PERFUME" : item.details?.name}
                     </AppText>
                   </View>
                 </TouchableOpacity>
@@ -207,6 +248,7 @@ export default function ShelfScreen() {
                   style={[styles.actionBox, isGrid && styles.actionBoxGrid]}
                 >
                   <TouchableOpacity
+                    // disabled={item.isDeleted}
                     onPress={() => toggleFavourite(item.perfId)}
                   >
                     <Ionicons
@@ -219,8 +261,9 @@ export default function ShelfScreen() {
                       }
                     />
                   </TouchableOpacity>
+
                   <TouchableOpacity
-                    style={!isGrid && { marginTop: 20 }}
+                    style={!isGrid ? { marginTop: 20 } : undefined}
                     onPress={() =>
                       confirmRemove(item.perfId, item.details?.name || "Scent")
                     }
@@ -237,7 +280,7 @@ export default function ShelfScreen() {
           }}
         />
       )}
-      {/* Detail Modal */}
+
       <PerfumeDetailModal
         visible={detailModalVisible}
         perfume={selectedPerfume}

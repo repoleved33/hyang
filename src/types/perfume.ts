@@ -16,6 +16,7 @@ export type MyPerfume = {
 
 export type MyPerfumeWithDetail = MyPerfume & {
   details?: Perfume;
+  isDeleted?: boolean;
 };
 
 export type PerfumeAccord = {
