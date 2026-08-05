@@ -24,7 +24,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ShelfScreen() {
-  const { userInfo } = useUser();
+  const { userInfo, updateUserInfo } = useUser();
 
   const [userModalVisible, setUserModalVisible] = useState(false);
 
@@ -34,7 +34,13 @@ export default function ShelfScreen() {
 
   const insets = useSafeAreaInsets();
 
-  const [numColumns, setNumColumns] = useState(1);
+  // UserContext의 numColumns 값을 사용 (기본값 1)
+  const numColumns = userInfo?.numColumns ?? 1;
+
+  const handleToggleLayout = () => {
+    const nextNumColumns = numColumns === 1 ? 2 : 1;
+    updateUserInfo({ numColumns: nextNumColumns });
+  };
 
   const {
     myPerfumes,
@@ -131,7 +137,7 @@ export default function ShelfScreen() {
         <View style={headerStyles.headerActionRow}>
           <TouchableOpacity
             style={styles.layoutToggleButton}
-            onPress={() => setNumColumns(numColumns === 1 ? 2 : 1)}
+            onPress={handleToggleLayout}
           >
             <Ionicons
               name={numColumns === 1 ? "grid-outline" : "list-outline"}
@@ -248,7 +254,6 @@ export default function ShelfScreen() {
                   style={[styles.actionBox, isGrid && styles.actionBoxGrid]}
                 >
                   <TouchableOpacity
-                    // disabled={item.isDeleted}
                     onPress={() => toggleFavourite(item.perfId)}
                   >
                     <Ionicons

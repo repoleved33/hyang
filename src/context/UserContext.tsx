@@ -5,6 +5,7 @@ interface UserInfo {
   customCode: string;
   cardholderName: string;
   authCode: string;
+  numColumns: number; // 레이아웃 열 수 (1: 1x1, 2: 2x2)
 }
 
 interface UserContextType {
@@ -24,27 +25,39 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const initUser = async () => {
       console.log("📂 [UserContext] Initializing 'user_info' table...");
       try {
+        // 테이블 생성 (num_columns 기본값 1)
         await db.execAsync(`
           CREATE TABLE IF NOT EXISTS user_info (
             auth_code TEXT PRIMARY KEY,
             custom_code TEXT,
-            cardholder_name TEXT
+            cardholder_name TEXT,
+            num_columns INTEGER DEFAULT 1
           );
         `);
+
+        // 기존 테이블 구조 대비 컬럼 마이그레이션
+        try {
+          await db.execAsync(`
+            ALTER TABLE user_info ADD COLUMN num_columns INTEGER DEFAULT 1;
+          `);
+        } catch (ignored) {
+          // 이미 num_columns가 존재하는 경우 발생하는 에러는 무시
+        }
 
         const result: any = await db.getFirstAsync(
           "SELECT * FROM user_info LIMIT 1;",
         );
 
         if (result) {
-          const loadedUser = {
+          const loadedUser: UserInfo = {
             customCode: result.custom_code,
             cardholderName: result.cardholder_name,
             authCode: result.auth_code,
+            numColumns: result.num_columns ?? 1,
           };
           setUserInfo(loadedUser);
           console.log(
-            `✅ [UserContext] User loaded: ${loadedUser.cardholderName} (${loadedUser.authCode})`,
+            `✅ [UserContext] User loaded: ${loadedUser.cardholderName} (${loadedUser.authCode}), numColumns: ${loadedUser.numColumns}`,
           );
         } else {
           console.log(
@@ -53,17 +66,19 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           const initialCode = Math.floor(
             100000 + Math.random() * 900000,
           ).toString();
-          const guestUser = {
+          const guestUser: UserInfo = {
             customCode: "0000",
             cardholderName: "HYANG",
             authCode: initialCode,
+            numColumns: 1,
           };
           await db.runAsync(
-            "INSERT INTO user_info (auth_code, custom_code, cardholder_name) VALUES (?, ?, ?);",
+            "INSERT INTO user_info (auth_code, custom_code, cardholder_name, num_columns) VALUES (?, ?, ?, ?);",
             [
               guestUser.authCode,
               guestUser.customCode,
               guestUser.cardholderName,
+              guestUser.numColumns,
             ],
           );
           setUserInfo(guestUser);
@@ -89,9 +104,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       await db.runAsync(
         `UPDATE user_info SET 
           custom_code = ?, 
-          cardholder_name = ? 
+          cardholder_name = ?,
+          num_columns = ? 
         WHERE auth_code = ?;`,
-        [updated.customCode, updated.cardholderName, updated.authCode],
+        [
+          updated.customCode,
+          updated.cardholderName,
+          updated.numColumns,
+          updated.authCode,
+        ],
       );
       setUserInfo(updated);
       console.log(
